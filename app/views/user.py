@@ -2,12 +2,13 @@ import json
 import bcrypt
 import jwt
 
-from app.models     import User
-from flask_classful import FlaskView, route
-from flask          import jsonify, request
-from app.config     import SECRET, ALGORITHM
-from app.utils      import JSONEncoder
-
+from app.models         import User
+from app.serializers    import UserSchema
+from flask_classful     import FlaskView, route
+from flask              import jsonify, request
+from app.config         import SECRET, ALGORITHM
+from app.utils          import JSONEncoder
+from marshmallow        import ValidationError
 
 class UserView(FlaskView):
     # 회원가입
@@ -15,12 +16,18 @@ class UserView(FlaskView):
     def signup(self):
         data = json.loads(request.data)
 
+        # Validation
+        try:
+            UserSchema().load(data)
+        except ValidationError as err:
+            return jsonify (err.messages), 422
+
         account = data['account']
         password = data['password']
 
         # account 중복 확인
         if User.objects(account=account):
-            return jsonify(message='이미 등록된 account입니다.'), 409
+            return jsonify(message='이미 등록된 ID입니다.'), 409
 
         # password_hash
         password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -31,7 +38,6 @@ class UserView(FlaskView):
                 )
         user.save()
         return '', 200
-
 
     @route('/signin', methods=['POST'])
     def post(self, user=None):
