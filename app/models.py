@@ -1,17 +1,16 @@
+import datetime
+
 from mongoengine import StringField, DateTimeField, ReferenceField, EmbeddedDocumentField, ListField
 from mongoengine import Document, EmbeddedDocument
+
 
 class User(Document):
     account = StringField(max_length=50, required=True, unique=True)
     password = StringField(max_length=100)
-    created_at = DateTimeField()
+    created_at = DateTimeField(required=True, default=datetime.datetime.now)
 
     def to_json(self):
         return {"account": self.account}
-
-class Board(Document):
-    name = StringField(max_length=50, required=True)
-    post = ListField(EmbeddedDocumentField(Post))
 
 class Tag(EmbeddedDocument):
     name = StringField(max_length=100, required=True)
@@ -28,9 +27,10 @@ class Post(EmbeddedDocument):
     title      = StringField(max_length=100)
     content    = StringField()
     created_at = DateTimeField()
-    board_name = ReferenceField(Board)
     likes      = ListField(ReferenceField(User))
     tag        = ListField(EmbeddedDocumentField(Tag))
     comment    = ListField(EmbeddedDocumentField(Comment))
 
-
+class Board(Document):
+    name = StringField(max_length=50, required=True)
+    post = ListField(EmbeddedDocumentField(Post))
