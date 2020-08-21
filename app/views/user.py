@@ -1,16 +1,24 @@
 import json
 import bcrypt
 
-from app.models     import User
-from flask_classful import FlaskView, route
-from flask          import jsonify, request
-from datetime       import datetime
+from app.models         import User
+from app.serializers    import UserSchema
+from flask_classful     import FlaskView, route
+from flask              import jsonify, request
+from datetime           import datetime
+from marshmallow        import ValidationError
 
 class UserView(FlaskView):
     # 회원가입
     @route('/signup', methods=['POST'])
     def signup(self):
         data = json.loads(request.data)
+
+        # Validation
+        try:
+            UserSchema().load(data)
+        except ValidationError as err:
+            return jsonify (err.messages), 422
 
         account = data['account']
         password = data['password']
