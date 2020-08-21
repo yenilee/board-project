@@ -11,6 +11,7 @@ class User(Document):
 
 class Board(Document):
     name = StringField(max_length=50, required=True)
+    post = ListField(EmbeddedDocumentField(Post))
 
 class Tag(EmbeddedDocument):
     name = StringField(max_length=100, required=True)
@@ -22,7 +23,7 @@ class Comment(EmbeddedDocument):
     created_at      = DateTimeField()
     replied_comment = ReferenceField('self')
 
-class Post(Document):
+class Post(EmbeddedDocument):
     author     = ReferenceField(User)
     title      = StringField(max_length=100)
     content    = StringField()
