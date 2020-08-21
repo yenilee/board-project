@@ -44,14 +44,12 @@ class UserView(FlaskView):
         data = json.loads(request.data)
         user = User.objects(account=data['account'])
 
-        if user:
-            for user in user:
-                user_password = user.password
-                user_id = json.dumps(user.id, cls=JSONEncoder)
+        if not user:
+            return jsonify(message='존재하지 않는 ID입니다.'), 401
 
-            if bcrypt.checkpw(data['password'].encode('utf-8'), user_password.encode('utf-8')):
-                token = jwt.encode({'id': user_id}, SECRET, ALGORITHM)
+        for user in user:
+            if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
+                token = jwt.encode({'id': json.dumps(user.id, cls=JSONEncoder)}, SECRET, ALGORITHM)
                 return jsonify(token.decode('utf-8')), 200
 
-            return jsonify(message='잘못된 비밀번호 입니다.'), 400
-        return jsonify(message='존재하지 않는 ID입니다.'), 400
+        return jsonify(message='잘못된 비밀번호 입니다.'), 401
