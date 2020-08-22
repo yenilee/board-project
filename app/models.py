@@ -1,6 +1,6 @@
 import datetime
 
-from mongoengine import StringField, DateTimeField, ReferenceField, EmbeddedDocumentField, ListField
+from mongoengine import StringField, DateTimeField, ReferenceField, EmbeddedDocumentField, ListField, BooleanField
 from mongoengine import Document, EmbeddedDocument
 
 
@@ -30,7 +30,9 @@ class Post(EmbeddedDocument):
     likes      = ListField(ReferenceField(User))
     tag        = ListField(EmbeddedDocumentField(Tag))
     comment    = ListField(EmbeddedDocumentField(Comment))
+    is_deleted = BooleanField(required=True)
 
 class Board(Document):
-    name = StringField(max_length=50, required=True)
+    name = StringField(max_length=50, required=True, unique=True)
     post = ListField(EmbeddedDocumentField(Post))
+    is_deleted = BooleanField(required=True)
