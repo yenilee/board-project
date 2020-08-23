@@ -5,14 +5,14 @@ from flask_classful import FlaskView, route
 from flask import jsonify, request
 
 class BoardView(FlaskView):
-    # 게시판 목록
+    # 게시판 이름 목록
     @route('/', methods=['GET'])
-    def list_board(self):
+    def get_board_menu(self):
 
-        board_list = Board.objects(is_deleted = True)
+        board_data = Board.objects(is_deleted = True)
 
-        board_data = [
+        board_menu = [
             {"name": board.name}
-        for board in board_list]
+        for board in board_data]
 
-        return jsonify(data=board_data), 200
+        return jsonify(data=board_menu), 200
