@@ -33,6 +33,6 @@ class Post(EmbeddedDocument):
     is_deleted = BooleanField(required=True)
 
 class Board(Document):
-    name = StringField(max_length=50, required=True, unique=True)
+    name = StringField(max_length=50, required=True)
     post = ListField(EmbeddedDocumentField(Post))
-    is_deleted = BooleanField(required=True)
+    is_deleted = BooleanField(required=True, default=False)
