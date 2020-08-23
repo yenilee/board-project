@@ -1,6 +1,6 @@
 import datetime
 
-from mongoengine import StringField, DateTimeField, ReferenceField, EmbeddedDocumentField, ListField, BooleanField
+from mongoengine import StringField, DateTimeField, ReferenceField, EmbeddedDocumentField, ListField, BooleanField, IntField
 from mongoengine import Document, EmbeddedDocument
 
 
@@ -31,6 +31,15 @@ class Post(EmbeddedDocument):
     tag        = ListField(EmbeddedDocumentField(Tag))
     comment    = ListField(EmbeddedDocumentField(Comment))
     is_deleted = BooleanField(required=True, default=False)
+    post_id    = IntField(min_value=1)
+
+    def to_json(self):
+        return {
+            'id': self.post_id,
+            'title' : self.title,
+            'content' : self.content,
+            'created_at' : self.created_at
+        }
 
 class Board(Document):
     name = StringField(max_length=50, required=True)

@@ -46,10 +46,26 @@ class BoardView(FlaskView):
         post = Post(
             author     = g.user,
             title      = data['title'],
-            content    = data['content']
+            content    = data['content'],
+            post_id    = len(board.post)+1
         )
         board.post.append(post)
         board.save()
 
         return '', 200
+
+
+    # 게시글 읽기
+    @route('/<int:post_id>', methods=['GET'])
+    def get_post(self, post_id, category=None):
+        if request.args:
+            category = request.args['category']
+
+        if category is not None:
+            board = Board.objects(name=category).get()
+            post = board.post[post_id-1]
+            return jsonify(post.to_json()), 200
+
+        return jsonify(message='없는 게시판입니다.'), 400
+
 
