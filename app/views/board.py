@@ -56,16 +56,16 @@ class BoardView(FlaskView):
 
 
     # 게시글 읽기
-    @route('/<int:post_id>', methods=['GET'])
-    def get_post(self, post_id, category=None):
-        if request.args:
-            category = request.args['category']
+    @route('/<board_name>/<int:post_id>', methods=['GET'])
+    def get_post(self, board_name, post_id):
 
-        if category is not None:
-            board = Board.objects(name=category).get()
-            post = board.post[post_id-1]
-            return jsonify(post.to_json()), 200
+        if not Board.objects(name=board_name):
+            return jsonify(message='없는 게시판입니다.'), 400
 
-        return jsonify(message='없는 게시판입니다.'), 400
+        board = Board.objects(name=board_name).get()
+        post = board.post[post_id-1]
+        return jsonify(post.to_json()), 200
+
+
 
 
