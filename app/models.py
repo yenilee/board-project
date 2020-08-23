@@ -24,13 +24,13 @@ class Comment(EmbeddedDocument):
 
 class Post(EmbeddedDocument):
     author     = ReferenceField(User)
-    title      = StringField(max_length=100)
-    content    = StringField()
-    created_at = DateTimeField()
+    title      = StringField(required=True, max_length=100)
+    content    = StringField(required=True)
+    created_at = DateTimeField(required=True, default=datetime.datetime.now)
     likes      = ListField(ReferenceField(User))
     tag        = ListField(EmbeddedDocumentField(Tag))
     comment    = ListField(EmbeddedDocumentField(Comment))
-    is_deleted = BooleanField(required=True)
+    is_deleted = BooleanField(required=True, default=False)
 
 class Board(Document):
     name = StringField(max_length=50, required=True)

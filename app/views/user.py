@@ -7,8 +7,9 @@ from app.serializers    import UserSchema
 from flask_classful     import FlaskView, route
 from flask              import jsonify, request
 from app.config         import SECRET, ALGORITHM
-from app.utils          import JSONEncoder
 from marshmallow        import ValidationError
+from bson.json_util     import dumps
+
 
 class UserView(FlaskView):
     # 회원가입
@@ -49,7 +50,7 @@ class UserView(FlaskView):
 
         for user in user:
             if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
-                token = jwt.encode({'id': json.dumps(user.id, cls=JSONEncoder)}, SECRET, ALGORITHM)
+                token = jwt.encode({"user_id" : dumps(user.id)}, SECRET, ALGORITHM)
                 return jsonify(token.decode('utf-8')), 200
 
         return jsonify(message='잘못된 비밀번호 입니다.'), 401

@@ -1,8 +1,10 @@
 import json
 
-from app.models import Board
+from app.models     import Board, Post
 from flask_classful import FlaskView, route
-from flask import jsonify, request
+from flask          import jsonify, request, g
+from app.utils      import auth
+
 
 class BoardView(FlaskView):
     # 게시판 이름 목록
@@ -16,6 +18,7 @@ class BoardView(FlaskView):
         for board in board_data]
 
         return jsonify(data=board_menu), 200
+
 
     # 게시판 생성
     @route('', methods=['POST'])
@@ -31,3 +34,22 @@ class BoardView(FlaskView):
         board.save()
 
         return '', 200
+
+
+    # 게시글 작성 API
+    @route('/post', methods=['POST'])
+    @auth
+    def create_post(self):
+        data = json.loads(request.data)
+
+        board = Board.objects(name=data['board_name']).get()
+        post = Post(
+            author     = g.user,
+            title      = data['title'],
+            content    = data['content']
+        )
+        board.post.append(post)
+        board.save()
+
+        return '', 200
+
