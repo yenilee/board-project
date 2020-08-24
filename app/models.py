@@ -8,6 +8,7 @@ class User(Document):
     account = StringField(max_length=50, required=True, unique=True)
     password = StringField(max_length=100, required=True)
     created_at = DateTimeField(required=True, default=datetime.datetime.now)
+    master_role = BooleanField(required=True, default=False)
 
     def to_json(self):
         return {"account": self.account}
