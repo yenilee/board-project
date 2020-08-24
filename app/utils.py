@@ -1,17 +1,11 @@
 import json
 import jwt
 
-from bson           import ObjectId
 from functools      import wraps
 from flask          import request, g, jsonify
 from app.config     import SECRET, ALGORITHM
 from bson.json_util import loads
 
-# class JSONEncoder(json.JSONEncoder):
-#     def default(self, o):
-#         if isinstance(o, ObjectId):
-#             return str(o)
-#         return json.JSONEncoder.default(self, o)
 
 # 로그인 데코레이터
 def auth(f):
