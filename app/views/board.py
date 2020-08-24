@@ -59,12 +59,12 @@ class BoardView(FlaskView):
 
 
     # 게시글 작성 API
-    @route('/post', methods=['POST'])
+    @route('/<board_name>/post', methods=['POST'])
     @auth
-    def create_post(self):
+    def create_post(self, board_name):
         data = json.loads(request.data)
 
-        board = Board.objects(name=data['board_name']).get()
+        board = Board.objects(name=board_name).get()
         post = Post(
             author     = g.user,
             title      = data['title'],
@@ -84,5 +84,8 @@ class BoardView(FlaskView):
         if not Board.objects(name=board_name):
             return jsonify(message='없는 게시판입니다.'), 400
 
-        post = Board.objects(name=board_name).get().post[post_id-1]
-        return jsonify(post.to_json()), 200
+        try:
+            post = Board.objects(name=board_name, is_deleted=False).get().post[post_id-1]
+            return jsonify(post.to_json()), 200
+        except:
+            return jsonify(message='없는 게시물입니다.'), 400
