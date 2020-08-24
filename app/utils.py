@@ -29,5 +29,7 @@ def auth(f):
             return jsonify(message='유효하지 않은 토큰입니다'), 409
 
         g.user = loads(payload['user_id'])
+        g.auth = payload['is_master']
+
         return f(*args, **kwargs)
     return decorated_function

@@ -23,9 +23,13 @@ class Comment(EmbeddedDocument):
     created_at      = DateTimeField()
     replied_comment = ReferenceField('self')
 
+class Board(Document):
+    name = StringField(max_length=50, required=True)
+    is_deleted = BooleanField(required=True, default=False)
+
 class Post(Document):
     author     = ReferenceField(User)
-    board_name = ReferenceField('Board')
+    board      = ReferenceField(Board)
     title      = StringField(required=True, max_length=100)
     content    = StringField(required=True)
     created_at = DateTimeField(required=True, default=datetime.datetime.now)
@@ -44,6 +48,3 @@ class Post(Document):
             'created_at' : self.created_at.strftime('%Y-%m-%d-%H:%M:%S')
         }
 
-class Board(Document):
-    name = StringField(max_length=50, required=True)
-    is_deleted = BooleanField(required=True, default=False)
