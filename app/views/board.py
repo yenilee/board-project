@@ -26,7 +26,7 @@ class BoardView(FlaskView):
         name = json.loads(request.data)['name']
 
         # 유저의 권한 확인
-        if User.objects(id=g.user).get().master_role == False:
+        if g.auth == False:
             return jsonify(message='권한이 없습니다.'), 403
 
         # 현재 존재하는 board와 이름 중복 확인
@@ -40,31 +40,31 @@ class BoardView(FlaskView):
 
 
     # 게시판 목록 조회
-    @route('/', methods=['GET'])
-    def list_board(self):
-        category = request.args['category']
+    @route('/<board_name>', methods=['GET'])
+    def list_board(self, board_name):
         page = request.args.get('page', 1, int)
 
         # pagination
         limit = 10
         skip = (page - 1) * limit
 
-        if Board.objects(name=category, is_deleted=False):
-            post_list = Board.objects(name=category, is_deleted=False).get().post
+        # 게시판 존재 여부 확인
+        if not Board.objects(name=board_name, is_deleted=False):
+            return jsonify(message='없는 게시판입니다.'), 400
+        board_id = Board.objects(name=board_name, is_deleted=False).get().id
 
-            post_data = [
-                {"total": len(post_list),
-                 "posts": [{"number": n,
-                            "post_id": post.post_id,
-                            "title": post.title,
-                            "content": post.content,
-                            "created_at": post.created_at,
-                            "likes": len(post.likes),
-                            "is_deleted":post.is_deleted}
-                           for n, post in zip(range(len(post_list) - skip, 0, -1), post_list[skip:skip + limit])]}]
-            return jsonify(data=post_data), 200
-        return jsonify(message='없는 게시판입니다.'), 400
-
+        post_list = Post.objects(board=board_id, is_deleted=False)
+        post_data=[
+            {"total": len(post_list),
+             "posts": [{"number": n,
+                        "post_id": post.post_id,
+                        "title": post.title,
+                        "content": post.content,
+                        "created_at": post.created_at,
+                        "likes": len(post.likes),
+                        "is_deleted":post.is_deleted}
+                    for n, post in zip(range(len(post_list) - skip, 0, -1), post_list[skip:skip + limit])]}]
+        return jsonify(data=post_data), 200
 
     # 게시글 작성 API
     @route('/<board_name>', methods=['POST'])
