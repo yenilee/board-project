@@ -1,6 +1,6 @@
 import json
 
-from app.models import Board, Post, User
+from app.models import Board, User, Post
 from flask_classful import FlaskView, route
 from flask import jsonify, request, g
 from app.utils import auth
@@ -66,33 +66,8 @@ class BoardView(FlaskView):
                     for n, post in zip(range(len(post_list) - skip, 0, -1), post_list[skip:skip + limit])]}]
         return jsonify(data=post_data), 200
 
-    # 게시글 작성 API
-    @route('/<board_name>', methods=['POST'])
-    @auth
-    def create_post(self, board_name):
-        data = json.loads(request.data)
-
-        for board in Board.objects(name=board_name):
-            post = Post(
-                board   = board.id,
-                author  = g.user,
-                title   = data['title'],
-                content = data['content'],
-                post_id = Post.objects.count()+1
-            ).save()
-
-        return '', 200
-
-
-    # 게시글 읽기
-    @route('/<board_name>/<int:post_id>', methods=['GET'])
-    def get_post(self, board_name, post_id):
-
-        if not Board.objects(name=board_name):
-            return jsonify(message='없는 게시판입니다.'), 400
-
-        try:
-            post = Post.objects(post_id=post_id).get()
-            return jsonify(post.to_json()), 200
-        except:
-            return jsonify(message='없는 게시물입니다.'), 400
+    # @route('/<board_name>', methods=['DELETE'])
+    # @auth
+    # def delete(self, board_name):
+    #     if not g.auth:
+    #         jsonify(message='권한이 없는 사용자입니다.'), 403
