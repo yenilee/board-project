@@ -1,6 +1,6 @@
 import json
 
-from app.models         import Board, Post
+from app.models         import Board, Post, User
 from flask_classful     import FlaskView, route
 from flask              import jsonify, request, g
 from app.utils          import auth
@@ -21,8 +21,13 @@ class BoardView(FlaskView):
 
     # 게시판 생성
     @route('', methods=['POST'])
+    @auth
     def post(self):
         name = json.loads(request.data)['name']
+
+        # 유저의 권한 확인
+        if User.objects(id=g.user).get().master_role == False:
+            return jsonify(message='권한이 없습니다.'),403
 
         # 현재 존재하는 board와 이름 중복 확인
         if Board.objects(name=name, is_deleted=False):
