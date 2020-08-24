@@ -66,8 +66,31 @@ class BoardView(FlaskView):
                     for n, post in zip(range(len(post_list) - skip, 0, -1), post_list[skip:skip + limit])]}]
         return jsonify(data=post_data), 200
 
-    # @route('/<board_name>', methods=['DELETE'])
-    # @auth
-    # def delete(self, board_name):
-    #     if not g.auth:
-    #         jsonify(message='권한이 없는 사용자입니다.'), 403
+    @route('/<board_name>', methods=['PUT'])
+    @auth
+    def update(self, board_name):
+        if not g.auth:
+            return jsonify(message='권한이 없는 사용자입니다.'), 403
+
+        data = json.loads(request.data)
+        if Board.objects(name=board_name, is_deleted=False):
+            Board.objects(name=board_name).update(name=data['board_name'])
+            return '',200
+
+        return jsonify(message='없는 게시판입니다.'), 400
+
+    @route('/<board_name>', methods=['DELETE'])
+    @auth
+    def delete(self, board_name):
+        if not g.auth:
+            return jsonify(message='권한이 없는 사용자입니다.'), 403
+
+        if Board.objects(name=board_name, is_deleted=False):
+            Board.objects(name=board_name).update(is_deleted=True)
+            return '',200
+
+        return jsonify(message='없는 게시판입니다.'), 400
+
+
+
+
