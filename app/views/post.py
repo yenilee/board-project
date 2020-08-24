@@ -38,3 +38,24 @@ class PostView(FlaskView):
             return jsonify(post.to_json()), 200
         except:
             return jsonify(message='없는 게시물입니다.'), 400
+
+
+    # 게시글 삭제
+    @route('/<int:post_id>', methods=['DELETE'])
+    @auth
+    def delte_post(self, board_name, post_id):
+        # 게시판 존재 여부 확인
+        if not Board.objects(name=board_name, is_deleted=False):
+            return jsonify(message='없는 게시판입니다.'), 400
+        board_id = Board.objects(name=board_name, is_deleted=False).get().id
+
+        post = Post.objects(board=board_id, post_id=post_id, is_deleted=False)
+        # 게시글 존재 여부 확인
+        if not post:
+            return jsonify(message='잘못된 주소입니다.'), 400
+
+        # 삭제 가능 user 확인
+        if g.user == post.get().author.id or g.auth == True:
+            post.update(is_deleted=True)
+            return jsonify(message='삭제되었습니다.'), 200
+        return jsonify(message='권한이 없습니다.'), 403
