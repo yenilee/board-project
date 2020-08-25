@@ -14,7 +14,7 @@ def auth(f):
     def decorated_function(*args, **kwargs):
 
         if not 'Authorization' in request.headers:
-            return jsonify(message='로그인 권한이 없습니다.'), 403
+            return jsonify(message='로그인하지 않은 유저입니다.'), 403
 
         access_token = request.headers.get('Authorization')
         try:

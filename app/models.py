@@ -5,9 +5,9 @@ from mongoengine import Document, EmbeddedDocument
 
 
 class User(Document):
-    account = StringField(max_length=50, required=True, unique=True)
-    password = StringField(max_length=100, required=True)
-    created_at = DateTimeField(required=True, default=datetime.datetime.now)
+    account     = StringField(max_length=50, required=True, unique=True)
+    password    = StringField(max_length=100, required=True)
+    created_at  = DateTimeField(required=True, default=datetime.datetime.now)
     master_role = BooleanField(required=True, default=False)
 
     def to_json(self):
@@ -20,11 +20,12 @@ class Comment(EmbeddedDocument):
     content         = StringField()
     author          = ReferenceField(User)
     likes           = ListField(ReferenceField(User))
-    created_at      = DateTimeField()
+    created_at      = DateTimeField(required=True, default=datetime.datetime.now)
+    is_deleted      = BooleanField(required=True, default=False)
     replied_comment = ReferenceField('self')
 
 class Board(Document):
-    name = StringField(max_length=50, required=True)
+    name       = StringField(max_length=50, required=True)
     is_deleted = BooleanField(required=True, default=False)
 
 class Post(Document):
@@ -47,7 +48,11 @@ class Post(Document):
             'content' : self.content,
             'created_at' : self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
             'tag' : [{"name":tag_info.name} for tag_info in self.tag],
-            'likes': len(self.likes)
+            'likes': len(self.likes),
+            'comments' : [{"name":comment.author.account,
+                           "content":comment.content,
+                           "created_at":comment.created_at.strftime('%Y-%m-%d-%H:%M:%S')}
+                          for comment in self.comment if comment.is_deleted is False]
         }
 
     def to_json_list(self):
