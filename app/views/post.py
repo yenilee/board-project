@@ -13,14 +13,20 @@ class PostView(FlaskView):
     @auth
     def post(self, board_name):
         data = json.loads(request.data)
+        tag = data.get('tag')
+        
+        # 게시판 존재 여부 확인
+        if not Board.objects(name=board_name, is_deleted=False):
+            return jsonify(message='없는 게시판입니다.'), 400
+        board_id = Board.objects(name=board_name, is_deleted=False).get().id
 
-        for board in Board.objects(name=board_name):
-            post = Post(
-                board   = board.id,
-                author  = g.user,
-                title   = data['title'],
-                content = data['content'],
-                post_id = Post.objects.count()+1
+        Post(
+            board   = board_id,
+            author  = g.user,
+            title   = data['title'],
+            content = data['content'],
+            tag     = tag,
+            post_id = Post.objects.count()+1
             ).save()
 
         return '', 200
@@ -66,6 +72,7 @@ class PostView(FlaskView):
     @auth
     def put(self, board_name, post_id):
         data = json.loads(request.data)
+        tag = data.get('tag')
 
         # 게시판 존재 여부 확인
         if not Board.objects(name=board_name, is_deleted=False):
@@ -80,8 +87,9 @@ class PostView(FlaskView):
         # 삭제 가능 user 확인
         if g.user == post.get().author.id or g.auth == True:
             post.update(
-                title=data['title'],
-                content=data['content']
+                title   = data['title'],
+                content = data['content'],
+                tag     = tag
             )
             return jsonify(message='수정되었습니다.'), 200
         return jsonify(message='권한이 없습니다.'), 403
