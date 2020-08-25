@@ -63,18 +63,16 @@ class BoardView(FlaskView):
             return jsonify(message='없는 게시판입니다.'), 400
         board_id = Board.objects(name=board_name, is_deleted=False).get().id
 
-        post_list = Post.objects(board=board_id, is_deleted=False)
+        post_list = Post.objects(board=board_id, is_deleted=False).order_by('-created_at')
         post_data=[
             {"total": len(post_list),
              "posts": [{"number": n,
                         "post_id": post.post_id,
                         "title": post.title,
-                        "content": post.content,
                         "created_at": post.created_at,
-                        "likes": len(post.likes),
-                        "is_deleted":post.is_deleted}
+                        "likes_number": len(post.likes)}
                     for n, post in zip(range(len(post_list) - skip, 0, -1), post_list[skip:skip + limit])]}]
-        return jsonify(data=post_data), 200
+        return jsonify(data=post_data[0]), 200
 
     @route('/<board_name>', methods=['PUT'])
     @auth

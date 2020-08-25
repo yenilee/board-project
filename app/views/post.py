@@ -32,7 +32,7 @@ class PostView(FlaskView):
         return '', 200
 
 
-    # 게시글 읽기
+    # 게시글 읽기 API
     @route('/<int:post_id>', methods=['GET'])
     def get(self, board_name, post_id):
 
@@ -46,7 +46,7 @@ class PostView(FlaskView):
             return jsonify(message='없는 게시물입니다.'), 400
 
 
-    # 게시글 삭제
+    # 게시글 삭제 API
     @route('/<int:post_id>', methods=['DELETE'])
     @auth
     def delete(self, board_name, post_id):
@@ -67,7 +67,7 @@ class PostView(FlaskView):
         return jsonify(message='권한이 없습니다.'), 403
 
 
-    # 게시글 수정
+    # 게시글 수정 API
     @route('/<int:post_id>', methods=['PUT'])
     @auth
     def put(self, board_name, post_id):
@@ -94,6 +94,8 @@ class PostView(FlaskView):
             return jsonify(message='수정되었습니다.'), 200
         return jsonify(message='권한이 없습니다.'), 403
 
+
+    # 댓글 생성 API
     @route('/<int:post_id>/comment', methods=['POST'])
     @auth
     def create_comment(self, board_name, post_id):
@@ -117,3 +119,34 @@ class PostView(FlaskView):
         post.comment.append(comment)
         post.save()
         return jsonify(message='댓글이 등록되었습니다.'), 200
+
+
+    # 좋아요 API
+    @route('/<int:post_id>/likes', methods=['POST'])
+    @auth
+    def like_post(self, board_name, post_id):
+        # 게시판 존재 여부 확인
+        if not Board.objects(name=board_name, is_deleted=False):
+            return jsonify(message='없는 게시판입니다.'), 400
+        board_id = Board.objects(name=board_name, is_deleted=False).get().id
+
+        post = Post.objects(board=board_id, post_id=post_id, is_deleted=False).get()
+        # 게시글 존재 여부 확인
+        if not post:
+            return jsonify(message='잘못된 주소입니다.'), 400
+
+        likes_user = {}
+        for user_index_number in range(0,len(post.likes)):
+            likes_user[post.likes[user_index_number].id] = user_index_number
+
+        # 좋아요 이미 누른 경우 취소
+        if g.user in likes_user.keys():
+            user_index = likes_user[g.user]
+            del post.likes[user_index]
+            post.save()
+            return '', 200
+
+        # 좋아요
+        post.likes.append(g.user)
+        post.save()
+        return '', 200

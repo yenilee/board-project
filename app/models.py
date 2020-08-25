@@ -46,6 +46,7 @@ class Post(Document):
             'title' : self.title,
             'content' : self.content,
             'created_at' : self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-            'tag' : [{"name":tag_info.name} for tag_info in self.tag]
+            'tag' : [{"name":tag_info.name} for tag_info in self.tag],
+            'likes_number': len(self.likes)
         }
 
