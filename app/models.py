@@ -5,9 +5,9 @@ from mongoengine import Document, EmbeddedDocument
 
 
 class User(Document):
-    account = StringField(max_length=50, required=True, unique=True)
-    password = StringField(max_length=100, required=True)
-    created_at = DateTimeField(required=True, default=datetime.datetime.now)
+    account     = StringField(max_length=50, required=True, unique=True)
+    password    = StringField(max_length=100, required=True)
+    created_at  = DateTimeField(required=True, default=datetime.datetime.now)
     master_role = BooleanField(required=True, default=False)
 
     def to_json(self):
@@ -20,11 +20,12 @@ class Comment(EmbeddedDocument):
     content         = StringField()
     author          = ReferenceField(User)
     likes           = ListField(ReferenceField(User))
-    created_at      = DateTimeField()
+    created_at      = DateTimeField(required=True, default=datetime.datetime.now)
+    is_deleted      = BooleanField(required=True, default=False)
     replied_comment = ReferenceField('self')
 
 class Board(Document):
-    name = StringField(max_length=50, required=True)
+    name       = StringField(max_length=50, required=True)
     is_deleted = BooleanField(required=True, default=False)
 
 class Post(Document):
@@ -42,11 +43,16 @@ class Post(Document):
     def to_json(self):
         return {
             'id': self.post_id,
-            'author' : self.author.account,
-            'title' : self.title,
-            'content' : self.content,
-            'created_at' : self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-            'tag' : [{"name":tag_info.name} for tag_info in self.tag],
+            'author': self.author.account,
+            'title': self.title,
+            'content': self.content,
+            'created_at': self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
+            'tag': [{"name":tag_info.name} for tag_info in self.tag],
+            'comment': [{"content":comment_info.content,
+                         "author":comment_info.author.account,
+                         "likes":len(comment_info.likes),
+                         "created_at":comment_info.created_at.strftime('%Y-%m-%d-%H:%M:%S')
+                         } for comment_info in self.comment],
             'likes': len(self.likes)
         }
 
@@ -56,5 +62,5 @@ class Post(Document):
             'author': self.author.account,
             'title': self.title,
             'created_at': self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-            'likes' : len(self.likes)
+            'likes': len(self.likes)
         }
