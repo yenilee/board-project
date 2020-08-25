@@ -45,6 +45,7 @@ class Post(Document):
             'author' : self.author.account,
             'title' : self.title,
             'content' : self.content,
-            'created_at' : self.created_at.strftime('%Y-%m-%d-%H:%M:%S')
+            'created_at' : self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
+            'tag' : [{"name":tag_info.name} for tag_info in self.tag]
         }
 
