@@ -1,9 +1,11 @@
 import json
 
-from app.models import Board, User, Post
-from flask_classful import FlaskView, route
-from flask import jsonify, request, g
-from app.utils import auth
+from app.models         import Board, Post
+from app.serializers    import BoardSchema
+from flask_classful     import FlaskView, route
+from flask              import jsonify, request, g
+from app.utils          import auth
+from marshmallow        import ValidationError
 
 
 class BoardView(FlaskView):
@@ -23,7 +25,15 @@ class BoardView(FlaskView):
     @route('', methods=['POST'])
     @auth
     def post(self):
-        name = json.loads(request.data)['name']
+        data = json.loads(request.data)
+
+        # Validation
+        try:
+            BoardSchema().load(data)
+        except ValidationError as err:
+            return jsonify (err.messages), 422
+
+        name = data['name']
 
         # 유저의 권한 확인
         if g.auth == False:
