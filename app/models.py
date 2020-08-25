@@ -13,9 +13,6 @@ class User(Document):
     def to_json(self):
         return {"account": self.account}
 
-class Tag(EmbeddedDocument):
-    name = StringField(max_length=100, required=True)
-
 class Comment(EmbeddedDocument):
     content         = StringField()
     author          = ReferenceField(User)
@@ -35,7 +32,7 @@ class Post(Document):
     content    = StringField(required=True)
     created_at = DateTimeField(required=True, default=datetime.datetime.now)
     likes      = ListField(ReferenceField(User))
-    tag        = ListField(EmbeddedDocumentField(Tag))
+    tag        = ListField()
     comment    = ListField(EmbeddedDocumentField(Comment))
     is_deleted = BooleanField(required=True, default=False)
     post_id    = IntField(min_value=1)
@@ -47,7 +44,7 @@ class Post(Document):
             'title' : self.title,
             'content' : self.content,
             'created_at' : self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-            'tag' : [{"name":tag_info.name} for tag_info in self.tag],
+            'tag' : self.tag,
             'likes': len(self.likes),
             'comments' : [{"name":comment.author.account,
                            "content":comment.content,
