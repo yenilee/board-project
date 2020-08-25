@@ -5,6 +5,7 @@ from functools      import wraps
 from flask          import request, g, jsonify
 from app.config     import SECRET, ALGORITHM
 from bson.json_util import loads
+from app.models     import Board
 
 
 # 로그인 데코레이터
@@ -27,3 +28,14 @@ def auth(f):
 
         return f(*args, **kwargs)
     return decorated_function
+
+def check_board(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        print(args)
+        # if not Board.objects(name=board_name, is_deleted=False):
+        #     return jsonify(message='없는 게시판입니다.'), 400
+        # board_id = Board.objects(name=board_name, is_deleted=False).get().id
+
+        return f(*args, **kwargs)
+    return decorated()
