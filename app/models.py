@@ -39,13 +39,6 @@ class Post(Document):
     is_deleted = BooleanField(required=True, default=False)
     post_id    = IntField(min_value=1)
 
-    meta = {'indexes': [
-        {'fields': ['$title', "$content"],
-         'default_language': 'english',
-         'weights': {'title': 10, 'content': 2}
-        }
-    ]}
-
     def to_json(self):
         return {
             'id': self.post_id,

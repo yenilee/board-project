@@ -1,6 +1,6 @@
 import json
 
-from app.models         import Board, Post
+from app.models         import Board, Post, User
 from app.serializers    import BoardSchema
 from flask_classful     import FlaskView, route
 from flask              import jsonify, request, g
@@ -9,7 +9,7 @@ from marshmallow        import ValidationError
 
 
 class BoardView(FlaskView):
-    # 게시판 카테고리 조
+    # 게시판 카테고리 조회
     @route('/category', methods=['GET'])
     def get_category(self):
         board_data = Board.objects(is_deleted=False)
@@ -105,13 +105,23 @@ class BoardView(FlaskView):
 
     # 게시판 내 검색
     @route('/<board_name>/search', methods=['GET'])
-    def search(self, board_name):
+    def search(self, board_name, filters=None):
+        if not Board.objects(name=board_name, is_deleted=False):
+            return jsonify(message='없는 게시판입니다.'), 400
+
+        board_id = Board.objects(name=board_name).get().id
         filters = request.args
 
-        if filters['title']:
-            posts = Post.objects.search_text(filters['title']).all()
-            post = [post.to_json_list() for post in posts]
-            return jsonify(post),200
+        if 'title' in filters:
+            posts = Post.objects(board=board_id, title__contains=filters['title'])
+
+        if 'author' in filters:
+            user_id = User.objects(account=filters['author']).get().id
+            posts = Post.objects(board=board_id, author__contains=user_id)
+
+        post = [post.to_json_list() for post in posts.all()]
+        return jsonify({"total" : len(post),
+                        "post" : post}), 200
 
 
 
