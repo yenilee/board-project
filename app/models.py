@@ -39,6 +39,13 @@ class Post(Document):
     is_deleted = BooleanField(required=True, default=False)
     post_id    = IntField(min_value=1)
 
+    meta = {'indexes': [
+        {'fields': ['$title', "$content"],
+         'default_language': 'english',
+         'weights': {'title': 10, 'content': 2}
+        }
+    ]}
+
     def to_json(self):
         return {
             'id': self.post_id,
@@ -46,6 +53,17 @@ class Post(Document):
             'title' : self.title,
             'content' : self.content,
             'created_at' : self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-            'tag' : [{"name":tag_info.name} for tag_info in self.tag]
+            'tag' : [{"name":tag_info.name} for tag_info in self.tag],
+            'likes': len(self.likes)
         }
+
+    def to_json_list(self):
+        return {
+            'id': self.post_id,
+            'author': self.author.account,
+            'title': self.title,
+            'created_at': self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
+            'likes' : len(self.likes)
+        }
+
 
