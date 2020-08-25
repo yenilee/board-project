@@ -9,7 +9,7 @@ from marshmallow        import ValidationError
 
 
 class BoardView(FlaskView):
-    # 게시판 카테고리 조
+    # 게시판 카테고리 조회
     @route('/category', methods=['GET'])
     def get_category(self):
         board_data = Board.objects(is_deleted=False)
@@ -63,18 +63,18 @@ class BoardView(FlaskView):
             return jsonify(message='없는 게시판입니다.'), 400
         board_id = Board.objects(name=board_name, is_deleted=False).get().id
 
-        post_list = Post.objects(board=board_id, is_deleted=False)
+        post_list = Post.objects(board=board_id, is_deleted=False).order_by('-created_at')
         post_data=[
             {"total": len(post_list),
              "posts": [{"number": n,
                         "post_id": post.post_id,
                         "title": post.title,
-                        "content": post.content,
                         "created_at": post.created_at,
-                        "likes": len(post.likes),
-                        "is_deleted":post.is_deleted}
+                        "likes": len(post.likes)}
                     for n, post in zip(range(len(post_list) - skip, 0, -1), post_list[skip:skip + limit])]}]
+
         return jsonify(post_data[0]), 200
+
 
     # 게시판 이름 수정
     @route('/<board_name>', methods=['PUT'])

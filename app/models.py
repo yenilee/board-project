@@ -53,7 +53,8 @@ class Post(Document):
             'title' : self.title,
             'content' : self.content,
             'created_at' : self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-            'tag' : [{"name":tag_info.name} for tag_info in self.tag]
+            'tag' : [{"name":tag_info.name} for tag_info in self.tag],
+            'likes': len(self.likes)
         }
 
     def to_json_list(self):
@@ -64,6 +65,3 @@ class Post(Document):
             'created_at': self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
             'likes' : len(self.likes)
         }
-
-
-
