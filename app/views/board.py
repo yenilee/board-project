@@ -9,9 +9,9 @@ from marshmallow        import ValidationError
 
 
 class BoardView(FlaskView):
-    # 게시판 카테고리
+    # 게시판 카테고리 조회
     @route('/category', methods=['GET'])
-    def get_board_category(self):
+    def get_category(self):
         board_data = Board.objects(is_deleted=False)
 
         board_category = [
@@ -49,9 +49,9 @@ class BoardView(FlaskView):
         return '', 200
 
 
-    # 게시판 목록 조회
+    # 게시판 글목록 조회
     @route('/<board_name>', methods=['GET'])
-    def list_board(self, board_name):
+    def get(self, board_name):
         page = request.args.get('page', 1, int)
 
         # pagination
@@ -70,10 +70,12 @@ class BoardView(FlaskView):
                         "post_id": post.post_id,
                         "title": post.title,
                         "created_at": post.created_at,
-                        "likes_number": len(post.likes)}
+                        "likes": len(post.likes)}
                     for n, post in zip(range(len(post_list) - skip, 0, -1), post_list[skip:skip + limit])]}]
-        return jsonify(data=post_data[0]), 200
 
+        return jsonify(post_data[0]), 200
+
+    # 게시판 이름 수정
     @route('/<board_name>', methods=['PUT'])
     @auth
     def update(self, board_name):
@@ -87,6 +89,7 @@ class BoardView(FlaskView):
 
         return jsonify(message='없는 게시판입니다.'), 400
 
+    # 게시판 삭제
     @route('/<board_name>', methods=['DELETE'])
     @auth
     def delete(self, board_name):
@@ -98,6 +101,20 @@ class BoardView(FlaskView):
             return '',200
 
         return jsonify(message='없는 게시판입니다.'), 400
+
+    # 게시판 내 검색
+    @route('/<board_name>/search', methods=['GET'])
+    def search(self, board_name):
+        filters = request.args
+
+        if filters['title']:
+            posts = Post.objects.search_text(filters['title']).all()
+            post = [post.to_json_list() for post in posts]
+            return jsonify(post),200
+
+
+
+
 
 
 

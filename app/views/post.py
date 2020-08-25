@@ -70,7 +70,7 @@ class PostView(FlaskView):
     # 게시글 수정 API
     @route('/<int:post_id>', methods=['PUT'])
     @auth
-    def put(self, board_name, post_id):
+    def update(self, board_name, post_id):
         data = json.loads(request.data)
         tag = data.get('tag')
 
@@ -107,6 +107,7 @@ class PostView(FlaskView):
         board_id = Board.objects(name=board_name, is_deleted=False).get().id
 
         post = Post.objects(board=board_id, post_id=post_id, is_deleted=False).get()
+
         # 게시글 존재 여부 확인
         if not post:
             return jsonify(message='잘못된 주소입니다.'), 400
