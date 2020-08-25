@@ -19,12 +19,13 @@ class CommentView(FlaskView):
             return jsonify(message='없는 게시판입니다.'), 400
         board_id = Board.objects(name=board_name, is_deleted=False).get().id
 
-        post = Post.objects(board=board_id, post_id=post_id, is_deleted=False).get()
+        post = Post.objects(board=board_id, post_id=post_id, is_deleted=False)
 
         # 게시글 존재 여부 확인
         if not post:
             return jsonify(message='잘못된 주소입니다.'), 400
 
+        post = post.get()
         # 삭제 가능 user 확인
         comment = Comment(
             author=g.user,
