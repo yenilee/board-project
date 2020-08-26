@@ -49,7 +49,7 @@ class BoardView(FlaskView):
         return '', 200
 
 
-    # 게시판 글목록 조회
+    # 게시판 글 목록 조회
     @route('/<board_name>', methods=['GET'])
     def get(self, board_name):
         page = request.args.get('page', 1, int)
