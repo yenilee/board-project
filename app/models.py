@@ -21,6 +21,12 @@ class Comment(EmbeddedDocument):
     is_deleted      = BooleanField(required=True, default=False)
     replied_comment = ReferenceField('self')
 
+    def to_json(self):
+        return {
+            "author":self.author.account,
+            "content":self.content
+        }
+
 class Board(Document):
     name       = StringField(max_length=50, required=True)
     is_deleted = BooleanField(required=True, default=False)

@@ -111,6 +111,8 @@ class BoardView(FlaskView):
 
         board_id = Board.objects(name=board_name).get().id
         filters = request.args
+        if filters is None:
+            return jsonify(message='내용을 검색해주세요'), 400
 
         if 'title' in filters:
             posts = Post.objects(board=board_id, title__contains=filters['title'])
