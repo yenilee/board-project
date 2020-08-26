@@ -2,13 +2,14 @@ import json
 import bcrypt
 import jwt
 
-from app.models         import User
+from app.models         import User, Post
 from app.serializers    import UserSchema
 from flask_classful     import FlaskView, route
-from flask              import jsonify, request
+from flask              import jsonify, request, g
 from app.config         import SECRET, ALGORITHM
 from marshmallow        import ValidationError
 from bson.json_util     import dumps
+from app.utils          import auth
 
 
 class UserView(FlaskView):
@@ -41,7 +42,7 @@ class UserView(FlaskView):
         return '', 200
 
     @route('/signin', methods=['POST'])
-    def post(self, user=None):
+    def signin(self, user=None):
         data = json.loads(request.data)
         user = User.objects(account=data['account'])
 
@@ -55,3 +56,25 @@ class UserView(FlaskView):
                 return jsonify(token.decode('utf-8')), 200
 
         return jsonify(message='잘못된 비밀번호 입니다.'), 401
+
+    @route('/mypage', methods=['GET'])
+    @auth
+    def my_post(self):
+        if g.user:
+            my_post = [my_post.to_json() for my_post in Post.objects(author=g.user).all()]
+            return {"my_post":my_post}, 200
+
+    @route('/mypage/comment', methods=['GET'])
+    @auth
+    def my_comment(self):
+        if not g.user:
+            return jsonify(message='로그인하지 않은 사용자입니다.'), 400
+
+        posts = Post.objects(comment__author=g.user)
+        comments = []
+        for post in posts:
+            comments += post.comment
+
+        my_comment = [ comment.to_json() for comment in comments if comment.author.id == g.user]
+
+        return {"my_comment" : my_comment }, 200
