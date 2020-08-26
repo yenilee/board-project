@@ -65,7 +65,7 @@ class BoardView(FlaskView):
         board_id = Board.objects(name=board_name, is_deleted=False).get().id
 
         post_list = Post.objects(board=board_id, is_deleted=False).order_by('-created_at').limit(limit).skip(skip)
-        total_number_of_post = len(Post.objects(board=board_id, is_deleted=False))
+        total_number_of_post = Post.objects(board=board_id, is_deleted=False).count()
         post_data=[
             {"total": total_number_of_post,
              "posts": [{"number": n,
@@ -148,3 +148,17 @@ class BoardView(FlaskView):
         return jsonify(data=post),200
 
 
+    # 댓글 많은 순 10개
+    @route('/main/comments', methods=['GET'])
+    def order_by_latest(self):
+        pipeline = [
+            {"$project": {
+                "numberOfColors": {"$size": "$comment"}}},
+            {"$sort":
+                 {"numberOfColors": -1}},
+            {"$limit": 10}
+        ]
+        posts = Post.objects(is_deleted=False).aggregate(*pipeline)
+
+        post = [Post.objects(id=post['_id']).get().to_json_list_with_board_name() for post in posts]
+        return jsonify(data=post), 200
