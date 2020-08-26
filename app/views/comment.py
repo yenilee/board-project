@@ -19,13 +19,11 @@ class CommentView(FlaskView):
             return jsonify(message='없는 게시판입니다.'), 400
         board_id = Board.objects(name=board_name, is_deleted=False).get().id
 
-        post = Post.objects(board=board_id, post_id=post_id, is_deleted=False)
-
         # 게시글 존재 여부 확인
-        if not post:
+        if not Post.objects(board=board_id, post_id=post_id, is_deleted=False):
             return jsonify(message='잘못된 주소입니다.'), 400
+        post = Post.objects(board=board_id, post_id=post_id, is_deleted=False).get()
 
-        post = post.get()
         # 삭제 가능 user 확인
         comment = Comment(
             author=g.user,
@@ -46,14 +44,12 @@ class CommentView(FlaskView):
             return jsonify(message='없는 게시판입니다.'), 400
         board_id = Board.objects(name=board_name, is_deleted=False).get().id
 
-        post = Post.objects(board=board_id, post_id=post_id, is_deleted=False)
-
         # 게시글 존재 여부 확인
-        if not post:
+        if not Post.objects(board=board_id, post_id=post_id, is_deleted=False):
             return jsonify(message='잘못된 주소입니다.'), 400
+        post = Post.objects(board=board_id, post_id=post_id, is_deleted=False).get()
 
-        post = post.get()
-        # 삭제 가능 user 확인
+        # 수정 가능 user 확인
         comment = post.comment[comment_id-1]
         if comment.author.id == g.user and comment.is_deleted is False:
             comment['content'] = data['content']
@@ -73,13 +69,11 @@ class CommentView(FlaskView):
             return jsonify(message='없는 게시판입니다.'), 400
         board_id = Board.objects(name=board_name, is_deleted=False).get().id
 
-        post = Post.objects(board=board_id, post_id=post_id, is_deleted=False)
-
         # 게시글 존재 여부 확인
-        if not post:
+        if not Post.objects(board=board_id, post_id=post_id, is_deleted=False):
             return jsonify(message='잘못된 주소입니다.'), 400
+        post = Post.objects(board=board_id, post_id=post_id, is_deleted=False).get()
 
-        post = post.get()
         # 삭제 가능 user 확인
         comment = post.comment[comment_id-1]
         if comment.author.id == g.user and comment.is_deleted is False:
@@ -89,3 +83,39 @@ class CommentView(FlaskView):
 
         return jsonify(message='수정 권한이 없습니다.'), 401
 
+
+    # 댓글 좋아요 및 취소 API
+    @route('/<int:comment_id>/likes', methods=['POST'])
+    @auth
+    def like_post(self, board_name, post_id, comment_id):
+        # 게시판 존재 여부 확인
+        if not Board.objects(name=board_name, is_deleted=False):
+            return jsonify(message='없는 게시판입니다.'), 400
+        board_id = Board.objects(name=board_name, is_deleted=False).get().id
+
+        # 게시글 존재 여부 확인
+        if not Post.objects(board=board_id, post_id=post_id, is_deleted=False):
+            return jsonify(message='잘못된 주소입니다.'), 400
+        post = Post.objects(board=board_id, post_id=post_id, is_deleted=False).get()
+
+        # 댓글 존재 여부 확인
+        if len(post.comment) < comment_id:
+            return jsonify(message='잘못된 주소입니다.'), 400
+        comment = post.comment[comment_id - 1]
+
+        print(comment.likes)
+        likes_user = {}
+        for user_index_number in range(0,len(comment.likes)):
+            likes_user[comment.likes[user_index_number].id] = user_index_number
+
+        # 좋아요 누른 경우 --> 취소
+        if g.user in likes_user.keys():
+            user_index = likes_user[g.user]
+            del comment.likes[user_index]
+            post.save()
+            return '', 200
+
+        # 좋아요 누르지 않은 경우 --> 좋아요
+        comment.likes.append(g.user)
+        post.save()
+        return '', 200

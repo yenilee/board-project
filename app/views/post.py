@@ -95,7 +95,7 @@ class PostView(FlaskView):
         return jsonify(message='권한이 없습니다.'), 403
 
 
-    # 좋아요 및 취소 API
+    # 게시글 좋아요 및 취소 API
     @route('/<int:post_id>/likes', methods=['POST'])
     @auth
     def like_post(self, board_name, post_id):
@@ -104,12 +104,10 @@ class PostView(FlaskView):
             return jsonify(message='없는 게시판입니다.'), 400
         board_id = Board.objects(name=board_name, is_deleted=False).get().id
 
-        post = Post.objects(board=board_id, post_id=post_id, is_deleted=False)
         # 게시글 존재 여부 확인
-        if not post:
+        if not Post.objects(board=board_id, post_id=post_id, is_deleted=False):
             return jsonify(message='잘못된 주소입니다.'), 400
-
-        post = post.get()
+        post = Post.objects(board=board_id, post_id=post_id, is_deleted=False).get()
 
         likes_user = {}
         for user_index_number in range(0,len(post.likes)):

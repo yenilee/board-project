@@ -48,7 +48,9 @@ class Post(Document):
             'likes': len(self.likes),
             'comments' : [{"name":comment.author.account,
                            "content":comment.content,
-                           "created_at":comment.created_at.strftime('%Y-%m-%d-%H:%M:%S')}
+                           "created_at":comment.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
+                           "likes":len(comment.likes)
+                           }
                           for comment in self.comment if comment.is_deleted is False]
         }
 
