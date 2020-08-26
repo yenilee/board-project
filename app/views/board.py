@@ -6,6 +6,7 @@ from flask_classful     import FlaskView, route
 from flask              import jsonify, request, g
 from app.utils          import auth
 from marshmallow        import ValidationError
+from operator import itemgetter
 
 
 class BoardView(FlaskView):
@@ -126,6 +127,16 @@ class BoardView(FlaskView):
         post = [post.to_json_list() for post in posts.all()]
         return jsonify({"total" : len(post),
                         "post" : post}), 200
+
+    # 좋아요 순
+    @route('/main/likes', methods=['GET'])
+    def get_main_likes(self):
+        posts = [post.to_json_list() for post in Post.objects]
+        top_likes = sorted(posts, key=lambda post : post['likes'], reverse=True)[:9]
+
+        return jsonify({"orderby_likes" : top_likes }), 200
+
+
 
 
     # 글 최신순 10개
