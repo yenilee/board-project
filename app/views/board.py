@@ -22,7 +22,7 @@ class BoardView(FlaskView):
 
 
     # 게시판 생성
-    @route('', methods=['POST'])
+    @route('/boards', methods=['POST'])
     @auth
     def post(self):
         data = json.loads(request.data)
@@ -57,21 +57,23 @@ class BoardView(FlaskView):
         # pagination
         limit = 10
         skip = (page - 1) * limit
-
+        print(skip)
         # 게시판 존재 여부 확인
         if not Board.objects(name=board_name, is_deleted=False):
             return jsonify(message='없는 게시판입니다.'), 400
         board_id = Board.objects(name=board_name, is_deleted=False).get().id
 
-        post_list = Post.objects(board=board_id, is_deleted=False).order_by('-created_at')
+        post_list = Post.objects(board=board_id, is_deleted=False).order_by('-created_at').limit(limit).skip(skip)
+        total_number_of_post = len(Post.objects(board=board_id, is_deleted=False))
         post_data=[
-            {"total": len(post_list),
+            {"total": total_number_of_post,
              "posts": [{"number": n,
-                        "post_id": post.post_id,
+                        "id": post.post_id,
+                        "author":post.author.account,
                         "title": post.title,
-                        "created_at": post.created_at,
+                        "created_at": post.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
                         "likes": len(post.likes)}
-                    for n, post in zip(range(len(post_list) - skip, 0, -1), post_list[skip:skip + limit])]}]
+                    for n, post in zip(range(total_number_of_post - skip, 0, -1), post_list)]}]
 
         return jsonify(post_data[0]), 200
 
@@ -86,7 +88,7 @@ class BoardView(FlaskView):
         data = json.loads(request.data)
         if Board.objects(name=board_name, is_deleted=False):
             Board.objects(name=board_name).update(name=data['board_name'])
-            return '',200
+            return '', 200
 
         return jsonify(message='없는 게시판입니다.'), 400
 
@@ -99,7 +101,7 @@ class BoardView(FlaskView):
 
         if Board.objects(name=board_name, is_deleted=False):
             Board.objects(name=board_name).update(is_deleted=True)
-            return '',200
+            return '', 200
 
         return jsonify(message='없는 게시판입니다.'), 400
 
@@ -126,9 +128,12 @@ class BoardView(FlaskView):
                         "post" : post}), 200
 
 
+    # 글 최신순 10개
+    @route('/main/latest', methods=['GET'])
+    def order_by_latest(self):
+        posts = Post.objects(is_deleted=False).order_by('-created_at').limit(10)
 
-
-
-
+        post = [post.to_json_list_with_board_name() for post in posts.all()]
+        return jsonify(data=post),200
 
 

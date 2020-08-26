@@ -68,3 +68,13 @@ class Post(Document):
             'created_at': self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
             'likes': len(self.likes)
         }
+
+    def to_json_list_with_board_name(self):
+        return {
+            'board': self.board.name,
+            'id': self.post_id,
+            'author': self.author.account,
+            'title': self.title,
+            'created_at': self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
+            'likes': len(self.likes)
+        }
