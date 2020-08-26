@@ -118,9 +118,9 @@ class PostView(FlaskView):
             user_index = likes_user[g.user]
             del post.likes[user_index]
             post.save()
-            return '', 200
+            return jsonify(message="'내가 좋아요한 게시글'에서 삭제되었습니다.'"), 200
 
         # 좋아요 누르지 않은 경우 --> 좋아요
         post.likes.append(g.user)
         post.save()
-        return '', 200
+        return jsonify(message="'내가 좋아요한 게시글'에 등록되었습니다.'"), 200

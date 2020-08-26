@@ -113,9 +113,9 @@ class CommentView(FlaskView):
             user_index = likes_user[g.user]
             del comment.likes[user_index]
             post.save()
-            return '', 200
+            return jsonify(message="'좋아요'가 취소되었습니다."), 200
 
         # 좋아요 누르지 않은 경우 --> 좋아요
         comment.likes.append(g.user)
         post.save()
-        return '', 200
+        return jsonify(message="'좋아요'가 반영되었습니다."), 200
