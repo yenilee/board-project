@@ -2,7 +2,7 @@ import json
 import bcrypt
 import jwt
 
-from app.models         import User, Post
+from app.models         import User, Post, Comment
 from app.serializers    import UserSchema
 from flask_classful     import FlaskView, route
 from flask              import jsonify, request, g
@@ -65,7 +65,7 @@ class UserView(FlaskView):
     @auth
     def my_post(self):
         if g.user:
-            my_post = [my_post.to_json() for my_post in Post.objects(author=g.user).all()]
+            my_post = [my_post.to_json_list() for my_post in Post.objects(author=g.user).all()]
             return {"my_post":my_post}, 200
 
 
@@ -76,12 +76,7 @@ class UserView(FlaskView):
         if not g.user:
             return jsonify(message='로그인하지 않은 사용자입니다.'), 400
 
-        posts = Post.objects(comment__author=g.user)
-        comments = []
-        for post in posts:
-            comments += post.comment
-
-        my_comment = [ comment.to_json() for comment in comments if comment.author.id == g.user]
+        my_comment = [comment.to_json() for comment in Comment.objects(author=g.user)]
 
         return {"my_comment" : my_comment }, 200
 
