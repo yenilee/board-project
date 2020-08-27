@@ -4,6 +4,7 @@ from app.models import Board, Post, Comment
 from flask_classful import FlaskView, route
 from flask import jsonify, request, g
 from app.utils import auth
+from bson.json_util import loads, dumps
 
 
 class CommentView(FlaskView):
@@ -34,7 +35,7 @@ class CommentView(FlaskView):
         return jsonify(message='댓글이 등록되었습니다.'), 200
 
     # 댓글 수정
-    @route('<int:comment_id>', methods=['PUT'])
+    @route('<comment_id>', methods=['PUT'])
     @auth
     def update(self, board_name, post_id, comment_id):
         data = json.loads(request.data)
@@ -49,7 +50,7 @@ class CommentView(FlaskView):
             return jsonify(message='잘못된 주소입니다.'), 400
         post = Post.objects(board=board_id, post_id=post_id, is_deleted=False).get().id
 
-        comment = Comment.objects(post=post).get()
+        comment = Comment.objects(id=comment_id).get()
         if comment.author.id == g.user and comment.is_deleted is False:
             comment['content'] = data['content']
             comment.save()
@@ -59,7 +60,7 @@ class CommentView(FlaskView):
 
 
     # 댓글 삭제
-    @route('<int:comment_id>', methods=['DELETE'])
+    @route('<comment_id>', methods=['DELETE'])
     @auth
     def delete(self, board_name, post_id, comment_id):
 
@@ -74,7 +75,7 @@ class CommentView(FlaskView):
         post = Post.objects(board=board_id, post_id=post_id, is_deleted=False).get()
 
         # 삭제 가능 user 확인
-        comment = Comment.objects(post=post).get()
+        comment = Comment.objects(id=comment_id).get()
         if comment.author.id == g.user and comment.is_deleted is False:
             comment.is_deleted = True
             comment.save()

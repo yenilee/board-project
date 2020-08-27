@@ -53,6 +53,7 @@ class UserView(FlaskView):
 
         for user in user:
             if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
+                print(dumps(user.id))
                 token = jwt.encode({"user_id" : dumps(user.id),
                                     "is_master" : user.master_role}, SECRET, ALGORITHM)
                 return jsonify(token.decode('utf-8')), 200
