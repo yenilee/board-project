@@ -5,7 +5,6 @@ from functools      import wraps
 from flask          import request, g, jsonify
 from app.config     import SECRET, ALGORITHM
 from bson.json_util import loads
-from app.models     import Board
 
 
 # 로그인 데코레이터

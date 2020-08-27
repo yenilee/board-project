@@ -6,7 +6,6 @@ from flask_classful     import FlaskView, route
 from flask              import jsonify, request, g
 from app.utils          import auth
 from marshmallow        import ValidationError
-from operator import itemgetter
 
 
 class BoardView(FlaskView):

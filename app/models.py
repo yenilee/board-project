@@ -14,20 +14,6 @@ class User(Document):
     def to_json(self):
         return {"account": self.account}
 
-class Comment(EmbeddedDocument):
-    content         = StringField()
-    author          = ReferenceField(User)
-    likes           = ListField(ReferenceField(User))
-    created_at      = DateTimeField(required=True, default=datetime.datetime.now)
-    is_deleted      = BooleanField(required=True, default=False)
-    replied_comment = ReferenceField('self')
-
-    def to_json(self):
-        return {
-            "author":self.author.account,
-            "content":self.content
-        }
-
 class Board(Document):
     name       = StringField(max_length=50, required=True)
     is_deleted = BooleanField(required=True, default=False)
@@ -40,7 +26,6 @@ class Post(Document):
     created_at = DateTimeField(required=True, default=datetime.datetime.now)
     likes      = ListField(ReferenceField(User))
     tag        = ListField()
-    comment    = ListField(EmbeddedDocumentField(Comment))
     is_deleted = BooleanField(required=True, default=False)
     post_id    = IntField(min_value=1)
 
@@ -52,25 +37,10 @@ class Post(Document):
             'content' : self.content,
             'created_at' : self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
             'tag' : self.tag,
-            'likes': len(self.likes),
-            'comments' : [{"name":comment.author.account,
-                           "content":comment.content,
-                           "created_at":comment.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-                           "likes":len(comment.likes)
-                           }
-                          for comment in self.comment if comment.is_deleted is False]
-        }
-
-    def to_json_list(self):
-        return {
-            'id': self.post_id,
-            'author': self.author.account,
-            'title': self.title,
-            'created_at': self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
             'likes': len(self.likes)
         }
 
-    def to_json_list_with_board_name(self):
+    def to_json_list(self):
         return {
             'board': self.board.name,
             'id': self.post_id,
@@ -78,4 +48,19 @@ class Post(Document):
             'title': self.title,
             'created_at': self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
             'likes': len(self.likes)
+        }
+
+class Comment(Document):
+    post            = ReferenceField(Post)
+    author          = ReferenceField(User)
+    replied_comment = ReferenceField('self')
+    content         = StringField()
+    likes           = ListField(ReferenceField(User))
+    created_at      = DateTimeField(required=True, default=datetime.datetime.now)
+    is_deleted      = BooleanField(required=True, default=False)
+
+    def to_json(self):
+        return {
+            "author": self.author.account,
+            "content": self.content
         }
