@@ -9,7 +9,7 @@ from flask              import jsonify, request, g
 from app.config         import SECRET, ALGORITHM
 from marshmallow        import ValidationError
 from bson.json_util     import dumps
-from app.utils          import auth
+from app.utils          import login_required, check_board
 
 
 class UserView(FlaskView):
@@ -63,7 +63,7 @@ class UserView(FlaskView):
 
     # 내 게시물
     @route('/mypage', methods=['GET'])
-    @auth
+    @login_required
     def my_post(self):
         if g.user:
             my_post = [my_post.to_json_list() for my_post in Post.objects(author=g.user).all()]
@@ -72,7 +72,7 @@ class UserView(FlaskView):
 
     # 내 댓글
     @route('/mypage/comment', methods=['GET'])
-    @auth
+    @login_required
     def my_comment(self):
         if not g.user:
             return jsonify(message='로그인하지 않은 사용자입니다.'), 400
@@ -84,8 +84,8 @@ class UserView(FlaskView):
 
     # 좋아요 한 글
     @route('/mypage/likes', methods=['GET'])
-    @auth
-    def my_liked_post(selfs):
+    @login_required
+    def my_liked_post(self):
 
         posts = Post.objects(likes__contains = g.user, is_deleted = False)
         post = [post.to_json_list() for post in posts.all()]
