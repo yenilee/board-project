@@ -3,7 +3,7 @@ import json
 from app.models import Board, Post, Comment
 from flask_classful import FlaskView, route
 from flask import jsonify, request, g
-from app.utils import auth, check_board
+from app.utils import auth
 
 
 class PostView(FlaskView):
