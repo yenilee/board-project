@@ -93,6 +93,7 @@ class BoardView(FlaskView):
 
         return jsonify(message='없는 게시판입니다.'), 400
 
+
     # 게시판 삭제
     @route('/<board_name>', methods=['DELETE'])
     @auth
@@ -105,6 +106,7 @@ class BoardView(FlaskView):
             return '', 200
 
         return jsonify(message='없는 게시판입니다.'), 400
+
 
     # 게시판 내 검색
     @route('/<board_name>/search', methods=['GET'])
@@ -128,6 +130,7 @@ class BoardView(FlaskView):
         return jsonify({"total" : len(post),
                         "post" : post}), 200
 
+
     # 좋아요 순
     @route('/main/likes', methods=['GET'])
     def get_main_likes(self):
@@ -135,8 +138,6 @@ class BoardView(FlaskView):
         top_likes = sorted(posts, key=lambda post : post['likes'], reverse=True)[:9]
 
         return jsonify({"orderby_likes" : top_likes }), 200
-
-
 
 
     # 글 최신순 10개
@@ -153,9 +154,9 @@ class BoardView(FlaskView):
     def order_by_latest(self):
         pipeline = [
             {"$project": {
-                "numberOfColors": {"$size": "$comment"}}},
+                "number_of_comment": {"$size": "$comment"}}},
             {"$sort":
-                 {"numberOfColors": -1}},
+                 {"number_of_comment": -1}},
             {"$limit": 10}
         ]
         posts = Post.objects(is_deleted=False).aggregate(*pipeline)

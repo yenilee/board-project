@@ -41,6 +41,8 @@ class UserView(FlaskView):
         user.save()
         return '', 200
 
+
+    # 로그인
     @route('/signin', methods=['POST'])
     def signin(self, user=None):
         data = json.loads(request.data)
@@ -57,6 +59,8 @@ class UserView(FlaskView):
 
         return jsonify(message='잘못된 비밀번호 입니다.'), 401
 
+
+    # 내 게시물
     @route('/mypage', methods=['GET'])
     @auth
     def my_post(self):
@@ -64,6 +68,8 @@ class UserView(FlaskView):
             my_post = [my_post.to_json() for my_post in Post.objects(author=g.user).all()]
             return {"my_post":my_post}, 200
 
+
+    # 내 댓글
     @route('/mypage/comment', methods=['GET'])
     @auth
     def my_comment(self):
@@ -78,3 +84,14 @@ class UserView(FlaskView):
         my_comment = [ comment.to_json() for comment in comments if comment.author.id == g.user]
 
         return {"my_comment" : my_comment }, 200
+
+
+    # 좋아요 한 글
+    @route('/mypage/likes', methods=['GET'])
+    @auth
+    def my_liked_post(selfs):
+
+        posts = Post.objects(likes__contains = g.user, is_deleted = False)
+        post = [post.to_json_list_with_board_name() for post in posts.all()]
+
+        return jsonify(data=post), 200
