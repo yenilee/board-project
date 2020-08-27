@@ -1,9 +1,9 @@
 import datetime
 
-from mongoengine import (StringField, DateTimeField, ReferenceField, EmbeddedDocumentField,
+from mongoengine    import (StringField, DateTimeField, ReferenceField,
                          ListField, BooleanField, IntField)
-from mongoengine import Document, EmbeddedDocument
-
+from mongoengine    import Document
+from bson.json_util import dumps, loads
 
 class User(Document):
     account     = StringField(max_length=50, required=True, unique=True)
@@ -37,7 +37,12 @@ class Post(Document):
             'content' : self.content,
             'created_at' : self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
             'tag' : self.tag,
-            'likes': len(self.likes)
+            'likes': len(self.likes),
+            'comments': [{"comment_id": str(comment.id),
+                          "name": comment.author.account,
+                          "content": comment.content,
+                          "created_at": comment.created_at.strftime('%Y-%m-%d-%H:%M:%S')}
+                         for comment in Comment.objects(post=self.id, is_deleted=False).all()]
         }
 
     def to_json_list(self):

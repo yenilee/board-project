@@ -144,7 +144,7 @@ class BoardView(FlaskView):
     def order_by_latest(self):
         posts = Post.objects(is_deleted=False).order_by('-created_at').limit(10)
 
-        post = [post.to_json_list_with_board_name() for post in posts.all()]
+        post = [post.to_json_list() for post in posts.all()]
         return jsonify(data=post),200
 
 
@@ -160,5 +160,5 @@ class BoardView(FlaskView):
         ]
         posts = Post.objects(is_deleted=False).aggregate(*pipeline)
 
-        post = [Post.objects(id=post['_id']).get().to_json_list_with_board_name() for post in posts]
+        post = [Post.objects(id=post['_id']).get().to_json_list() for post in posts]
         return jsonify(data=post), 200
