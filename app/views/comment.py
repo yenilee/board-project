@@ -4,7 +4,6 @@ from app.models import Board, Post, Comment
 from flask_classful import FlaskView, route
 from flask import jsonify, request, g
 from app.utils import auth
-from bson.json_util import loads, dumps
 
 
 class CommentView(FlaskView):
@@ -144,6 +143,7 @@ class CommentView(FlaskView):
             author=g.user,
             replied_comment=comment,
             content=data['content'],
+            is_replied=True
         )
         reply.save()
 

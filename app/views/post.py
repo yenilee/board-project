@@ -38,12 +38,26 @@ class PostView(FlaskView):
 
         if not Board.objects(name=board_name, is_deleted=False):
             return jsonify(message='없는 게시판입니다.'), 400
+        try:
+            post = Post.objects(post_id=post_id, is_deleted=False).get()
+            posts_response = post.to_json()
+        except:
+            return jsonify(message="없는 게시물입니다."), 200
 
-        # try:
-        post = Post.objects(post_id=post_id, is_deleted=False).get()
-        return jsonify(post.to_json()), 200
-        # except:
-        #     return jsonify(message='없는 게시물입니다.'), 400
+        comments = Comment.objects(post=post.id, is_replied=False)
+        reply = Comment.objects(post=post.id, is_replied=True)
+        comment_list=[]
+
+        for comment in comments:
+            a_comment = comment.to_json()
+
+            if reply(replied_comment=comment.id):
+                a_comment['reply'] = [ reply.to_json()
+                                       for reply in reply(replied_comment=comment.id)]
+            comment_list.append(a_comment)
+
+        posts_response['comments'] = comment_list
+        return jsonify(posts_response), 200
 
 
     # 게시글 삭제 API
