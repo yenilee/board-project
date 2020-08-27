@@ -25,7 +25,6 @@ class CommentView(FlaskView):
             return jsonify(message='잘못된 주소입니다.'), 400
         post = Post.objects(board=board_id, post_id=post_id, is_deleted=False).get().id
 
-        # 삭제 가능 user 확인
         comment = Comment(
             post=post,
             author=g.user,
@@ -118,3 +117,35 @@ class CommentView(FlaskView):
         comment.likes.append(g.user)
         comment.save()
         return jsonify(message="'좋아요'가 반영되었습니다."), 200
+
+
+    # 대댓글 생성 API
+    @route('/<comment_id>/reply', methods=['POST'])
+    @auth
+    def post_reply(self, board_name, post_id, comment_id):
+        data = json.loads(request.data)
+
+        if not Board.objects(name=board_name, is_deleted=False):
+            return jsonify(message='없는 게시판입니다.'), 400
+        board_id = Board.objects(name=board_name, is_deleted=False).get().id
+
+        # 게시글 존재 여부 확인
+        if not Post.objects(board=board_id, post_id=post_id, is_deleted=False):
+            return jsonify(message='잘못된 주소입니다.'), 400
+        post = Post.objects(board=board_id, post_id=post_id, is_deleted=False).get()
+
+        # 댓글 존재 여부 확인
+        if not Comment.objects(post=post, id=comment_id, is_deleted=False):
+            return jsonify(message='잘못된 주소입니다.'), 400
+        comment = Comment.objects(post=post, is_deleted=False, id=comment_id).get()
+
+        reply = Comment(
+            post=post,
+            author=g.user,
+            replied_comment=comment,
+            content=data['content'],
+        )
+        reply.save()
+
+
+        return jsonify(message='댓글이 등록되었습니다.'), 200
