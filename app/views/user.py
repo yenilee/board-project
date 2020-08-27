@@ -87,6 +87,6 @@ class UserView(FlaskView):
     def my_liked_post(selfs):
 
         posts = Post.objects(likes__contains = g.user, is_deleted = False)
-        post = [post.to_json_list_with_board_name() for post in posts.all()]
+        post = [post.to_json_list() for post in posts.all()]
 
         return jsonify(data=post), 200

@@ -84,7 +84,7 @@ class CommentView(FlaskView):
 
 
     # 댓글 좋아요 및 취소 API
-    @route('/<int:comment_id>/likes', methods=['POST'])
+    @route('/<comment_id>/likes', methods=['POST'])
     @auth
     def like_post(self, board_name, post_id, comment_id):
         # 게시판 존재 여부 확인
@@ -98,9 +98,9 @@ class CommentView(FlaskView):
         post = Post.objects(board=board_id, post_id=post_id, is_deleted=False).get()
 
         # 댓글 존재 여부 확인
-        if len(post.comment) < comment_id:
+        if not Comment.objects(post=post, id=comment_id, is_deleted=False):
             return jsonify(message='잘못된 주소입니다.'), 400
-        comment = post.comment[comment_id - 1]
+        comment = Comment.objects(post=post, is_deleted=False, id=comment_id).get()
 
         likes_user = {}
         for user_index_number in range(0,len(comment.likes)):
@@ -110,10 +110,10 @@ class CommentView(FlaskView):
         if g.user in likes_user.keys():
             user_index = likes_user[g.user]
             del comment.likes[user_index]
-            post.save()
+            comment.save()
             return jsonify(message="'좋아요'가 취소되었습니다."), 200
 
         # 좋아요 누르지 않은 경우 --> 좋아요
         comment.likes.append(g.user)
-        post.save()
+        comment.save()
         return jsonify(message="'좋아요'가 반영되었습니다."), 200
