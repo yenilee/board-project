@@ -38,6 +38,7 @@ class PostView(FlaskView):
 
         if not Board.objects(name=board_name, is_deleted=False):
             return jsonify(message='없는 게시판입니다.'), 400
+
         try:
             post = Post.objects(post_id=post_id, is_deleted=False).get()
             posts_response = post.to_json()

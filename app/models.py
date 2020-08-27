@@ -65,9 +65,18 @@ class Comment(Document):
     is_replied      = BooleanField(required=True, default=False)
 
     def to_json(self):
-        return {
-            "id" : str(self.id),
-            "author": self.author.account,
-            "content": self.content,
-            "created_at" : self.created_at
-        }
+        if self.is_deleted is False:
+            return {
+                "id" : str(self.id),
+                "author": self.author.account,
+                "content": self.content,
+                "created_at" : self.created_at
+            }
+
+        else:
+            return {
+                "id" : str(self.id),
+                "author": self.author.account,
+                "content": "삭제된 댓글입니다",
+                "created_at" : self.created_at
+            }
