@@ -4,7 +4,7 @@ from app.models         import Board, Post, User
 from app.serializers    import BoardSchema
 from flask_classful     import FlaskView, route
 from flask              import jsonify, request, g
-from app.utils          import auth
+from app.utils          import login_required, check_board
 from marshmallow        import ValidationError
 
 
@@ -23,7 +23,7 @@ class BoardView(FlaskView):
 
     # 게시판 생성
     @route('/boards', methods=['POST'])
-    @auth
+    @login_required
     def post(self):
         data = json.loads(request.data)
 
@@ -51,20 +51,16 @@ class BoardView(FlaskView):
 
     # 게시판 글 목록 조회
     @route('/<board_name>', methods=['GET'])
+    @check_board
     def get(self, board_name):
         page = request.args.get('page', 1, int)
 
         # pagination
         limit = 10
         skip = (page - 1) * limit
-        print(skip)
-        # 게시판 존재 여부 확인
-        if not Board.objects(name=board_name, is_deleted=False):
-            return jsonify(message='없는 게시판입니다.'), 400
-        board_id = Board.objects(name=board_name, is_deleted=False).get().id
 
-        post_list = Post.objects(board=board_id, is_deleted=False).order_by('-created_at').limit(limit).skip(skip)
-        total_number_of_post = Post.objects(board=board_id, is_deleted=False).count()
+        post_list = Post.objects(board=g.board.id, is_deleted=False).order_by('-created_at').limit(limit).skip(skip)
+        total_number_of_post = Post.objects(board=g.board.id, is_deleted=False).count()
         post_data=[
             {"total": total_number_of_post,
              "posts": [{"number": n,
@@ -80,7 +76,7 @@ class BoardView(FlaskView):
 
     # 게시판 이름 수정
     @route('/<board_name>', methods=['PUT'])
-    @auth
+    @login_required
     def update(self, board_name):
         if not g.auth:
             return jsonify(message='권한이 없는 사용자입니다.'), 403
@@ -95,7 +91,7 @@ class BoardView(FlaskView):
 
     # 게시판 삭제
     @route('/<board_name>', methods=['DELETE'])
-    @auth
+    @login_required
     def delete(self, board_name):
         if not g.auth:
             return jsonify(message='권한이 없는 사용자입니다.'), 403
@@ -108,22 +104,23 @@ class BoardView(FlaskView):
 
 
     # 게시판 내 검색
+    # 매칭 쿼리 없을 때 오류 처리 필요(예은)
+    # 중복 쿼리 구현 필요. 현재는 뒤에 있는 객체가 덧씌워짐
     @route('/<board_name>/search', methods=['GET'])
-    def search(self, board_name, filters=None):
-        if not Board.objects(name=board_name, is_deleted=False):
-            return jsonify(message='없는 게시판입니다.'), 400
+    @check_board
+    def search(self, board_name, filters=None, posts=None):
 
-        board_id = Board.objects(name=board_name).get().id
         filters = request.args
-        if filters is None:
-            return jsonify(message='내용을 검색해주세요'), 400
 
         if 'title' in filters:
-            posts = Post.objects(board=board_id, title__contains=filters['title'])
+            posts = Post.objects(board=g.board.id, title__contains=filters['title'])
 
         if 'author' in filters:
             user_id = User.objects(account=filters['author']).get().id
-            posts = Post.objects(board=board_id, author__contains=user_id)
+            posts = Post.objects(board=g.board.id, author__exact=user_id)
+
+        if filters is None or posts is None:
+            return jsonify(message='내용을 검색해주세요'), 400
 
         post = [post.to_json_list() for post in posts.all()]
         return jsonify({"total" : len(post),
@@ -133,10 +130,20 @@ class BoardView(FlaskView):
     # 좋아요 순
     @route('/main/likes', methods=['GET'])
     def get_main_likes(self):
-        posts = [post.to_json_list() for post in Post.objects]
-        top_likes = sorted(posts, key=lambda post : post['likes'], reverse=True)[:9]
+        pipeline = [
+            {"$project": {
+                "number_of_likes": {"$size": "$likes"}}},
+            {"$sort":
+                 {"number_of_likes": -1}},
+            {"$limit": 10}
+        ]
+        posts = Post.objects(is_deleted=False).aggregate(*pipeline)
+        top_likes = [Post.objects(id=post['_id']).get().to_json_list() for post in posts]
 
-        return jsonify({"orderby_likes" : top_likes }), 200
+        # posts = [post.to_json_list() for post in Post.objects]
+        # top_likes = sorted(posts, key=lambda post : post['likes'], reverse=True)[:9]
+
+        return jsonify({"orderby_likes" : top_likes}), 200
 
 
     # 글 최신순 10개

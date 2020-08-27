@@ -5,11 +5,11 @@ from functools      import wraps
 from flask          import request, g, jsonify
 from app.config     import SECRET, ALGORITHM
 from bson.json_util import loads
-from app.models     import Board
+from app.models     import Board, Post, Comment
 
 
 # 로그인 데코레이터
-def auth(f):
+def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
 
@@ -31,12 +31,41 @@ def auth(f):
 
 def check_board(f):
     @wraps(f)
-    def wrapper():
-        def decorated(board_name):
-            if not Board.objects(name=board_name, is_deleted=False):
-                return jsonify(message='없는 게시판입니다.'), 400
-            board_id = Board.objects(name=board_name, is_deleted=False).get().id
-            return board_id
+    def decorated_view(*args, **kwargs):
+        board_name = kwargs['board_name']
 
-        return decorated
-    return wrapper()
+        # Do something with value...
+        if not Board.objects(name=board_name, is_deleted=False):
+            return jsonify(message='없는 게시판입니다.'), 400
+        g.board = Board.objects(name=board_name, is_deleted=False).get()
+
+        return f(*args, **kwargs)
+    return decorated_view
+
+def check_post(f):
+    @wraps(f)
+    def decorated_view(*args, **kwargs):
+        post_id = kwargs['post_id']
+
+        if not Post.objects(board=g.board.id,post_id=post_id, is_deleted=False):
+            return jsonify(message="없는 게시물입니다."), 200
+        g.post = Post.objects(board=g.board.id, post_id=post_id, is_deleted=False).get()
+
+        return f(*args, **kwargs)
+    return decorated_view
+
+def check_comment(f):
+    @wraps(f)
+    def decorated_view(*args, **kwargs):
+        comment_id = kwargs['comment_id']
+
+        if len(comment_id) is not 24:
+            return jsonify(message='유효한 댓글ID가 아닙니다.'), 400
+
+        if not Comment.objects(post=g.post.id, id=comment_id, is_deleted=False):
+            return jsonify(message='없는 댓글입니다.'), 400
+
+        g.comment = Comment.objects(post=g.post.id, is_deleted=False, id=comment_id).get()
+
+        return f(*args, **kwargs)
+    return decorated_view

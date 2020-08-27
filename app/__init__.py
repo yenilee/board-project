@@ -1,6 +1,7 @@
 import mongoengine
 
 from flask      import Flask
+from functools      import wraps
 from app.config import MONGO_URI
 
 def create_app():
