@@ -8,9 +8,13 @@ from app.models         import Board, Post, User
 
 
 class BoardView(FlaskView):
-    # 게시판 카테고리 조회
     @route('/category', methods=['GET'])
     def get_category(self):
+        """
+        게시판 카테고리 조회 API
+        작성자: 최진아
+        :return: 게시판 카테고리
+        """
         board_data = Board.objects(is_deleted=False)
 
         board_category = [
@@ -20,11 +24,15 @@ class BoardView(FlaskView):
         return jsonify(data=board_category), 200
 
 
-    # 게시판 생성
     @route('/boards', methods=['POST'])
     @login_required
     @board_validator
     def post(self):
+        """
+        게시판 생성 API
+        작성자: 최진아
+        :return: message
+        """
         # 유저의 권한 확인
         if not g.auth:
             return jsonify(message='권한이 없는 사용자입니다.'), 403
@@ -39,13 +47,18 @@ class BoardView(FlaskView):
         board = Board(name=board_name)
         board.save()
 
-        return '', 200
+        return jsonify(message='등록되었습니다.'), 200
 
 
-    # 게시판 글 목록 조회
     @route('/<board_name>', methods=['GET'])
     @check_board
     def get(self, board_name):
+        """
+        게시판 글 조회 API
+        작성자: 최진아
+        :param board_name: 게시판 이름
+        :return: 게시판 글 목록 (제목, 내용, 작성자 등)
+        """
         page = request.args.get('page', 1, int)
 
         # pagination
@@ -65,7 +78,6 @@ class BoardView(FlaskView):
                     for n, post in zip(range(total_number_of_post - skip, 0, -1), post_list)]}]
 
         return jsonify(post_data[0]), 200
-
 
 
     @route('/<board_name>', methods=['PUT'])
@@ -93,7 +105,6 @@ class BoardView(FlaskView):
         return jsonify(message='수정되었습니다.'), 200
 
 
-    # 게시판 삭제
     @route('/<board_name>', methods=['DELETE'])
     @login_required
     def delete(self, board_name):
@@ -173,19 +184,27 @@ class BoardView(FlaskView):
         return jsonify({"orderby_likes" : top_likes}), 200
 
 
-    # 글 최신순 10개
     @route('/main/latest', methods=['GET'])
     def order_by_latest(self):
+        """
+        메인페이지: 최신 글 조회 API
+        작성자: 최진아
+        :return: 최신 게시글 10개
+        """
         posts = Post.objects(is_deleted=False).order_by('-created_at').limit(10)
 
         post = [post.to_json_list() for post in posts.all()]
         return jsonify(data=post),200
 
 
-    # 댓글 많은 순 10개
     # is_deleted 반영..(진아)
     @route('/main/comments', methods=['GET'])
     def order_by_latest(self):
+        """
+        메인페이지: 댓글 많은 글 조회 API
+        작성자: 최진아
+        :return: 댓글 기준 게시글 10개
+        """
         pipeline = [
             {"$lookup":
                  {"from": "comment",

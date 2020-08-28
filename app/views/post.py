@@ -8,7 +8,6 @@ from app.models     import Post, Comment
 
 
 class PostView(FlaskView):
-
     @route('', methods=['POST'])
     @login_required
     @check_board
@@ -32,7 +31,6 @@ class PostView(FlaskView):
             ).save()
 
         return jsonify(message='게시글이 등록되었습니다.'), 200
-
 
 
     @route('/<int:post_id>', methods=['GET'])
@@ -64,26 +62,37 @@ class PostView(FlaskView):
         return jsonify(posts_response), 200
 
 
-    # 게시글 삭제 API
     @route('/<int:post_id>', methods=['DELETE'])
     @login_required
     @check_board
     @check_post
     def delete(self, board_name, post_id):
-        # 삭제 가능 user 확인
+        """
+        게시글 삭제 API
+        작성자: 최진아
+        :param board_name: 게시판 이름
+        :param post_id: 게시글 번호
+        :return: message
+        """
         if g.user == g.post.author.id or g.auth == True:
             g.post.update(is_deleted=True)
             return jsonify(message='삭제되었습니다.'), 200
         return jsonify(message='권한이 없습니다.'), 403
 
 
-    # 게시글 수정 API
     @route('/<int:post_id>', methods=['PUT'])
     @login_required
     @check_board
     @check_post
     @post_validator
     def update(self, board_name, post_id):
+        """
+        게시글 수정 API
+        작성자: 최진아
+        :param board_name: 게시판 이름
+        :param post_id: 게시글 번호
+        :return: message
+        """
         data = json.loads(request.data)
         tag = data.get('tag')
 
@@ -98,12 +107,18 @@ class PostView(FlaskView):
         return jsonify(message='권한이 없습니다.'), 403
 
 
-    # 게시글 좋아요 및 취소 API
     @route('/<int:post_id>/likes', methods=['POST'])
     @login_required
     @check_board
     @check_post
     def like_post(self, board_name, post_id):
+        """
+        게시글 좋아요 기능 API
+        작성자: 최진아
+        :param board_name: 게시판 이름
+        :param post_id: 게시글 번호
+        :return: message
+        """
         post=Post.objects(likes__exact=g.user, id=g.post.id)
 
         # 좋아요 등록

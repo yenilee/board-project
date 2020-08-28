@@ -13,10 +13,14 @@ from app.utils          import login_required
 
 
 class UserView(FlaskView):
-    # 회원가입
     @route('/signup', methods=['POST'])
     @user_validator
     def signup(self):
+        """"
+        회원가입 API
+        작성자: 최진아
+        :return: message
+        """
         data = json.loads(request.data)
 
         account = data['account']
@@ -34,8 +38,7 @@ class UserView(FlaskView):
                 password=password
                 )
         user.save()
-        return '', 200
-
+        return jsonify(message='등록되었습니다.'), 200
 
 
     @route('/signin', methods=['POST'])
@@ -61,7 +64,6 @@ class UserView(FlaskView):
         return jsonify(message='잘못된 비밀번호 입니다.'), 401
 
 
-    # 내 게시물
     @route('/mypage', methods=['GET'])
     @login_required
     def my_post(self):
@@ -72,10 +74,9 @@ class UserView(FlaskView):
         """
         my_post = [my_post.to_json_list() for my_post in
                    pagination(Post.objects(author=g.user).all().order_by('-created_at'))]
-        return {"my_post":my_post}, 200
+        return jsonify(my_post=my_post), 200
 
 
-    # 내 댓글
     @route('/mypage/comment', methods=['GET'])
     @login_required
     def my_comment(self):
@@ -86,14 +87,18 @@ class UserView(FlaskView):
         """
         my_comment = [comment.to_json() for comment in
                       pagination(Comment.objects(author=g.user).all().order_by('-created_at'))]
-        return {"my_comment" : my_comment }, 200
+        return jsonify(my_comment=my_comment), 200
 
 
-    # 좋아요 한 글
     @route('/mypage/likes', methods=['GET'])
     @login_required
     def my_liked_post(self):
-        posts = Post.objects(likes__exact=g.user, is_deleted=False)
-        post = [post.to_json_list() for post in posts.all()]
+        """
+        마이페이지: 사용자가 좋아요 한 글 조회 API
+        작성자: 최진아
+        :return: 좋아요 한 글 10
+        """
+        post = [post.to_json_list() for post in
+                pagination(Post.objects(likes__exact=g.user, is_deleted=False).all().order_by('created_at'))]
 
         return jsonify(my_liked_post=post), 200
