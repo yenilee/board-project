@@ -1,9 +1,10 @@
 import json
 
-from app.models import Board, Post, Comment
 from flask_classful import FlaskView, route
 from flask import jsonify, request, g
+
 from app.utils import login_required, check_board, check_post
+from app.models import Post, Comment
 
 
 class PostView(FlaskView):

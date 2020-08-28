@@ -1,11 +1,12 @@
 import json
 
-from app.models         import Board, Post, User, Comment
-from app.serializers    import BoardSchema
 from flask_classful     import FlaskView, route
 from flask              import jsonify, request, g
-from app.utils          import login_required, check_board
 from marshmallow        import ValidationError
+
+from app.utils          import login_required, check_board
+from app.models         import Board, Post, User
+from app.serializers    import BoardSchema
 
 
 class BoardView(FlaskView):
