@@ -12,7 +12,7 @@ from app.models      import Board, Post, Comment
 from app.serializers import PostSchema, UserSchema, BoardSchema, CommentSchema
 
 
-# 로그인 데코레이터
+# 로그인 인증 데코레이터
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -128,7 +128,7 @@ def comment_validator(f):
         return f(*args, **kwargs)
     return decorated_view
 
-
+# 객체를 받아 페이지네이션 기능을 추가해주는 함수
 def pagination(o):
     page = request.args.get('page', 1, int)
     limit = 10

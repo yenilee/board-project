@@ -67,12 +67,18 @@ class BoardView(FlaskView):
         return jsonify(post_data[0]), 200
 
 
-    # 게시판 이름 수정
+
     @route('/<board_name>', methods=['PUT'])
     @login_required
     @check_board
     @board_validator
     def update(self, board_name):
+        '''
+        게시판 이름 수정 API
+        작성자: 이예은
+        :param board_name: 게시판 이름
+        :return: message
+        '''
         # 유저의 권한 확인
         if not g.auth:
             return jsonify(message='권한이 없는 사용자입니다.'), 403
@@ -84,29 +90,40 @@ class BoardView(FlaskView):
             return jsonify(message='이미 등록된 게시판입니다.'), 400
 
         g.board.update(name=data['board_name'])
-        return '', 200
+        return jsonify(message='수정되었습니다.'), 200
 
 
     # 게시판 삭제
     @route('/<board_name>', methods=['DELETE'])
     @login_required
     def delete(self, board_name):
+        '''
+        게시판 삭제 API
+        작성자: 이예은
+        :param board_name: 게시판 이름
+        :return: message
+        '''
         if not g.auth:
             return jsonify(message='권한이 없는 사용자입니다.'), 403
 
         if Board.objects(name=board_name, is_deleted=False):
             Board.objects(name=board_name).update(is_deleted=True)
-            return '', 200
+            return jsonify(message='삭제되었습니다.'), 200
 
         return jsonify(message='없는 게시판입니다.'), 400
 
 
-    # 게시판 내 검색
-    # 매칭 쿼리 없을 때 오류 처리 필요(예은)
     @route('/<board_name>/search', methods=['GET'])
     @check_board
     def search(self, board_name, filters=None, posts=None):
-
+        '''
+        게시글 검색 API
+        작성자: 이예은
+        :param board_name: 게시판 이름
+        :param filters: 필터(태그, 글제목, 작성자)
+        :param posts: 게시글 객체
+        :return: 검색된 게시글 10개
+        '''
         filters = request.args
         posts = Post.objects(board=g.board.id)
 
@@ -133,9 +150,13 @@ class BoardView(FlaskView):
         return jsonify({"total" : len(post), "post" : post}), 200
 
 
-    # 좋아요 순
     @route('/main/likes', methods=['GET'])
     def get_main_likes(self):
+        '''
+        메인페이지: 좋아요 많은 글 조회 API
+        작성자: 이예은
+        :return: 좋아요 기준 게시글 10개
+        '''
         pipeline = [
             {"$project": {
                 "number_of_likes": {"$size": "$likes"}}},
