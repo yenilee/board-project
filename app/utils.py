@@ -3,8 +3,9 @@ import jwt
 
 from functools      import wraps
 from flask          import request, g, jsonify
-from app.config     import SECRET, ALGORITHM
 from bson.json_util import loads
+
+from app.config     import SECRET, ALGORITHM
 from app.models     import Board, Post, Comment
 
 
