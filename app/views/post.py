@@ -15,6 +15,7 @@ class PostView(FlaskView):
     def post(self, board_name):
         """
         게시글 생성 API
+        작성자: avery
         :param board_name: 게시판 이름
         :return: message
         """
@@ -39,7 +40,7 @@ class PostView(FlaskView):
     def get(self, board_name, post_id):
         """
         게시글 조회 API
-        작성자: 이예은
+        작성자: avery
         :param board_name: 게시판 이름
         :param post_id: 게시글 번호
         :return: 게시글(제목, 내용, 댓글 등)
