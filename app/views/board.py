@@ -121,8 +121,11 @@ class BoardView(FlaskView):
             posts = posts(author__exact=user_id)
 
         # if 'tag' in filters:
-        #     posts = posts(tag__in=filters['tag'].split())
-
+        #     tag = filters['tag'].split()
+        #     print(tag)
+        #     posts = posts(tag__in=tag)
+        #     print(posts)
+        # posts = Post.objects(tag__in=['태그1'])
         if filters is None or posts is None:
             return jsonify(message='내용을 검색해주세요'), 400
 

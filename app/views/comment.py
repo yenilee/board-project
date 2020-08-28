@@ -9,6 +9,7 @@ from app.utils          import login_required, check_board, check_post, check_co
 from app.serializers    import CommentSchema
 
 
+
 class CommentView(FlaskView):
 
     # 댓글 생성
