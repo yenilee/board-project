@@ -8,12 +8,17 @@ from app.models     import Post, Comment
 
 
 class PostView(FlaskView):
-    # 게시글 작성 API
+
     @route('', methods=['POST'])
     @login_required
     @check_board
     @post_validator
     def post(self, board_name):
+        '''
+        게시글 생성 API
+        :param board_name: 게시판 이름
+        :return: message
+        '''
         data = json.loads(request.data)
         tag = data.get('tag')
 
@@ -26,14 +31,21 @@ class PostView(FlaskView):
             post_id = Post.objects.count()+1
             ).save()
 
-        return '', 200
+        return jsonify(message='게시글이 등록되었습니다.'), 200
 
 
-    # 게시글 읽기 API
+
     @route('/<int:post_id>', methods=['GET'])
     @check_board
     @check_post
     def get(self, board_name, post_id):
+        '''
+        게시글 조회 API
+        작성자: 이예은
+        :param board_name: 게시판 이름
+        :param post_id: 게시글 번호
+        :return: 게시글(제목, 내용, 댓글 등)
+        '''
         posts_response = g.post.to_json()
 
         comments = Comment.objects(post=g.post.id, is_replied=False)

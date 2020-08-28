@@ -37,10 +37,15 @@ class UserView(FlaskView):
         return '', 200
 
 
-    # 로그인
+
     @route('/signin', methods=['POST'])
     @user_validator
-    def signin(self, user=None):
+    def signin(self):
+        '''
+        로그인 API
+        작성자: 이예은
+        :return: 로그인 인증 토큰
+        '''
         data = json.loads(request.data)
 
         if not User.objects(account=data['account']):
@@ -60,6 +65,11 @@ class UserView(FlaskView):
     @route('/mypage', methods=['GET'])
     @login_required
     def my_post(self):
+        '''
+        마이페이지: 사용자 작성 게시물 조회 API
+        작성자: 이예은
+        :return: 최신 게시물 10개
+        '''
         my_post = [my_post.to_json_list() for my_post in
                    pagination(Post.objects(author=g.user).all().order_by('-created_at'))]
         return {"my_post":my_post}, 200
@@ -69,6 +79,11 @@ class UserView(FlaskView):
     @route('/mypage/comment', methods=['GET'])
     @login_required
     def my_comment(self):
+        '''
+        마이페이지: 사용자 작성 댓글 조회 API
+        작성자: 이예은
+        :return: 최신 댓글 10개
+        '''
         my_comment = [comment.to_json() for comment in
                       pagination(Comment.objects(author=g.user).all().order_by('-created_at'))]
         return {"my_comment" : my_comment }, 200

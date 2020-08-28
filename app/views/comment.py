@@ -8,13 +8,20 @@ from app.utils          import login_required, check_board, check_post, check_co
 
 
 class CommentView(FlaskView):
-    # 댓글 생성
+
     @route('', methods=['POST'])
     @login_required
     @check_board
     @check_post
     @comment_validator
     def post(self, board_name, post_id):
+        '''
+        댓글 생성 API
+        작성자: 이예은
+        :param board_name: 게시판 이름
+        :param post_id: 게시글 번호
+        :return: message
+        '''
         data = json.loads(request.data)
 
         comment = Comment(
@@ -25,13 +32,21 @@ class CommentView(FlaskView):
         comment.save()
         return jsonify(message='댓글이 등록되었습니다.'), 200
 
-    # 댓글 수정
+
     @route('<comment_id>', methods=['PUT'])
     @login_required
     @check_board
     @check_post
     @comment_validator
     def update(self, board_name, post_id, comment_id):
+        '''
+        댓글 수정 API
+        작성자: 이예은
+        :param board_name: 게시판 이름
+        :param post_id: 게시글 번호
+        :param comment_id: 댓글 objectId
+        :return: message
+        '''
         data = json.loads(request.data)
 
         comment = Comment.objects(id=comment_id).get()
@@ -49,7 +64,14 @@ class CommentView(FlaskView):
     @check_board
     @check_post
     def delete(self, board_name, post_id, comment_id):
-        # 삭제 가능 user 확인
+        '''
+        댓글 삭제 API
+        작성자: 이예은
+        :param board_name: 게시판 이름
+        :param post_id: 게시글 번호
+        :param comment_id: 댓글 objectId
+        :return: message
+        '''
         comment = Comment.objects(id=comment_id).get()
         if comment.author.id == g.user and comment.is_deleted is False:
             comment.is_deleted = True
