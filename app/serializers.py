@@ -12,12 +12,12 @@ class CommentSchema(Schema):
     content     = fields.Str(required=True)
 
 class PostSchema(Schema):
-    author = fields.Nested(UserSchema)
-    board = fields.Nested(BoardSchema)
-    title = fields.Str(required=True)
+    author  = fields.Nested(UserSchema)
+    board   = fields.Nested(BoardSchema)
+    title   = fields.Str(required=True)
     content = fields.Str(required=True)
-    likes = fields.Nested(UserSchema)
-    tag = fields.List(fields.Str)
+    likes   = fields.Nested(UserSchema)
+    tag     = fields.List(fields.Str)
 
     class Meta:
         ordered = True

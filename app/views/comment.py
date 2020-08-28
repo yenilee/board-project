@@ -8,7 +8,6 @@ from app.utils          import login_required, check_board, check_post, check_co
 
 
 class CommentView(FlaskView):
-
     @route('', methods=['POST'])
     @login_required
     @check_board
@@ -58,7 +57,6 @@ class CommentView(FlaskView):
         return jsonify(message='수정 권한이 없습니다.'), 401
 
 
-    # 댓글 삭제
     @route('<comment_id>', methods=['DELETE'])
     @login_required
     @check_board
@@ -81,13 +79,20 @@ class CommentView(FlaskView):
         return jsonify(message='수정 권한이 없습니다.'), 401
 
 
-    # 댓글 좋아요 및 취소 API
     @route('/<comment_id>/likes', methods=['POST'])
     @login_required
     @check_board
     @check_post
     @check_comment
     def like_post(self, board_name, post_id, comment_id):
+        """
+        댓글 좋아요 기능 API
+        작성자: 최진아
+        :param board_name: 게시판 이름
+        :param post_id: 게시글 번호
+        :param comment_id: 댓글 objectId
+        :return: message
+        """
         comment = Comment.objects(likes__exact=g.user, id=comment_id)
 
         # 졸아요 등록
@@ -100,7 +105,6 @@ class CommentView(FlaskView):
         return jsonify(message="'좋아요'가 취소되었습니다."), 200
 
 
-    # 대댓글 생성 API
     @route('/<comment_id>/reply', methods=['POST'])
     @login_required
     @check_board
@@ -108,6 +112,14 @@ class CommentView(FlaskView):
     @check_comment
     @comment_validator
     def post_reply(self, board_name, post_id, comment_id):
+        """
+        대댓글 좋아요 기능 API
+        작성자: 최진아
+        :param board_name: 게시판 이름
+        :param post_id: 게시글 번호
+        :param comment_id: 댓글 objectId
+        :return: message
+        """
         data = json.loads(request.data)
 
         reply = Comment(
