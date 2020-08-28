@@ -70,7 +70,7 @@ class PostView(FlaskView):
     def delete(self, board_name, post_id):
         """
         게시글 삭제 API
-        작성자: 최진아
+        작성자: dana
         :param board_name: 게시판 이름
         :param post_id: 게시글 번호
         :return: message
@@ -89,7 +89,7 @@ class PostView(FlaskView):
     def update(self, board_name, post_id):
         """
         게시글 수정 API
-        작성자: 최진아
+        작성자: dana
         :param board_name: 게시판 이름
         :param post_id: 게시글 번호
         :return: message
@@ -115,7 +115,7 @@ class PostView(FlaskView):
     def like_post(self, board_name, post_id):
         """
         게시글 좋아요 기능 API
-        작성자: 최진아
+        작성자: dana
         :param board_name: 게시판 이름
         :param post_id: 게시글 번호
         :return: message

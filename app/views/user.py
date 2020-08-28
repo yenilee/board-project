@@ -18,7 +18,7 @@ class UserView(FlaskView):
     def signup(self):
         """"
         회원가입 API
-        작성자: 최진아
+        작성자: dana
         :return: message
         """
         data = json.loads(request.data)
@@ -95,7 +95,7 @@ class UserView(FlaskView):
     def my_liked_post(self):
         """
         마이페이지: 사용자가 좋아요 한 글 조회 API
-        작성자: 최진아
+        작성자: dana
         :return: 좋아요 한 글 10
         """
         post = [post.to_json_list() for post in
