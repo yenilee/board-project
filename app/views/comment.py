@@ -16,7 +16,7 @@ class CommentView(FlaskView):
     def post(self, board_name, post_id):
         """
         댓글 생성 API
-        작성자: 이예은
+        작성자: avery
         :param board_name: 게시판 이름
         :param post_id: 게시글 번호
         :return: message
@@ -40,7 +40,7 @@ class CommentView(FlaskView):
     def update(self, board_name, post_id, comment_id):
         """
         댓글 수정 API
-        작성자: 이예은
+        작성자: avery
         :param board_name: 게시판 이름
         :param post_id: 게시글 번호
         :param comment_id: 댓글 objectId
@@ -64,7 +64,7 @@ class CommentView(FlaskView):
     def delete(self, board_name, post_id, comment_id):
         """
         댓글 삭제 API
-        작성자: 이예은
+        작성자: avery
         :param board_name: 게시판 이름
         :param post_id: 게시글 번호
         :param comment_id: 댓글 objectId

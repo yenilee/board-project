@@ -87,7 +87,7 @@ class BoardView(FlaskView):
     def update(self, board_name):
         """
         게시판 이름 수정 API
-        작성자: 이예은
+        작성자: avery
         :param board_name: 게시판 이름
         :return: message
         """
@@ -110,7 +110,7 @@ class BoardView(FlaskView):
     def delete(self, board_name):
         """
         게시판 삭제 API
-        작성자: 이예은
+        작성자: avery
         :param board_name: 게시판 이름
         :return: message
         """
@@ -129,7 +129,7 @@ class BoardView(FlaskView):
     def search(self, board_name, filters=None, posts=None):
         """
         게시글 검색 API
-        작성자: 이예은
+        작성자: avery
         :param board_name: 게시판 이름
         :param filters: 필터(태그, 글제목, 작성자)
         :param posts: 게시글 객체
@@ -165,7 +165,7 @@ class BoardView(FlaskView):
     def get_main_likes(self):
         """
         메인페이지: 좋아요 많은 글 조회 API
-        작성자: 이예은
+        작성자: avery
         :return: 좋아요 기준 게시글 10개
         """
         pipeline = [

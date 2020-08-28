@@ -46,7 +46,7 @@ class UserView(FlaskView):
     def signin(self):
         """
         로그인 API
-        작성자: 이예은
+        작성자: avery
         :return: 로그인 인증 토큰
         """
         data = json.loads(request.data)
@@ -69,7 +69,7 @@ class UserView(FlaskView):
     def my_post(self):
         """
         마이페이지: 사용자 작성 게시물 조회 API
-        작성자: 이예은
+        작성자: avery
         :return: 최신 게시물 10개
         """
         my_post = [my_post.to_json_list() for my_post in
@@ -82,7 +82,7 @@ class UserView(FlaskView):
     def my_comment(self):
         """
         마이페이지: 사용자 작성 댓글 조회 API
-        작성자: 이예은
+        작성자: avery
         :return: 최신 댓글 10개
         """
         my_comment = [comment.to_json() for comment in
