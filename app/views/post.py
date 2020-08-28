@@ -7,9 +7,7 @@ from app.utils      import login_required, check_board, check_post, post_validat
 from app.models     import Post, Comment
 
 
-
 class PostView(FlaskView):
-
     # 게시글 작성 API
     @route('', methods=['POST'])
     @login_required
@@ -66,6 +64,7 @@ class PostView(FlaskView):
             return jsonify(message='삭제되었습니다.'), 200
         return jsonify(message='권한이 없습니다.'), 403
 
+
     # 게시글 수정 API
     @route('/<int:post_id>', methods=['PUT'])
     @login_required
@@ -76,7 +75,7 @@ class PostView(FlaskView):
         data = json.loads(request.data)
         tag = data.get('tag')
 
-        # 삭제 가능 user 확인
+        # 수정 가능 user 확인
         if g.user == g.post.author.id or g.auth == True:
             g.post.update(
                 title   = data['title'],
@@ -93,7 +92,6 @@ class PostView(FlaskView):
     @check_board
     @check_post
     def like_post(self, board_name, post_id):
-
         likes_user = {}
         for user_index_number in range(0,len(g.post.likes)):
             likes_user[g.post.likes[user_index_number].id] = user_index_number

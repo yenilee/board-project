@@ -2,28 +2,20 @@ import json
 
 from flask_classful     import FlaskView, route
 from flask              import jsonify, request, g
-from marshmallow        import ValidationError
 
 from app.models         import Comment
-from app.utils          import login_required, check_board, check_post, check_comment
-from app.serializers    import CommentSchema
-
+from app.utils          import login_required, check_board, check_post, check_comment, comment_validator
 
 
 class CommentView(FlaskView):
-
     # 댓글 생성
     @route('', methods=['POST'])
     @login_required
     @check_board
     @check_post
+    @comment_validator
     def post(self, board_name, post_id):
         data = json.loads(request.data)
-
-        try:
-            CommentSchema().load(data)
-        except ValidationError as err:
-            return jsonify (err.messages), 422
 
         comment = Comment(
             post=g.post.id,
@@ -38,13 +30,9 @@ class CommentView(FlaskView):
     @login_required
     @check_board
     @check_post
+    @comment_validator
     def update(self, board_name, post_id, comment_id):
         data = json.loads(request.data)
-
-        try:
-            CommentSchema().load(data)
-        except ValidationError as err:
-            return jsonify (err.messages), 422
 
         comment = Comment.objects(id=comment_id).get()
         if comment.author.id == g.user and comment.is_deleted is False:
@@ -61,7 +49,6 @@ class CommentView(FlaskView):
     @check_board
     @check_post
     def delete(self, board_name, post_id, comment_id):
-
         # 삭제 가능 user 확인
         comment = Comment.objects(id=comment_id).get()
         if comment.author.id == g.user and comment.is_deleted is False:
@@ -79,7 +66,6 @@ class CommentView(FlaskView):
     @check_post
     @check_comment
     def like_post(self, board_name, post_id, comment_id):
-
         likes_user = {}
         for user_index_number in range(0,len(g.comment.likes)):
             likes_user[g.comment.likes[user_index_number].id] = user_index_number
@@ -103,13 +89,9 @@ class CommentView(FlaskView):
     @check_board
     @check_post
     @check_comment
+    @comment_validator
     def post_reply(self, board_name, post_id, comment_id):
         data = json.loads(request.data)
-
-        try:
-            CommentSchema().load(data)
-        except ValidationError as err:
-            return jsonify (err.messages), 422
 
         reply = Comment(
             post=g.post.id,
