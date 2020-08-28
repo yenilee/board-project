@@ -113,6 +113,11 @@ class BoardView(FlaskView):
         filters = request.args
         posts = Post.objects(board=g.board.id)
 
+        # 속성__in argument는 순서를 맨앞으로 하면 잘 돌아가고, 맨 뒤에 넣으면 앞의 필터들이 리셋됨.
+        if 'tag' in filters:
+            tag = filters['tag'].split()
+            posts = Post.objects(tag__in=tag)
+
         if 'title' in filters:
             posts = posts(title__contains=filters['title'])
 
@@ -120,12 +125,6 @@ class BoardView(FlaskView):
             user_id = User.objects(account=filters['author']).get().id
             posts = posts(author__exact=user_id)
 
-        # if 'tag' in filters:
-        #     tag = filters['tag'].split()
-        #     print(tag)
-        #     posts = posts(tag__in=tag)
-        #     print(posts)
-        # posts = Post.objects(tag__in=['태그1'])
         if filters is None or posts is None:
             return jsonify(message='내용을 검색해주세요'), 400
 

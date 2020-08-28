@@ -51,7 +51,8 @@ class Post(Document):
             'author': self.author.account,
             'title': self.title,
             'created_at': self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-            'likes': len(self.likes)
+            'likes': len(self.likes),
+            # 'tag' : self.tag
         }
 
 class Comment(Document):
