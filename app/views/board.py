@@ -3,7 +3,7 @@ import json
 from flask_classful     import FlaskView, route
 from flask              import jsonify, request, g
 
-from app.utils          import login_required, check_board, board_validator
+from app.utils          import login_required, check_board, board_validator, pagination
 from app.models         import Board, Post, User
 
 
@@ -125,9 +125,12 @@ class BoardView(FlaskView):
         if filters is None or posts is None:
             return jsonify(message='내용을 검색해주세요'), 400
 
-        post = [post.to_json_list() for post in posts.all()]
-        return jsonify({"total" : len(post),
-                        "post" : post}), 200
+        # 필터링한 객체들을 받아 json형태로 만들고, 페이지네이션
+
+        post = [post.to_json_list() for post in
+                pagination(posts.all().order_by('-post_id'))]
+
+        return jsonify({"total" : len(post), "post" : post}), 200
 
 
     # 좋아요 순

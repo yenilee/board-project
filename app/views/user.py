@@ -8,7 +8,8 @@ from bson.json_util     import dumps
 
 from app.models         import User, Post, Comment
 from app.config         import SECRET, ALGORITHM
-from app.utils          import login_required, user_validator
+from app.utils          import login_required, user_validator, pagination
+from app.utils          import login_required
 
 
 class UserView(FlaskView):
@@ -59,16 +60,18 @@ class UserView(FlaskView):
     @route('/mypage', methods=['GET'])
     @login_required
     def my_post(self):
-        my_post = [my_post.to_json_list() for my_post in Post.objects(author=g.user).all()]
-        return jsonify(my_post=my_post), 200
+        my_post = [my_post.to_json_list() for my_post in
+                   pagination(Post.objects(author=g.user).all().order_by('-created_at'))]
+        return {"my_post":my_post}, 200
 
 
     # 내 댓글
     @route('/mypage/comment', methods=['GET'])
     @login_required
     def my_comment(self):
-        my_comment = [comment.to_json() for comment in Comment.objects(author=g.user)]
-        return jsonify(my_comment=my_comment), 200
+        my_comment = [comment.to_json() for comment in
+                      pagination(Comment.objects(author=g.user).all().order_by('-created_at'))]
+        return {"my_comment" : my_comment }, 200
 
 
     # 좋아요 한 글
