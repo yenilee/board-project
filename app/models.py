@@ -1,8 +1,8 @@
 import datetime
 
 from mongoengine    import (StringField, DateTimeField, ReferenceField,
-                         ListField, BooleanField, IntField)
-from mongoengine    import Document
+                         ListField, BooleanField, IntField, Document)
+
 
 class User(Document):
     account     = StringField(max_length=50, required=True, unique=True)

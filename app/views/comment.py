@@ -1,9 +1,12 @@
 import json
 
-from app.models import Board, Post, Comment
-from flask_classful import FlaskView, route
-from flask import jsonify, request, g
-from app.utils import login_required, check_board, check_post, check_comment
+from flask_classful     import FlaskView, route
+from flask              import jsonify, request, g
+from marshmallow        import ValidationError
+
+from app.models         import Comment
+from app.utils          import login_required, check_board, check_post, check_comment
+from app.serializers    import CommentSchema
 
 
 class CommentView(FlaskView):
@@ -15,6 +18,11 @@ class CommentView(FlaskView):
     @check_post
     def post(self, board_name, post_id):
         data = json.loads(request.data)
+
+        try:
+            CommentSchema().load(data)
+        except ValidationError as err:
+            return jsonify (err.messages), 422
 
         comment = Comment(
             post=g.post.id,
@@ -31,6 +39,11 @@ class CommentView(FlaskView):
     @check_post
     def update(self, board_name, post_id, comment_id):
         data = json.loads(request.data)
+
+        try:
+            CommentSchema().load(data)
+        except ValidationError as err:
+            return jsonify (err.messages), 422
 
         comment = Comment.objects(id=comment_id).get()
         if comment.author.id == g.user and comment.is_deleted is False:
@@ -91,6 +104,11 @@ class CommentView(FlaskView):
     @check_comment
     def post_reply(self, board_name, post_id, comment_id):
         data = json.loads(request.data)
+
+        try:
+            CommentSchema().load(data)
+        except ValidationError as err:
+            return jsonify (err.messages), 422
 
         reply = Comment(
             post=g.post.id,

@@ -2,14 +2,15 @@ import json
 import bcrypt
 import jwt
 
-from app.models         import User, Post, Comment
-from app.serializers    import UserSchema
 from flask_classful     import FlaskView, route
 from flask              import jsonify, request, g
-from app.config         import SECRET, ALGORITHM
 from marshmallow        import ValidationError
 from bson.json_util     import dumps
-from app.utils          import login_required, check_board
+
+from app.models         import User, Post, Comment
+from app.config         import SECRET, ALGORITHM
+from app.utils          import login_required
+from app.serializers    import UserSchema
 
 
 class UserView(FlaskView):
