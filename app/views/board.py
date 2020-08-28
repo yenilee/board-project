@@ -12,7 +12,7 @@ class BoardView(FlaskView):
     def get_category(self):
         """
         게시판 카테고리 조회 API
-        작성자: 최진아
+        작성자: dana
         :return: 게시판 카테고리
         """
         board_data = Board.objects(is_deleted=False)
@@ -30,7 +30,7 @@ class BoardView(FlaskView):
     def post(self):
         """
         게시판 생성 API
-        작성자: 최진아
+        작성자: dana
         :return: message
         """
         # 유저의 권한 확인
@@ -55,7 +55,7 @@ class BoardView(FlaskView):
     def get(self, board_name):
         """
         게시판 글 조회 API
-        작성자: 최진아
+        작성자: dana
         :param board_name: 게시판 이름
         :return: 게시판 글 목록 (제목, 내용, 작성자 등)
         """
@@ -188,7 +188,7 @@ class BoardView(FlaskView):
     def order_by_latest(self):
         """
         메인페이지: 최신 글 조회 API
-        작성자: 최진아
+        작성자: dana
         :return: 최신 게시글 10개
         """
         posts = Post.objects(is_deleted=False).order_by('-created_at').limit(10)
@@ -202,19 +202,22 @@ class BoardView(FlaskView):
     def order_by_latest(self):
         """
         메인페이지: 댓글 많은 글 조회 API
-        작성자: 최진아
+        작성자: dana
         :return: 댓글 기준 게시글 10개
         """
         pipeline = [
-            {"$lookup":
-                 {"from": "comment",
-                  "localField": "_id",
-                  "foreignField": "post",
-                  "as": "comments"}},
+            {"$lookup": {"from": "comment",
+                         "let": {"id": "$_id"},
+                         "pipeline": [
+                             {"$match":
+                                  {"$expr": {"$eq": ["$post", "$$id"]},
+                                   "is_deleted": False}}],
+                         "as": "comments"}},
             {"$project": {
                 "number_of_comment": {"$size": "$comments"}}},
             {"$sort": {"number_of_comment": -1}},
-            {"$limit": 10}]
+            {"$limit": 10}
+        ]
 
         posts = Post.objects(is_deleted=False).aggregate(*pipeline)
         post = [Post.objects(id=post['_id']).get().to_json_list() for post in posts]
