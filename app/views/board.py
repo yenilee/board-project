@@ -1,6 +1,6 @@
 import json
 
-from app.models         import Board, Post, User
+from app.models         import Board, Post, User, Comment
 from app.serializers    import BoardSchema
 from flask_classful     import FlaskView, route
 from flask              import jsonify, request, g
@@ -159,13 +159,16 @@ class BoardView(FlaskView):
     @route('/main/comments', methods=['GET'])
     def order_by_latest(self):
         pipeline = [
+            {"$lookup":
+                 {"from": "comment",
+                  "localField": "_id",
+                  "foreignField": "post",
+                  "as": "comments"}},
             {"$project": {
-                "number_of_comment": {"$size": "$comment"}}},
-            {"$sort":
-                 {"number_of_comment": -1}},
-            {"$limit": 10}
-        ]
-        posts = Post.objects(is_deleted=False).aggregate(*pipeline)
+                "number_of_comment": {"$size": "$comments"}}},
+            {"$sort": {"number_of_comment": -1}},
+            {"$limit": 10}]
 
+        posts = Post.objects(is_deleted=False).aggregate(*pipeline)
         post = [Post.objects(id=post['_id']).get().to_json_list() for post in posts]
         return jsonify(data=post), 200
