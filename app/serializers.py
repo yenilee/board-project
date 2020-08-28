@@ -6,7 +6,7 @@ class UserSchema(Schema):
     created_at  = fields.DateTime()
 
 class BoardSchema(Schema):
-    name = fields.Str(max_length=50, required=True)
+    board_name = fields.Str(max_length=50, required=True)
 
 class CommentSchema(Schema):
     content     = fields.Str(required=True)

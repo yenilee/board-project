@@ -9,7 +9,7 @@ from marshmallow     import ValidationError
 
 from app.config      import SECRET, ALGORITHM
 from app.models      import Board, Post, Comment
-from app.serializers import PostSchema
+from app.serializers import PostSchema, UserSchema, BoardSchema, CommentSchema
 
 
 # 로그인 데코레이터
@@ -81,6 +81,45 @@ def post_validator(f):
     def decorated_view(*args, **kwargs):
         try:
             PostSchema().load(json.loads(request.data))
+
+        except ValidationError as err:
+            return jsonify(err.messages), 422
+
+        return f(*args, **kwargs)
+    return decorated_view
+
+# 유저 validation check
+def user_validator(f):
+    @wraps(f)
+    def decorated_view(*args, **kwargs):
+        try:
+            UserSchema().load(json.loads(request.data))
+
+        except ValidationError as err:
+            return jsonify(err.messages), 422
+
+        return f(*args, **kwargs)
+    return decorated_view
+
+# board validation check
+def board_validator(f):
+    @wraps(f)
+    def decorated_view(*args, **kwargs):
+        try:
+            BoardSchema().load(json.loads(request.data))
+
+        except ValidationError as err:
+            return jsonify(err.messages), 422
+
+        return f(*args, **kwargs)
+    return decorated_view
+
+# comment validation check
+def comment_validator(f):
+    @wraps(f)
+    def decorated_view(*args, **kwargs):
+        try:
+            CommentSchema().load(json.loads(request.data))
 
         except ValidationError as err:
             return jsonify(err.messages), 422

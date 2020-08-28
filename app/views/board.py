@@ -2,11 +2,9 @@ import json
 
 from flask_classful     import FlaskView, route
 from flask              import jsonify, request, g
-from marshmallow        import ValidationError
 
-from app.utils          import login_required, check_board
+from app.utils          import login_required, check_board, board_validator
 from app.models         import Board, Post, User
-from app.serializers    import BoardSchema
 
 
 class BoardView(FlaskView):
@@ -25,26 +23,20 @@ class BoardView(FlaskView):
     # 게시판 생성
     @route('/boards', methods=['POST'])
     @login_required
+    @board_validator
     def post(self):
-        data = json.loads(request.data)
-
-        # Validation
-        try:
-            BoardSchema().load(data)
-        except ValidationError as err:
-            return jsonify (err.messages), 422
-
-        name = data['name']
-
         # 유저의 권한 확인
-        if g.auth == False:
-            return jsonify(message='권한이 없습니다.'), 403
+        if not g.auth:
+            return jsonify(message='권한이 없는 사용자입니다.'), 403
+
+        data = json.loads(request.data)
+        board_name = data['board_name']
 
         # 현재 존재하는 board와 이름 중복 확인
-        if Board.objects(name=name, is_deleted=False):
+        if Board.objects(name=board_name, is_deleted=False):
             return jsonify(message='이미 등록된 게시판입니다.'), 400
 
-        board = Board(name=name)
+        board = Board(name=board_name)
         board.save()
 
         return '', 200
@@ -78,16 +70,21 @@ class BoardView(FlaskView):
     # 게시판 이름 수정
     @route('/<board_name>', methods=['PUT'])
     @login_required
+    @check_board
+    @board_validator
     def update(self, board_name):
+        # 유저의 권한 확인
         if not g.auth:
             return jsonify(message='권한이 없는 사용자입니다.'), 403
 
         data = json.loads(request.data)
-        if Board.objects(name=board_name, is_deleted=False):
-            Board.objects(name=board_name).update(name=data['board_name'])
-            return '', 200
 
-        return jsonify(message='없는 게시판입니다.'), 400
+        # 변경할 게시판 이름 중복 여부 체크
+        if Board.objects(name=data['board_name'], is_deleted=False):
+            return jsonify(message='이미 등록된 게시판입니다.'), 400
+
+        g.board.update(name=data['board_name'])
+        return '', 200
 
 
     # 게시판 삭제
@@ -162,6 +159,7 @@ class BoardView(FlaskView):
 
 
     # 댓글 많은 순 10개
+    # is_deleted 반영..(진아)
     @route('/main/comments', methods=['GET'])
     def order_by_latest(self):
         pipeline = [

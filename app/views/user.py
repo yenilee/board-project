@@ -4,26 +4,19 @@ import jwt
 
 from flask_classful     import FlaskView, route
 from flask              import jsonify, request, g
-from marshmallow        import ValidationError
 from bson.json_util     import dumps
 
 from app.models         import User, Post, Comment
 from app.config         import SECRET, ALGORITHM
-from app.utils          import login_required
-from app.serializers    import UserSchema
+from app.utils          import login_required, user_validator
 
 
 class UserView(FlaskView):
     # 회원가입
     @route('/signup', methods=['POST'])
+    @user_validator
     def signup(self):
         data = json.loads(request.data)
-
-        # Validation
-        try:
-            UserSchema().load(data)
-        except ValidationError as err:
-            return jsonify (err.messages), 422
 
         account = data['account']
         password = data['password']
@@ -45,6 +38,7 @@ class UserView(FlaskView):
 
     # 로그인
     @route('/signin', methods=['POST'])
+    @user_validator
     def signin(self, user=None):
         data = json.loads(request.data)
 
@@ -66,7 +60,7 @@ class UserView(FlaskView):
     @login_required
     def my_post(self):
         my_post = [my_post.to_json_list() for my_post in Post.objects(author=g.user).all()]
-        return {"my_post":my_post}, 200
+        return jsonify(my_post=my_post), 200
 
 
     # 내 댓글
@@ -74,15 +68,14 @@ class UserView(FlaskView):
     @login_required
     def my_comment(self):
         my_comment = [comment.to_json() for comment in Comment.objects(author=g.user)]
-        return {"my_comment" : my_comment }, 200
+        return jsonify(my_comment=my_comment), 200
 
 
     # 좋아요 한 글
     @route('/mypage/likes', methods=['GET'])
     @login_required
     def my_liked_post(self):
-
-        posts = Post.objects(likes__exact = g.user, is_deleted = False)
+        posts = Post.objects(likes__exact=g.user, is_deleted=False)
         post = [post.to_json_list() for post in posts.all()]
 
-        return jsonify(data=post), 200
+        return jsonify(my_liked_post=post), 200
