@@ -88,6 +88,7 @@ def post_validator(f):
         return f(*args, **kwargs)
     return decorated_view
 
+
 # 유저 validation check
 def user_validator(f):
     @wraps(f)
@@ -126,3 +127,12 @@ def comment_validator(f):
 
         return f(*args, **kwargs)
     return decorated_view
+
+
+def pagination(o):
+    page = request.args.get('page', 1, int)
+    limit = 10
+
+    listed_object = o.limit(limit).skip((page - 1) * limit)
+    return listed_object
+
