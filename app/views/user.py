@@ -87,7 +87,7 @@ class UserView(FlaskView):
     @login_required
     def my_liked_post(self):
 
-        posts = Post.objects(likes__contains = g.user, is_deleted = False)
+        posts = Post.objects(likes__exact = g.user, is_deleted = False)
         post = [post.to_json_list() for post in posts.all()]
 
         return jsonify(data=post), 200
