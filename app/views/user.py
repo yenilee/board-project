@@ -46,17 +46,16 @@ class UserView(FlaskView):
     @route('/signin', methods=['POST'])
     def signin(self, user=None):
         data = json.loads(request.data)
-        user = User.objects(account=data['account'])
 
-        if not user:
+        if not User.objects(account=data['account']):
             return jsonify(message='존재하지 않는 ID입니다.'), 401
 
-        for user in user:
-            if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
-                print(dumps(user.id))
-                token = jwt.encode({"user_id" : dumps(user.id),
-                                    "is_master" : user.master_role}, SECRET, ALGORITHM)
-                return jsonify(token.decode('utf-8')), 200
+        user = User.objects(account=data['account']).get()
+
+        if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
+            token = jwt.encode({"user_id" : dumps(user.id),
+                                "is_master" : user.master_role}, SECRET, ALGORITHM)
+            return jsonify(token.decode('utf-8')), 200
 
         return jsonify(message='잘못된 비밀번호 입니다.'), 401
 
@@ -65,20 +64,15 @@ class UserView(FlaskView):
     @route('/mypage', methods=['GET'])
     @login_required
     def my_post(self):
-        if g.user:
-            my_post = [my_post.to_json_list() for my_post in Post.objects(author=g.user).all()]
-            return {"my_post":my_post}, 200
+        my_post = [my_post.to_json_list() for my_post in Post.objects(author=g.user).all()]
+        return {"my_post":my_post}, 200
 
 
     # 내 댓글
     @route('/mypage/comment', methods=['GET'])
     @login_required
     def my_comment(self):
-        if not g.user:
-            return jsonify(message='로그인하지 않은 사용자입니다.'), 400
-
         my_comment = [comment.to_json() for comment in Comment.objects(author=g.user)]
-
         return {"my_comment" : my_comment }, 200
 
 

@@ -105,19 +105,22 @@ class BoardView(FlaskView):
 
     # 게시판 내 검색
     # 매칭 쿼리 없을 때 오류 처리 필요(예은)
-    # 중복 쿼리 구현 필요. 현재는 뒤에 있는 객체가 덧씌워짐
     @route('/<board_name>/search', methods=['GET'])
     @check_board
     def search(self, board_name, filters=None, posts=None):
 
         filters = request.args
+        posts = Post.objects(board=g.board.id)
 
         if 'title' in filters:
-            posts = Post.objects(board=g.board.id, title__contains=filters['title'])
+            posts = posts(title__contains=filters['title'])
 
         if 'author' in filters:
             user_id = User.objects(account=filters['author']).get().id
-            posts = Post.objects(board=g.board.id, author__exact=user_id)
+            posts = posts(author__exact=user_id)
+
+        # if 'tag' in filters:
+        #     posts = posts(tag__in=filters['tag'].split())
 
         if filters is None or posts is None:
             return jsonify(message='내용을 검색해주세요'), 400
