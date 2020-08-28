@@ -88,21 +88,16 @@ class CommentView(FlaskView):
     @check_post
     @check_comment
     def like_post(self, board_name, post_id, comment_id):
-        likes_user = {}
-        for user_index_number in range(0,len(g.comment.likes)):
-            likes_user[g.comment.likes[user_index_number].id] = user_index_number
+        comment = Comment.objects(likes__exact=g.user, id=comment_id)
 
-        # 좋아요 누른 경우 --> 취소
-        if g.user in likes_user.keys():
-            user_index = likes_user[g.user]
-            del g.comment.likes[user_index]
-            g.comment.save()
-            return jsonify(message="'좋아요'가 취소되었습니다."), 200
+        # 졸아요 등록
+        if not comment:
+            g.post.update(push__likes=g.user)
+            return jsonify(message="'좋아요'가 반영되었습니다."), 200
 
-        # 좋아요 누르지 않은 경우 --> 좋아요
-        g.comment.likes.append(g.user)
-        g.comment.save()
-        return jsonify(message="'좋아요'가 반영되었습니다."), 200
+        # 좋아요 취소
+        g.comment.update(pull__likes=g.user)
+        return jsonify(message="'좋아요'가 취소되었습니다."), 200
 
 
     # 대댓글 생성 API

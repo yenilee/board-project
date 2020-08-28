@@ -104,18 +104,13 @@ class PostView(FlaskView):
     @check_board
     @check_post
     def like_post(self, board_name, post_id):
-        likes_user = {}
-        for user_index_number in range(0,len(g.post.likes)):
-            likes_user[g.post.likes[user_index_number].id] = user_index_number
+        post=Post.objects(likes__exact=g.user, id=g.post.id)
 
-        # 좋아요 누른 경우 --> 취소
-        if g.user in likes_user.keys():
-            user_index = likes_user[g.user]
-            del g.post.likes[user_index]
-            g.post.save()
-            return jsonify(message="'내가 좋아요한 게시글'에서 삭제되었습니다.'"), 200
+        # 좋아요 등록
+        if not post:
+            g.post.update(push__likes=g.user)
+            return jsonify(message="'내가 좋아요한 게시글'에 등록되었습니다.'"), 200
 
-        # 좋아요 누르지 않은 경우 --> 좋아요
-        g.post.likes.append(g.user)
-        g.post.save()
-        return jsonify(message="'내가 좋아요한 게시글'에 등록되었습니다.'"), 200
+        # 좋아요 취소
+        g.post.update(pull__likes=g.user)
+        return jsonify(message="'내가 좋아요한 게시글'에서 삭제되었습니다.'"), 200
