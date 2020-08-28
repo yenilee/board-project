@@ -3,8 +3,9 @@ import json
 from flask_classful import FlaskView, route
 from flask          import jsonify, request, g
 
-from app.utils      import login_required, check_board, check_post
+from app.utils      import login_required, check_board, check_post, post_validator
 from app.models     import Post, Comment
+
 
 
 class PostView(FlaskView):
@@ -13,6 +14,7 @@ class PostView(FlaskView):
     @route('', methods=['POST'])
     @login_required
     @check_board
+    @post_validator
     def post(self, board_name):
         data = json.loads(request.data)
         tag = data.get('tag')
@@ -69,6 +71,7 @@ class PostView(FlaskView):
     @login_required
     @check_board
     @check_post
+    @post_validator
     def update(self, board_name, post_id):
         data = json.loads(request.data)
         tag = data.get('tag')

@@ -1,12 +1,15 @@
 import json
 import jwt
 
-from functools      import wraps
-from flask          import request, g, jsonify
-from bson.json_util import loads
+from functools       import wraps
+from flask           import request, g, jsonify
+from bson.json_util  import loads
+from marshmallow     import ValidationError
 
-from app.config     import SECRET, ALGORITHM
-from app.models     import Board, Post, Comment
+
+from app.config      import SECRET, ALGORITHM
+from app.models      import Board, Post, Comment
+from app.serializers import PostSchema
 
 
 # 로그인 데코레이터
@@ -61,14 +64,26 @@ def check_comment(f):
     @wraps(f)
     def decorated_view(*args, **kwargs):
         comment_id = kwargs['comment_id']
-
-        if len(comment_id) is not 24:
+        if len(comment_id) is not 24 or type(comment_id) is not str:
             return jsonify(message='유효한 댓글ID가 아닙니다.'), 400
 
         if not Comment.objects(post=g.post.id, id=comment_id, is_deleted=False):
             return jsonify(message='없는 댓글입니다.'), 400
 
         g.comment = Comment.objects(post=g.post.id, is_deleted=False, id=comment_id).get()
+
+        return f(*args, **kwargs)
+    return decorated_view
+
+# 게시글 validation check
+def post_validator(f):
+    @wraps(f)
+    def decorated_view(*args, **kwargs):
+        try:
+            PostSchema().load(json.loads(request.data))
+
+        except ValidationError as err:
+            return jsonify(err.messages), 422
 
         return f(*args, **kwargs)
     return decorated_view
