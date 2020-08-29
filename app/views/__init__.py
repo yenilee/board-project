@@ -16,6 +16,10 @@ def page_not_found(e):
 def handle_unknown_exception(e):
     if 'JSONDecodeError' in str(sys.exc_info()):
         return jsonify(message='Json decoder 에러 - '+str(e)), 400
+
+    if 'mongoengine' in str(sys.exc_info()):
+        return jsonify(message='데이터베이스 에러 - '+str(e)), 500
+
     return jsonify(message='확인되지 않은 에러 - '+str(e)), 500
 
 def json_decoder_error(e):
