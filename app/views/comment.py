@@ -113,7 +113,7 @@ class CommentView(FlaskView):
     @comment_validator
     def post_reply(self, board_name, post_id, comment_id):
         """
-        대댓글 좋아요 기능 API
+        대댓글 생성 기능 API
         작성자: dana
         :param board_name: 게시판 이름
         :param post_id: 게시글 번호
