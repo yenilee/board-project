@@ -125,7 +125,7 @@ class CommentView(FlaskView):
         reply = Comment(
             post=g.post.id,
             author=g.user,
-            replied_comment=g.comment.id,
+            reply=g.comment.id,
             content=data['content'],
             is_replied=True
         )
