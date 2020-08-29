@@ -1,7 +1,6 @@
 import mongoengine
 
 from flask      import Flask
-from functools      import wraps
 from app.config import MONGO_URI
 
 def create_app():
@@ -17,4 +16,3 @@ def create_app():
     register_api(app)
 
     return app
-
