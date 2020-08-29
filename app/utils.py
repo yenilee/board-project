@@ -135,4 +135,3 @@ def pagination(o):
 
     listed_object = o.limit(limit).skip((page - 1) * limit)
     return listed_object
-
