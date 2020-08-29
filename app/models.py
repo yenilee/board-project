@@ -56,14 +56,14 @@ class Post(Document):
         }
 
 class Comment(Document):
-    post            = ReferenceField(Post)
-    author          = ReferenceField(User)
-    replied_comment = ReferenceField('self')
-    content         = StringField()
-    likes           = ListField(ReferenceField(User))
-    created_at      = DateTimeField(required=True, default=datetime.datetime.now)
-    is_deleted      = BooleanField(required=True, default=False)
-    is_replied      = BooleanField(required=True, default=False)
+    post       = ReferenceField(Post)
+    author     = ReferenceField(User)
+    reply      = ReferenceField('self')
+    content    = StringField()
+    likes      = ListField(ReferenceField(User))
+    created_at = DateTimeField(required=True, default=datetime.datetime.now)
+    is_deleted = BooleanField(required=True, default=False)
+    is_replied = BooleanField(required=True, default=False)
 
     def to_json(self):
         if self.is_deleted is False:

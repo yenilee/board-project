@@ -54,9 +54,9 @@ class PostView(FlaskView):
         for comment in comments:
             a_comment = comment.to_json()
 
-            if reply(replied_comment=comment.id):
+            if reply(reply=comment.id):
                 a_comment['reply'] = [ reply.to_json()
-                                       for reply in reply(replied_comment=comment.id)]
+                                       for reply in reply(reply=comment.id)]
             comment_list.append(a_comment)
 
         posts_response['comments'] = comment_list
