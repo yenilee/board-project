@@ -97,7 +97,7 @@ class CommentView(FlaskView):
 
         # 졸아요 등록
         if not comment:
-            g.post.update(push__likes=g.user)
+            g.comment.update(push__likes=g.user)
             return jsonify(message="'좋아요'가 반영되었습니다."), 200
 
         # 좋아요 취소
