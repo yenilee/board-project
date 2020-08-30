@@ -194,14 +194,12 @@ class BoardView(FlaskView):
         :return: 최신 게시글 10개
         """
         posts = Post.objects(is_deleted=False).order_by('-created_at').limit(10)
-
         post = [post.to_json_list() for post in posts.all()]
         return jsonify(data=post),200
 
 
-    # is_deleted 반영..(진아)
     @route('/main/comments', methods=['GET'])
-    def order_by_latest(self):
+    def order_by_comments(self):
         """
         메인페이지: 댓글 많은 글 조회 API
         작성자: dana
