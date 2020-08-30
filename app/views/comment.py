@@ -49,7 +49,7 @@ class CommentView(FlaskView):
         data = json.loads(request.data)
 
         comment = Comment.objects(id=comment_id).get()
-        if comment.author.id == g.user and comment.is_deleted is False:
+        if (comment.author.id == g.user or g.auth is True) and comment.is_deleted is False:
             comment['content'] = data['content']
             comment.save()
             return jsonify(message='댓글이 수정되었습니다.'), 200
@@ -71,7 +71,7 @@ class CommentView(FlaskView):
         :return: message
         """
         comment = Comment.objects(id=comment_id).get()
-        if comment.author.id == g.user and comment.is_deleted is False:
+        if (comment.author.id == g.user or g.auth is True) and comment.is_deleted is False:
             comment.is_deleted = True
             comment.save()
             return jsonify(message='댓글이 삭제되었습니다.'), 200
