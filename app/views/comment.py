@@ -122,6 +122,9 @@ class CommentView(FlaskView):
         """
         data = json.loads(request.data)
 
+        if g.comment.is_replied:
+            return jsonify(message='답글을 달 수 없는 댓글입니다.'), 400
+
         reply = Comment(
             post=g.post.id,
             author=g.user,
