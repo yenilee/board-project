@@ -3,8 +3,7 @@ import mongoengine
 from flask      import Flask
 from app.config import MONGO_URI
 
-
-def create_app():
+def create_app(TEST_CONFIG = None):
     app = Flask(__name__)
     app.debug = True
 
