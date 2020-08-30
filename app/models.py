@@ -52,6 +52,7 @@ class Post(Document):
             'title': self.title,
             'created_at': self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
             'likes': len(self.likes),
+            'comments': Comment.objects(post=self.id, is_deleted=False).count()
             # 'tag' : self.tag
         }
 
