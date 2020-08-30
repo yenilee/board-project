@@ -72,9 +72,13 @@ class UserView(FlaskView):
         작성자: avery
         :return: 최신 게시물 10개
         """
+        posts = Post.objects(author=g.user, is_deleted=False)
+        number_of_posts = len(posts)
+
         my_post = [my_post.to_json_list() for my_post in
-                   pagination(Post.objects(author=g.user).all().order_by('-created_at'))]
-        return jsonify(my_post=my_post), 200
+                   pagination(posts.all().order_by('-created_at'))]
+        return jsonify({"my_post": my_post,
+                        "number_of_posts": number_of_posts}), 200
 
 
     @route('/mypage/comment', methods=['GET'])
@@ -85,9 +89,13 @@ class UserView(FlaskView):
         작성자: avery
         :return: 최신 댓글 10개
         """
+        comments = Comment.objects(author=g.user, is_deleted=False)
+        number_of_comments = len(comments)
+
         my_comment = [comment.to_json() for comment in
-                      pagination(Comment.objects(author=g.user).all().order_by('-created_at'))]
-        return jsonify(my_comment=my_comment), 200
+                      pagination(comments.all().order_by('-created_at'))]
+        return jsonify({"my_comment":my_comment,
+                        "number_of_comments":number_of_comments}), 200
 
 
     @route('/mypage/likes', methods=['GET'])
@@ -98,7 +106,11 @@ class UserView(FlaskView):
         작성자: dana
         :return: 좋아요 한 글 10
         """
-        post = [post.to_json_list() for post in
-                pagination(Post.objects(likes__exact=g.user, is_deleted=False).all().order_by('created_at'))]
+        posts = Post.objects(likes__exact=g.user, is_deleted=False)
+        number_of_posts = len(posts)
 
-        return jsonify(my_liked_post=post), 200
+        my_post = [post.to_json_list() for post in
+                pagination(posts.all().order_by('created_at'))]
+
+        return jsonify({"my_post": my_post,
+                        "number_of_posts": number_of_posts}), 200
