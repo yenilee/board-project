@@ -3,7 +3,7 @@ import json
 from flask_classful import FlaskView, route
 from flask          import jsonify, request, g
 
-from app.utils      import login_required, check_board, check_post, post_validator
+from app.utils      import login_required, check_board, check_post, post_validator, pagination
 from app.models     import Post, Comment
 
 
@@ -47,7 +47,9 @@ class PostView(FlaskView):
         """
         # 조회하는 게시물의 response를 만들고, ID를 참조하는 댓글 객체를 만든다.
         post_response = g.post.to_json()
-        comments = Comment.objects(post=g.post.id)
+
+        # 댓글 페이지네이션(10개씩)
+        comments = pagination(Comment.objects(post=g.post.id))
 
         # 댓글(대댓글 제외) response를 따로 만든다.
         comment_response = []
