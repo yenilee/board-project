@@ -45,22 +45,22 @@ class PostView(FlaskView):
         :param post_id: 게시글 번호
         :return: 게시글(제목, 내용, 댓글 등)
         """
-        posts_response = g.post.to_json()
+        # 조회하는 게시물의 response를 만들고, ID를 참조하는 댓글 객체를 만든다.
+        post_response = g.post.to_json()
+        comments = Comment.objects(post=g.post.id)
 
-        comments = Comment.objects(post=g.post.id, is_replied=False)
-        reply = Comment.objects(post=g.post.id, is_replied=True)
-        comment_list=[]
+        # 댓글(대댓글 제외) response를 따로 만든다.
+        comment_response = []
+        for cmt in comments(is_replied=False):
+            comment = cmt.to_json()
 
-        for comment in comments:
-            a_comment = comment.to_json()
+            # 글의 대댓글이 존재할 경우, 원댓글 아이디를 참조하고 있는 대댓글들을 댓글의 reply value에 추가한다.
+            if comments(is_replied=True):
+                comment['reply'] = [ reply.to_json() for reply in comments(reply=cmt.id)]
+            comment_response.append(comment)
 
-            if reply(reply=comment.id):
-                a_comment['reply'] = [ reply.to_json()
-                                       for reply in reply(reply=comment.id)]
-            comment_list.append(a_comment)
-
-        posts_response['comments'] = comment_list
-        return jsonify(posts_response), 200
+        post_response['comments'] = comment_response
+        return jsonify(post_response), 200
 
 
     @route('/<int:post_id>', methods=['DELETE'])

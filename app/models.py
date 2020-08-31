@@ -72,7 +72,7 @@ class Comment(Document):
                 "id" : str(self.id),
                 "author": self.author.account,
                 "content": self.content,
-                "created_at" : self.created_at,
+                "created_at" : self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
                 "likes" : len(self.likes)
             }
 
@@ -81,6 +81,6 @@ class Comment(Document):
                 "id" : str(self.id),
                 "author": self.author.account,
                 "content": "삭제된 댓글입니다",
-                "created_at" : self.created_at,
+                "created_at" : self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
                 "likes": len(self.likes)
             }
