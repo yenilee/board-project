@@ -1,3 +1,4 @@
+import os
 import mongoengine
 
 from flask      import Flask
@@ -7,6 +8,7 @@ from app.config import MONGO_URI
 def create_app():
     app = Flask(__name__)
     app.debug = True
+    phase = os.environ.get('PHASE', 'local').lower()
 
     try:
         mongoengine.connect(host=MONGO_URI)
