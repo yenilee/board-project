@@ -2,7 +2,7 @@ import os
 import mongoengine
 
 from flask      import Flask
-from app.config import MONGO_URI
+from app.config import TestConfig, DevelopmentConfig
 
 
 def create_app():
@@ -11,7 +11,7 @@ def create_app():
     phase = os.environ.get('PHASE', 'local').lower()
 
     try:
-        mongoengine.connect(host=MONGO_URI)
+        mongoengine.connect(host=DevelopmentConfig.MONGO_URI)
     except Exception as e:
         print('Warning! 데이터베이스 에러 - ' + str(e))
 
