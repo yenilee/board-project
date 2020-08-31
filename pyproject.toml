@@ -13,6 +13,8 @@ Flask-Cors = "^3.0.8"
 flask = "1.1.1"
 Pyjwt = "^1.7.1"
 bcrypt = "^3.2.0"
+mongomock = "^3.20.0"
+pytest-factoryboy = "^2.0.3"
 
 [tool.poetry.dev-dependencies]
 mongomock = "^3.20.0"
