@@ -37,11 +37,11 @@ def login_required(f):
 def check_board(f):
     @wraps(f)
     def decorated_view(*args, **kwargs):
-        board_name = kwargs['board_name']
+        board_id = kwargs['board_id']
 
-        if not Board.objects(name=board_name, is_deleted=False):
+        if not Board.objects(id=board_id, is_deleted=False):
             return jsonify(message='없는 게시판입니다.'), 404
-        g.board = Board.objects(name=board_name, is_deleted=False).get()
+        g.board = Board.objects(id=board_id, is_deleted=False).get()
 
         return f(*args, **kwargs)
     return decorated_view

@@ -12,11 +12,11 @@ class PostView(FlaskView):
     @login_required
     @check_board
     @post_validator
-    def post(self, board_name):
+    def post(self, board_id):
         """
         게시글 생성 API
         작성자: avery
-        :param board_name: 게시판 이름
+        :param board_id: 게시판 objectID
         :return: message
         """
         data = json.loads(request.data)
@@ -27,8 +27,7 @@ class PostView(FlaskView):
             author  = g.user,
             title   = data['title'],
             content = data['content'],
-            tag     = tag,
-            post_id = Post.objects.count()+1
+            tag     = tag
             ).save()
 
         return jsonify(message='게시글이 등록되었습니다.'), 200
@@ -37,12 +36,12 @@ class PostView(FlaskView):
     @route('/<post_id>', methods=['GET'])
     @check_board
     @check_post
-    def get(self, board_name, post_id):
+    def get(self, board_id, post_id):
         """
         게시글 조회 API
         작성자: avery
-        :param board_name: 게시판 이름
-        :param post_id: 게시글 번호
+        :param board_id: 게시판 objectID
+        :param post_id: 게시글 objectID
         :return: 게시글(제목, 내용, 댓글 등)
         """
         # 조회하는 게시물의 response를 만들고, ID를 참조하는 댓글 객체를 만든다.
@@ -69,12 +68,12 @@ class PostView(FlaskView):
     @login_required
     @check_board
     @check_post
-    def delete(self, board_name, post_id):
+    def delete(self, board_id, post_id):
         """
         게시글 삭제 API
         작성자: dana
-        :param board_name: 게시판 이름
-        :param post_id: 게시글 번호
+        :param board_id: 게시판 objectID
+        :param post_id: 게시글 objectID
         :return: message
         """
         if g.user == g.post.author.id or g.auth == True:
@@ -89,12 +88,12 @@ class PostView(FlaskView):
     @check_board
     @check_post
     @post_validator
-    def update(self, board_name, post_id):
+    def update(self, board_id, post_id):
         """
         게시글 수정 API
         작성자: dana
-        :param board_name: 게시판 이름
-        :param post_id: 게시글 번호
+        :param board_id: 게시판 objectID
+        :param post_id: 게시글 objectID
         :return: message
         """
         data = json.loads(request.data)
@@ -115,12 +114,12 @@ class PostView(FlaskView):
     @login_required
     @check_board
     @check_post
-    def like_post(self, board_name, post_id):
+    def like_post(self, board_id, post_id):
         """
         게시글 좋아요 기능 API
         작성자: dana
-        :param board_name: 게시판 이름
-        :param post_id: 게시글 번호
+        :param board_id: 게시판 objectID
+        :param post_id: 게시글 objectID
         :return: message
         """
 

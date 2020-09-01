@@ -13,12 +13,12 @@ class CommentView(FlaskView):
     @check_board
     @check_post
     @comment_validator
-    def post(self, board_name, post_id):
+    def post(self, board_id, post_id):
         """
         댓글 생성 API
         작성자: avery
-        :param board_name: 게시판 이름
-        :param post_id: 게시글 번호
+        :param board_id: 게시판 objectId
+        :param post_id: 게시글 objectId
         :return: message
         """
         data = json.loads(request.data)
@@ -37,12 +37,12 @@ class CommentView(FlaskView):
     @check_board
     @check_post
     @comment_validator
-    def update(self, board_name, post_id, comment_id):
+    def update(self, board_id, post_id, comment_id):
         """
         댓글 수정 API
         작성자: avery
-        :param board_name: 게시판 이름
-        :param post_id: 게시글 번호
+        :param board_id: 게시판 objectId
+        :param post_id: 게시글 objectId
         :param comment_id: 댓글 objectId
         :return: message
         """
@@ -61,12 +61,12 @@ class CommentView(FlaskView):
     @login_required
     @check_board
     @check_post
-    def delete(self, board_name, post_id, comment_id):
+    def delete(self, board_id, post_id, comment_id):
         """
         댓글 삭제 API
         작성자: avery
-        :param board_name: 게시판 이름
-        :param post_id: 게시글 번호
+        :param board_id: 게시판 objectId
+        :param post_id: 게시글 objectId
         :param comment_id: 댓글 objectId
         :return: message
         """
@@ -88,8 +88,8 @@ class CommentView(FlaskView):
         """
         댓글 좋아요 기능 API
         작성자: dana
-        :param board_name: 게시판 이름
-        :param post_id: 게시글 번호
+        :param board_id: 게시판 objectId
+        :param post_id: 게시글 objectId
         :param comment_id: 댓글 objectId
         :return: message
         """
@@ -111,12 +111,12 @@ class CommentView(FlaskView):
     @check_post
     @check_comment
     @comment_validator
-    def post_reply(self, board_name, post_id, comment_id):
+    def post_reply(self, board_id, post_id, comment_id):
         """
         대댓글 생성 기능 API
         작성자: dana
-        :param board_name: 게시판 이름
-        :param post_id: 게시글 번호
+        :param board_id: 게시판 objectId
+        :param post_id: 게시글 objectId
         :param comment_id: 댓글 objectId
         :return: message
         """
