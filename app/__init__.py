@@ -10,7 +10,7 @@ def create_app():
     phase = os.environ.get('PHASE', 'local').lower()
 
     try:
-        app.config.from_object('app.config.%sConfig' % phase.lower().capitalize())
+        app.config.from_object('app.config.%sConfig' % phase.capitalize())
         mongoengine.connect(host=app.config['MONGO_URI'])
     except Exception as e:
         print('Warning! 데이터베이스 에러 - ' + str(e))

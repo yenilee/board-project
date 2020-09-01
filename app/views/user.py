@@ -7,7 +7,6 @@ from flask import jsonify, request, g, current_app
 from bson.json_util import dumps
 
 from app.models import User, Post, Comment
-from app.config import Config
 from app.utils import login_required, user_validator, pagination
 
 
