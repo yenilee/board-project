@@ -2,14 +2,13 @@ import json
 import bcrypt
 import jwt
 
-from flask_classful     import FlaskView, route
-from flask              import jsonify, request, g
-from bson.json_util     import dumps
+from flask_classful import FlaskView, route
+from flask import jsonify, request, g
+from bson.json_util import dumps
 
-from app.models         import User, Post, Comment
-from app.config         import SECRET, ALGORITHM
-from app.utils          import login_required, user_validator, pagination
-from app.utils          import login_required
+from app.models import User, Post, Comment
+from app.config import Config
+from app.utils import login_required, user_validator, pagination
 
 
 class UserView(FlaskView):
@@ -58,7 +57,7 @@ class UserView(FlaskView):
 
         if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
             token = jwt.encode({"user_id" : dumps(user.id),
-                                "is_master" : user.master_role}, SECRET, ALGORITHM)
+                                "is_master" : user.master_role}, Config['SECRET'], Config['ALGORITHM'])
             return jsonify(token.decode('utf-8')), 200
 
         return jsonify(message='잘못된 비밀번호 입니다.'), 401
