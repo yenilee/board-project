@@ -34,7 +34,7 @@ class PostView(FlaskView):
         return jsonify(message='게시글이 등록되었습니다.'), 200
 
 
-    @route('/<int:post_id>', methods=['GET'])
+    @route('/<post_id>', methods=['GET'])
     @check_board
     @check_post
     def get(self, board_name, post_id):
@@ -65,7 +65,7 @@ class PostView(FlaskView):
         return jsonify(post_response), 200
 
 
-    @route('/<int:post_id>', methods=['DELETE'])
+    @route('/<post_id>', methods=['DELETE'])
     @login_required
     @check_board
     @check_post
@@ -84,7 +84,7 @@ class PostView(FlaskView):
         return jsonify(message='권한이 없습니다.'), 403
 
 
-    @route('/<int:post_id>', methods=['PUT'])
+    @route('/<post_id>', methods=['PUT'])
     @login_required
     @check_board
     @check_post
@@ -111,7 +111,7 @@ class PostView(FlaskView):
         return jsonify(message='권한이 없습니다.'), 403
 
 
-    @route('/<int:post_id>/likes', methods=['POST'])
+    @route('/<post_id>/likes', methods=['POST'])
     @login_required
     @check_board
     @check_post

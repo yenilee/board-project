@@ -63,7 +63,7 @@ class UserView(FlaskView):
         return jsonify(message='잘못된 비밀번호 입니다.'), 401
 
 
-    @route('/mypage', methods=['GET'])
+    @route('/posts', methods=['GET'])
     @login_required
     def my_post(self):
         """
@@ -80,7 +80,7 @@ class UserView(FlaskView):
                         "number_of_posts": number_of_posts}), 200
 
 
-    @route('/mypage/comment', methods=['GET'])
+    @route('/comments', methods=['GET'])
     @login_required
     def my_comment(self):
         """
@@ -97,7 +97,7 @@ class UserView(FlaskView):
                         "number_of_comments":number_of_comments}), 200
 
 
-    @route('/mypage/likes', methods=['GET'])
+    @route('/liked-posts', methods=['GET'])
     @login_required
     def my_liked_post(self):
         """
