@@ -78,6 +78,7 @@ class PostView(FlaskView):
         :return: message
         """
         if g.user == g.post.author.id or g.auth == True:
+            post.delete()
             g.post.update(is_deleted=True)
             return jsonify(message='삭제되었습니다.'), 200
         return jsonify(message='권한이 없습니다.'), 403
@@ -122,13 +123,23 @@ class PostView(FlaskView):
         :param post_id: 게시글 번호
         :return: message
         """
-        post=Post.objects(likes__exact=g.user, id=g.post.id)
 
-        # 좋아요 등록
-        if not post:
-            g.post.update(push__likes=g.user)
-            return jsonify(message="'내가 좋아요한 게시글'에 등록되었습니다.'"), 200
+        post_id = request.get('post_id')
 
-        # 좋아요 취소
-        g.post.update(pull__likes=g.user)
-        return jsonify(message="'내가 좋아요한 게시글'에서 삭제되었습니다.'"), 200
+        # View
+        # - http protocol로부터 인자를 획득
+        #
+        # - response로 결과를 반환
+
+        post = Post.objects(id=g.post.id)
+        post.like(g.user)
+
+        return '', 200
+        # # 좋아요 등록
+        # if not post:
+        #     g.post.update(push__likes=g.user)
+        #     return jsonify(message="'내가 좋아요한 게시글'에 등록되었습니다.'"), 200
+        #
+        # # 좋아요 취소
+        # g.post.update(pull__likes=g.user)
+        # return jsonify(message="'내가 좋아요한 게시글'에서 삭제되었습니다.'"), 200

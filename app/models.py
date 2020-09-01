@@ -30,6 +30,11 @@ class Post(Document):
     is_deleted = BooleanField(required=True, default=False)
     post_id = IntField(min_value=1)
 
+    def like(self, user):
+
+        if not user in self.likes:
+            self.update(push__likes=user)
+
     def to_json(self):
         return {
             'id': self.post_id,
@@ -68,6 +73,10 @@ class Comment(Document):
     created_at = DateTimeField(required=True, default=datetime.datetime.now)
     is_deleted = BooleanField(required=True, default=False)
     is_replied = BooleanField(required=True, default=False)
+
+    @property
+    def like_count(self):
+        return len(self.likes)
 
     def to_json(self):
         if self.is_deleted is False:

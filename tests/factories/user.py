@@ -9,9 +9,3 @@ class UserFactory(MongoEngineFactory):
 
     account = factory.Faker('name')
     password = factory.Faker('password')
-
-
-    @classmethod
-    def create_with_user(cls, **kwargs):
-        user = UserFactory.create(**kwargs)
-        return user
