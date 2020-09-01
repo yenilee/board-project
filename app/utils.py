@@ -1,14 +1,14 @@
 import json
 import jwt
 
-from functools       import wraps
-from flask           import request, g, jsonify
-from bson.json_util  import loads
-from marshmallow     import ValidationError
+from functools import wraps
+from flask import request, g, jsonify
+from bson.json_util import loads
+from marshmallow import ValidationError
 
 
-from app.config      import SECRET, ALGORITHM
-from app.models      import Board, Post, Comment
+from app.config import Config
+from app.models import Board, Post, Comment
 from app.serializers import PostSchema, UserSchema, BoardSchema, CommentSchema
 
 
@@ -22,7 +22,7 @@ def login_required(f):
 
         access_token = request.headers.get('Authorization')
         try:
-            payload = jwt.decode(access_token, SECRET, ALGORITHM)
+            payload = jwt.decode(access_token, Config['SECRET'], Config['ALGORITHM'])
 
         except jwt.InvalidTokenError:
             return jsonify(message='유효하지 않은 토큰입니다'), 409
@@ -40,7 +40,7 @@ def check_board(f):
         board_name = kwargs['board_name']
 
         if not Board.objects(name=board_name, is_deleted=False):
-            return jsonify(message='없는 게시판입니다.'), 400
+            return jsonify(message='없는 게시판입니다.'), 404
         g.board = Board.objects(name=board_name, is_deleted=False).get()
 
         return f(*args, **kwargs)
@@ -53,7 +53,7 @@ def check_post(f):
         post_id = kwargs['post_id']
 
         if not Post.objects(board=g.board.id,post_id=post_id, is_deleted=False):
-            return jsonify(message="없는 게시물입니다."), 200
+            return jsonify(message="없는 게시물입니다."), 404
         g.post = Post.objects(board=g.board.id, post_id=post_id, is_deleted=False).get()
 
         return f(*args, **kwargs)
@@ -68,7 +68,7 @@ def check_comment(f):
             return jsonify(message='유효한 댓글ID가 아닙니다.'), 400
 
         if not Comment.objects(post=g.post.id, id=comment_id, is_deleted=False):
-            return jsonify(message='없는 댓글입니다.'), 400
+            return jsonify(message='없는 댓글입니다.'), 404
 
         g.comment = Comment.objects(post=g.post.id, is_deleted=False, id=comment_id).get()
 

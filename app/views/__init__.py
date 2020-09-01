@@ -1,10 +1,10 @@
 from flask import jsonify
 import sys
 
-from app.views.user     import UserView
-from app.views.board    import BoardView
-from app.views.post     import PostView
-from app.views.comment  import CommentView
+from app.views.user import UserView
+from app.views.board import BoardView
+from app.views.post import PostView
+from app.views.comment import CommentView
 
 
 def handle_bad_request(e):

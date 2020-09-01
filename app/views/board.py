@@ -1,10 +1,10 @@
 import json
 
-from flask_classful     import FlaskView, route
-from flask              import jsonify, request, g
+from flask_classful import FlaskView, route
+from flask import jsonify, request, g
 
-from app.utils          import login_required, check_board, board_validator, pagination
-from app.models         import Board, Post, User
+from app.utils import login_required, check_board, board_validator, pagination
+from app.models import Board, Post, User
 
 
 class BoardView(FlaskView):

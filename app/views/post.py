@@ -1,10 +1,10 @@
 import json
 
 from flask_classful import FlaskView, route
-from flask          import jsonify, request, g
+from flask import jsonify, request, g
 
-from app.utils      import login_required, check_board, check_post, post_validator, pagination
-from app.models     import Post, Comment
+from app.utils import login_required, check_board, check_post, post_validator, pagination
+from app.models import Post, Comment
 
 
 class PostView(FlaskView):

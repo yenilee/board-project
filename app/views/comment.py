@@ -1,10 +1,10 @@
 import json
 
-from flask_classful     import FlaskView, route
-from flask              import jsonify, request, g
+from flask_classful import FlaskView, route
+from flask import jsonify, request, g
 
-from app.models         import Comment
-from app.utils          import login_required, check_board, check_post, check_comment, comment_validator
+from app.models import Comment
+from app.utils import login_required, check_board, check_post, check_comment, comment_validator
 
 
 class CommentView(FlaskView):
