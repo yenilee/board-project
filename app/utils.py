@@ -2,7 +2,7 @@ import json
 import jwt
 
 from functools import wraps
-from flask import request, g, jsonify
+from flask import request, g, jsonify, current_app
 from bson.json_util import loads
 from marshmallow import ValidationError
 
@@ -22,7 +22,7 @@ def login_required(f):
 
         access_token = request.headers.get('Authorization')
         try:
-            payload = jwt.decode(access_token, Config['SECRET'], Config['ALGORITHM'])
+            payload = jwt.decode(access_token, current_app.config['SECRET'], current_app.config['ALGORITHM'])
 
         except jwt.InvalidTokenError:
             return jsonify(message='유효하지 않은 토큰입니다'), 409

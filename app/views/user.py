@@ -3,7 +3,7 @@ import bcrypt
 import jwt
 
 from flask_classful import FlaskView, route
-from flask import jsonify, request, g
+from flask import jsonify, request, g, current_app
 from bson.json_util import dumps
 
 from app.models import User, Post, Comment
@@ -57,7 +57,7 @@ class UserView(FlaskView):
 
         if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
             token = jwt.encode({"user_id" : dumps(user.id),
-                                "is_master" : user.master_role}, Config['SECRET'], Config['ALGORITHM'])
+                                "is_master" : user.master_role}, current_app.config['SECRET'], current_app.config['ALGORITHM'])
             return jsonify(token.decode('utf-8')), 200
 
         return jsonify(message='잘못된 비밀번호 입니다.'), 401
