@@ -35,8 +35,8 @@ def register_error_handlers(blueprint):
 
 def register_api(app):
     UserView.register(app, route_base='/users', trailing_slash=False)
-    BoardView.register(app, route_base='/', trailing_slash=False)
-    PostView.register(app, route_base='/<board_name>', trailing_slash=False)
-    CommentView.register(app, route_base='/<board_name>/<int:post_id>/comment', trailing_slash=False)
+    BoardView.register(app, route_base='/boards', trailing_slash=False)
+    PostView.register(app, route_base='/boards/<board_id>/posts', trailing_slash=False)
+    CommentView.register(app, route_base='/boards/<board_id>/posts/<post_id>/comments', trailing_slash=False)
 
     register_error_handlers(app)

@@ -79,7 +79,7 @@ class CommentView(FlaskView):
         return jsonify(message='수정 권한이 없습니다.'), 401
 
 
-    @route('/<comment_id>/likes', methods=['POST'])
+    @route('/<comment_id>/like', methods=['POST'])
     @login_required
     @check_board
     @check_post
@@ -105,7 +105,7 @@ class CommentView(FlaskView):
         return jsonify(message="'좋아요'가 취소되었습니다."), 200
 
 
-    @route('/<comment_id>/reply', methods=['POST'])
+    @route('/<comment_id>/replies', methods=['POST'])
     @login_required
     @check_board
     @check_post

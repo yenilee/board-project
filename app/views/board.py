@@ -8,7 +8,7 @@ from app.models import Board, Post, User
 
 
 class BoardView(FlaskView):
-    @route('/category', methods=['GET'])
+    @route('', methods=['GET'])
     def get_category(self):
         """
         게시판 카테고리 조회 API
@@ -24,7 +24,7 @@ class BoardView(FlaskView):
         return jsonify(data=board_category), 200
 
 
-    @route('/boards', methods=['POST'])
+    @route('', methods=['POST'])
     @login_required
     @board_validator
     def post(self):
@@ -50,7 +50,7 @@ class BoardView(FlaskView):
         return jsonify(message='등록되었습니다.'), 200
 
 
-    @route('/<board_name>', methods=['GET'])
+    @route('/<board_id>', methods=['GET'])
     @check_board
     def get(self, board_name):
         """
@@ -80,7 +80,7 @@ class BoardView(FlaskView):
         return jsonify(post_data[0]), 200
 
 
-    @route('/<board_name>', methods=['PUT'])
+    @route('/<board_id>', methods=['PUT'])
     @login_required
     @check_board
     @board_validator
@@ -105,7 +105,7 @@ class BoardView(FlaskView):
         return jsonify(message='수정되었습니다.'), 200
 
 
-    @route('/<board_name>', methods=['DELETE'])
+    @route('/<board_id>', methods=['DELETE'])
     @login_required
     def delete(self, board_name):
         """
@@ -124,7 +124,7 @@ class BoardView(FlaskView):
         return jsonify(message='없는 게시판입니다.'), 400
 
 
-    @route('/<board_name>/search', methods=['GET'])
+    @route('/<board_id>/search', methods=['GET'])
     @check_board
     def search(self, board_name, filters=None, posts=None):
         """
@@ -163,7 +163,7 @@ class BoardView(FlaskView):
         return jsonify({"total" : number_of_posts, "post" : post}), 200
 
 
-    @route('/main/likes', methods=['GET'])
+    @route('/ranking/likes', methods=['GET'])
     def get_main_likes(self):
         """
         메인페이지: 좋아요 많은 글 조회 API
@@ -186,7 +186,7 @@ class BoardView(FlaskView):
         return jsonify({"orderby_likes" : top_likes}), 200
 
 
-    @route('/main/latest', methods=['GET'])
+    @route('/ranking/latest', methods=['GET'])
     def order_by_latest(self):
         """
         메인페이지: 최신 글 조회 API
@@ -198,7 +198,7 @@ class BoardView(FlaskView):
         return jsonify(data=post),200
 
 
-    @route('/main/comments', methods=['GET'])
+    @route('/ranking/comments', methods=['GET'])
     def order_by_comments(self):
         """
         메인페이지: 댓글 많은 글 조회 API
