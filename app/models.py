@@ -28,7 +28,6 @@ class Post(Document):
     likes = ListField(ReferenceField(User))
     tag = ListField()
     is_deleted = BooleanField(required=True, default=False)
-    post_id = IntField(min_value=1)
 
     def like(self, user):
 
