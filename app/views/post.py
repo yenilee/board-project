@@ -57,7 +57,7 @@ class PostView(FlaskView):
 
             # 글의 대댓글이 존재할 경우, 원댓글 아이디를 참조하고 있는 대댓글들을 댓글의 reply value에 추가한다.
             if comments(is_replied=True):
-                comment['reply'] = [ reply.to_json() for reply in comments(reply=cmt.id)]
+                comment['reply'] = [reply.to_json() for reply in comments(reply=cmt.id)]
             comment_response.append(comment)
 
         post_response['comments'] = comment_response

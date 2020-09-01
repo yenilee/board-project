@@ -84,7 +84,7 @@ class CommentView(FlaskView):
     @check_board
     @check_post
     @check_comment
-    def like_post(self, board_name, post_id, comment_id):
+    def like_post(self, board_id, post_id, comment_id):
         """
         댓글 좋아요 기능 API
         작성자: dana

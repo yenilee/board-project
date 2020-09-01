@@ -6,8 +6,6 @@ from flask import request, g, jsonify, current_app
 from bson.json_util import loads
 from marshmallow import ValidationError
 
-
-from app.config import Config
 from app.models import Board, Post, Comment
 from app.serializers import PostSchema, UserSchema, BoardSchema, CommentSchema
 
