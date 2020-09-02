@@ -127,9 +127,6 @@ def comment_validator(f):
     return decorated_view
 
 # 객체를 받아 페이지네이션 기능을 추가해주는 함수
-def pagination(o):
-    page = request.args.get('page', 1, int)
-    limit = 10
-
-    listed_object = o.limit(limit).skip((page - 1) * limit)
+def pagination(queryset, order_by='created_at', page=1, limit=10):
+    listed_object = queryset.order_by(order_by).limit(limit).skip((page - 1) * limit)
     return listed_object
