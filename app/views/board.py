@@ -139,9 +139,9 @@ class BoardView(FlaskView):
         posts = Post.objects(board=g.board.id)
 
         # 속성__in argument는 순서를 맨앞으로 하면 잘 돌아가고, 맨 뒤에 넣으면 앞의 필터들이 리셋됨.
-        if 'tag' in filters:
-            tag = filters['tag'].split()
-            posts = Post.objects(board=g.board.id, tag__in=tag)
+        if 'tags' in filters:
+            tags = filters['tags'].split()
+            posts = Post.objects(board=g.board.id, tags__in=tags)
 
         if 'title' in filters:
             posts = posts(title__contains=filters['title'])

@@ -26,7 +26,7 @@ class Post(Document):
     content = StringField(required=True)
     created_at = DateTimeField(required=True, default=datetime.datetime.now)
     likes = ListField(ReferenceField(User))
-    tag = ListField()
+    tags = ListField(StringField())
     is_deleted = BooleanField(required=True, default=False)
 
     def like(self, user):

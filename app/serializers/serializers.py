@@ -1,10 +1,8 @@
 from marshmallow import fields, Schema
 
 class UserSchema(Schema):
+    id = fields.Str(required=True, uniqe=True)
     account = fields.Str(required=True, unique=True)
-    password = fields.Str(required=True)
-    created_at = fields.DateTime()
-
 
 class BoardSchema(Schema):
     board_name = fields.Str(max_length=50, required=True)
@@ -17,7 +15,7 @@ class CommentCreateSchema(Schema):
 class CommentSchema(Schema):
     id = fields.Str(required=True)
     content = fields.Str(required=True)
-    author = fields.Nested(UserSchema, only=['id, name'])
+    author = fields.Nested(UserSchema)
     created_at = fields.DateTime(required=True)
     like_count = fields.Integer(required=True)
     #like_count = fields.Method('calculate_like_count')

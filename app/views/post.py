@@ -5,6 +5,7 @@ from flask import jsonify, request, g
 
 from app.utils import login_required, check_board, check_post, post_validator, pagination
 from app.models import Post, Comment
+from app.serializers.post import PostGetSchema
 
 
 class PostView(FlaskView):
@@ -20,14 +21,14 @@ class PostView(FlaskView):
         :return: message
         """
         data = json.loads(request.data)
-        tag = data.get('tag')
+        tags = data.get('tags')
 
         Post(
-            board   = g.board.id,
-            author  = g.user,
-            title   = data['title'],
+            board = g.board.id,
+            author = g.user,
+            title = data['title'],
             content = data['content'],
-            tag     = tag
+            tags = tags
             ).save()
 
         return jsonify(message='게시글이 등록되었습니다.'), 200
@@ -44,24 +45,10 @@ class PostView(FlaskView):
         :param post_id: 게시글 objectID
         :return: 게시글(제목, 내용, 댓글 등)
         """
-        # 조회하는 게시물의 response를 만들고, ID를 참조하는 댓글 객체를 만든다.
-        post_response = g.post.to_json()
+        schema = PostGetSchema()
+        post = Post.objects.get(id=post_id)
 
-        # 댓글 페이지네이션(10개씩)
-        comments = pagination(Comment.objects(post=g.post.id))
-
-        # 댓글(대댓글 제외) response를 따로 만든다.
-        comment_response = []
-        for cmt in comments(is_replied=False):
-            comment = cmt.to_json()
-
-            # 글의 대댓글이 존재할 경우, 원댓글 아이디를 참조하고 있는 대댓글들을 댓글의 reply value에 추가한다.
-            if comments(is_replied=True):
-                comment['reply'] = [reply.to_json() for reply in comments(reply=cmt.id)]
-            comment_response.append(comment)
-
-        post_response['comments'] = comment_response
-        return jsonify(post_response), 200
+        return schema.dumps(post), 200
 
 
     @route('/<post_id>', methods=['DELETE'])
@@ -97,14 +84,14 @@ class PostView(FlaskView):
         :return: message
         """
         data = json.loads(request.data)
-        tag = data.get('tag')
+        tags = data.get('tags')
 
         # 수정 가능 user 확인
         if g.user == g.post.author.id or g.auth == True:
             g.post.update(
-                title   = data['title'],
+                title = data['title'],
                 content = data['content'],
-                tag     = tag
+                tags = tags
             )
             return jsonify(message='수정되었습니다.'), 200
         return jsonify(message='권한이 없습니다.'), 403

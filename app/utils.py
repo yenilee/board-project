@@ -50,9 +50,9 @@ def check_post(f):
     def decorated_view(*args, **kwargs):
         post_id = kwargs['post_id']
 
-        if not Post.objects(board=g.board.id,post_id=post_id, is_deleted=False):
+        if not Post.objects(board=g.board.id, id=post_id, is_deleted=False):
             return jsonify(message="없는 게시물입니다."), 404
-        g.post = Post.objects(board=g.board.id, post_id=post_id, is_deleted=False).get()
+        g.post = Post.objects(board=g.board.id, id=post_id, is_deleted=False).get()
 
         return f(*args, **kwargs)
     return decorated_view
@@ -127,6 +127,6 @@ def comment_validator(f):
     return decorated_view
 
 # 객체를 받아 페이지네이션 기능을 추가해주는 함수
-def pagination(queryset, order_by='created_at', page=1, limit=10):
-    listed_object = queryset.order_by(order_by).limit(limit).skip((page - 1) * limit)
+def pagination(obj, order_by='created_at', page=1, limit=10):
+    listed_object = obj.order_by(order_by).limit(limit).skip((page - 1) * limit)
     return listed_object
