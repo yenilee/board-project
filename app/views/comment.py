@@ -54,7 +54,7 @@ class CommentView(FlaskView):
             comment.save()
             return jsonify(message='댓글이 수정되었습니다.'), 200
 
-        return jsonify(message='수정 권한이 없습니다.'), 401
+        return jsonify(message='수정 권한이 없습니다.'), 403
 
 
     @route('<comment_id>', methods=['DELETE'])

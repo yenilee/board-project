@@ -16,14 +16,14 @@ def login_required(f):
     def decorated_function(*args, **kwargs):
 
         if not 'Authorization' in request.headers:
-            return jsonify(message='로그인하지 않은 사용입니다.'), 403
+            return jsonify(message='로그인하지 않은 사용입니다.'), 401
 
         access_token = request.headers.get('Authorization')
         try:
             payload = jwt.decode(access_token, current_app.config['SECRET'], current_app.config['ALGORITHM'])
 
         except jwt.InvalidTokenError:
-            return jsonify(message='유효하지 않은 토큰입니다'), 409
+            return jsonify(message='유효하지 않은 토큰입니다'), 401
 
         g.user = loads(payload['user_id'])
         g.auth = payload['is_master']
