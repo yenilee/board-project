@@ -21,14 +21,12 @@ class PostView(FlaskView):
         :return: message
         """
         data = json.loads(request.data)
-        tags = data.get('tags')
-
         Post(
             board = g.board.id,
             author = g.user,
             title = data['title'],
             content = data['content'],
-            tags = tags
+            tags = data['tags']
             ).save()
 
         return jsonify(message='게시글이 등록되었습니다.'), 200
@@ -43,7 +41,7 @@ class PostView(FlaskView):
         작성자: avery
         :param board_id: 게시판 objectID
         :param post_id: 게시글 objectID
-        :return: 게시글(제목, 내용, 댓글 등)
+        :return: 게시글(작성자, 제목, 내용, 좋아요, 태그)
         """
         schema = PostGetSchema()
         post = Post.objects.get(id=post_id)

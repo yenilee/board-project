@@ -18,7 +18,8 @@ class BoardView(FlaskView):
         board_data = Board.objects(is_deleted=False)
 
         board_category = [
-            {"name": board.name}
+            {"name": board.name,
+             "id": str(board.id)}
             for board in board_data]
 
         return jsonify(data=board_category), 200
