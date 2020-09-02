@@ -42,7 +42,7 @@ class BoardView(FlaskView):
 
         # 현재 존재하는 board와 이름 중복 확인
         if Board.objects(name=board_name, is_deleted=False):
-            return jsonify(message='이미 등록된 게시판입니다.'), 400
+            return jsonify(message='이미 등록된 게시판입니다.'), 409
 
         board = Board(name=board_name)
         board.save()
@@ -99,7 +99,7 @@ class BoardView(FlaskView):
 
         # 변경할 게시판 이름 중복 여부 체크
         if Board.objects(name=data['board_name'], is_deleted=False):
-            return jsonify(message='이미 등록된 게시판입니다.'), 400
+            return jsonify(message='이미 등록된 게시판입니다.'), 409
 
         g.board.update(name=data['board_name'])
         return jsonify(message='수정되었습니다.'), 200
@@ -121,7 +121,7 @@ class BoardView(FlaskView):
             Board.objects(id=board_id).update(is_deleted=True)
             return jsonify(message='삭제되었습니다.'), 200
 
-        return jsonify(message='없는 게시판입니다.'), 400
+        return jsonify(message='없는 게시판입니다.'), 404
 
 
     @route('/<board_id>/search', methods=['GET'])
