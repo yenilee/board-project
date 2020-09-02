@@ -7,7 +7,7 @@ from bson.json_util import loads
 from marshmallow import ValidationError
 
 from app.models import Board, Post, Comment
-from app.serializers import PostSchema, UserSchema, BoardSchema, CommentSchema
+from app.serializers.serializers import PostSchema, UserSchema, BoardSchema, CommentSchema
 
 
 # 로그인 인증 데코레이터
