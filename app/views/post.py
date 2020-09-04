@@ -2,13 +2,15 @@ import json
 
 from flask_classful import FlaskView, route
 from flask import jsonify, request, g
+from flask_apispec import use_kwargs
 
 from app.utils import login_required, check_board, check_post, post_validator, pagination
 from app.models import Post, Comment
-from app.serializers.post import PostGetSchema
+from app.serializers.post import PostGetSchema, PostSchema
 
 
 class PostView(FlaskView):
+
     @route('', methods=['POST'])
     @login_required
     @check_board
@@ -20,14 +22,9 @@ class PostView(FlaskView):
         :param board_id: 게시판 objectID
         :return: message
         """
-        data = json.loads(request.data)
-        Post(
-            board = g.board.id,
-            author = g.user,
-            title = data['title'],
-            content = data['content'],
-            tags = data['tags']
-            ).save()
+        post = json.loads(request.data)
+        schema = PostSchema()
+        schema.load(post).save()
 
         return jsonify(message='게시글이 등록되었습니다.'), 200
 
@@ -46,7 +43,7 @@ class PostView(FlaskView):
         schema = PostGetSchema()
         post = Post.objects.get(id=post_id)
 
-        return schema.dumps(post), 200
+        return schema.dump(post), 200
 
 
     @route('/<post_id>', methods=['DELETE'])
