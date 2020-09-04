@@ -16,7 +16,7 @@ def create_app():
         print('Warning! 데이터베이스 에러 - ' + str(e))
 
     from flask_cors import CORS
-    CORS(app, resources={r'*':{'origins':'*'}})
+    CORS(app, resources={r'*': {'origins': '*'}})
 
     from .views import register_api
     register_api(app)
