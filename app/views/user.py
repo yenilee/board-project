@@ -92,8 +92,8 @@ class UserView(FlaskView):
 
         my_comment = [comment.to_json() for comment in
                       pagination(comments.all().order_by('-created_at'))]
-        return jsonify({"my_comment":my_comment,
-                        "number_of_comments":number_of_comments}), 200
+        return jsonify({"my_comment": my_comment,
+                        "number_of_comments": number_of_comments}), 200
 
 
     @route('/liked-posts', methods=['GET'])

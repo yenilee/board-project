@@ -2,18 +2,20 @@ import json
 
 from flask_classful import FlaskView, route
 from flask import jsonify, request, g
+from flask_apispec import use_kwargs
+from marshmallow import ValidationError
 
 from app.models import Comment
 from app.utils import login_required, check_board, check_post, check_comment, comment_validator
-
+from app.serializers.comment import CommentCreateSchema
 
 class CommentView(FlaskView):
     @route('', methods=['POST'])
     @login_required
     @check_board
     @check_post
-    @comment_validator
-    def post(self, board_id, post_id):
+    @use_kwargs(CommentCreateSchema)
+    def post(self, board_id, post_id, **kwargs):
         """
         댓글 생성 API
         작성자: avery
@@ -21,15 +23,13 @@ class CommentView(FlaskView):
         :param post_id: 게시글 objectId
         :return: message
         """
-        data = json.loads(request.data)
-
         comment = Comment(
             post=g.post.id,
             author=g.user,
-            content=data['content'],
+            content=kwargs['content'],
         )
         comment.save()
-        return jsonify(message='댓글이 등록되었습니다.'), 200
+        return '', 200
 
 
     @route('<comment_id>', methods=['PUT'])

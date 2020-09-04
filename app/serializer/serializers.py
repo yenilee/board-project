@@ -1,10 +1,9 @@
 from marshmallow import fields, Schema
 
 class UserSchema(Schema):
-    id = fields.Str(required=True, uniqe=True)
     account = fields.Str(required=True, unique=True)
-    password = fields.Str(required=True, load_only=True)
-    created_at = fields.DateTime(required=True, load_only=True)
+    password = fields.Str(required=True)
+    created_at = fields.DateTime()
 
 
 class BoardSchema(Schema):
@@ -18,7 +17,7 @@ class CommentCreateSchema(Schema):
 class CommentSchema(Schema):
     id = fields.Str(required=True)
     content = fields.Str(required=True)
-    author = fields.Nested(UserSchema, dump_only=("id", "account"))
+    author = fields.Nested(UserSchema, only=['id, name'])
     created_at = fields.DateTime(required=True)
     like_count = fields.Integer(required=True)
     #like_count = fields.Method('calculate_like_count')
@@ -45,4 +44,3 @@ class PostCreateSchema(Schema):
 class PostUpdateSchema(PostCreateSchema):
     class Meta:
         fields = ['title', 'content', 'tags']
-
