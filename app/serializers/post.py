@@ -1,8 +1,8 @@
 from flask import g
 
 from marshmallow import fields, Schema, post_load, validates_schema
-from .serializers import UserSchema
-from app.models import Post, User
+from .user import UserSchema
+from app.models import Post
 
 class PostGetSchema(Schema):
     id = fields.Str(dump_only=True)
