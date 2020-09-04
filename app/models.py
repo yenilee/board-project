@@ -22,45 +22,19 @@ class Board(Document):
 class Post(Document):
     author = ReferenceField(User)
     board = ReferenceField(Board)
-    title = StringField(required=True, max_length=100)
-    content = StringField(required=True)
+    title = StringField(max_length=100)
+    content = StringField()
     created_at = DateTimeField(required=True, default=datetime.datetime.now)
     likes = ListField(ReferenceField(User))
     tags = ListField(StringField())
     is_deleted = BooleanField(required=True, default=False)
 
     def like(self, user):
-
         if not user in self.likes:
             self.update(push__likes=user)
 
-    def to_json(self):
-        return {
-            'id': self.post_id,
-            'author': self.author.account,
-            'title': self.title,
-            'content': self.content,
-            'created_at': self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-            'tag': self.tag,
-            'likes': len(self.likes),
-            # 'comments': [{"comment_id": str(comment.id),
-            #               "name": comment.author.account,
-            #               "content": comment.content,
-            #               "created_at": comment.created_at.strftime('%Y-%m-%d-%H:%M:%S')}
-            #              for comment in Comment.objects(post=self.id, is_deleted=False).all()]
-        }
-
-    def to_json_list(self):
-        return {
-            'board': self.board.name,
-            'id': self.post_id,
-            'author': self.author.account,
-            'title': self.title,
-            'created_at': self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-            'likes': len(self.likes),
-            'comments': Comment.objects(post=self.id, is_deleted=False).count()
-            # 'tag' : self.tag
-        }
+    def soft_delete(self, post_id):
+        Post.objects(id=post_id).update(is_deleted=True)
 
 
 class Comment(Document):
