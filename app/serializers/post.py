@@ -1,11 +1,10 @@
-from marshmallow import fields, Schema, post_load
+from flask import g
+
+from marshmallow import fields, Schema, post_load, validates_schema
 from .serializers import UserSchema
-from app.models import Post
+from app.models import Post, User
 
 class PostGetSchema(Schema):
-    class Meta:
-        ordered = True
-
     id = fields.Str(dump_only=True)
     author = fields.Nested(UserSchema, dump_only=("id", "account"))
     title = fields.Str()
@@ -15,6 +14,10 @@ class PostGetSchema(Schema):
 
     def count_likes(self, obj):
         return len(obj.likes)
+
+    def validate_request(self, data, **kwargs):
+        errors = {}
+
 
 class PostSchema(Schema):
     id = fields.Str()
@@ -26,15 +29,12 @@ class PostSchema(Schema):
 
     @post_load
     def make_post(self, data, **kwargs):
+        data['author'] = g.user
+        data['board'] = g.board.id
         post = Post(**data)
         return post
 
-
-class PostCreateSchema(Schema):
-    class Meta:
-        fields = ['title', 'content', 'tags']
-
-
-class PostUpdateSchema(PostCreateSchema):
-    class Meta:
-        fields = ['title', 'content', 'tags']
+class PostUpdateSchema(PostSchema):
+    title = fields.Str()
+    content = fields.Str()
+    tags = fields.List(fields.Str)

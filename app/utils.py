@@ -8,6 +8,7 @@ from marshmallow import ValidationError
 
 from app.models import Board, Post, Comment
 from app.serializers.serializers import UserSchema, BoardSchema, CommentSchema
+from app.serializers.post import PostUpdateSchema
 from app.serializers.post import PostSchema
 
 
@@ -80,6 +81,19 @@ def post_validator(f):
     def decorated_view(*args, **kwargs):
         try:
             PostSchema().load(json.loads(request.data))
+
+        except ValidationError as err:
+            return jsonify(err.messages), 422
+
+        return f(*args, **kwargs)
+    return decorated_view
+
+# 게시글 validation check
+def post_update_validator(f):
+    @wraps(f)
+    def decorated_view(*args, **kwargs):
+        try:
+            PostUpdateSchema().load(json.loads(request.data))
 
         except ValidationError as err:
             return jsonify(err.messages), 422
