@@ -1,5 +1,6 @@
-from marshmallow import fields, Schema
+from marshmallow import fields, Schema, post_load
 from .serializers import UserSchema
+from app.models import Post
 
 class PostGetSchema(Schema):
     class Meta:
@@ -9,22 +10,24 @@ class PostGetSchema(Schema):
     author = fields.Nested(UserSchema, dump_only=("id", "account"))
     title = fields.Str()
     content = fields.Str()
-    total_likes = fields.Method('calculate_like_count')
+    total_likes = fields.Method('count_likes')
     tags = fields.List(fields.String)
 
-    def calculate_like_count(self, obj):
+    def count_likes(self, obj):
         return len(obj.likes)
 
 class PostSchema(Schema):
     id = fields.Str()
-    author = fields.Nested(UserSchema, dump_only=("id", "account"))
+    author = fields.Nested(UserSchema)
     title = fields.Str(required=True)
     content = fields.Str(required=True)
     likes = fields.Nested(UserSchema)
     tags = fields.List(fields.Str)
 
-    class Meta:
-        ordered = True
+    @post_load
+    def make_post(self, data, **kwargs):
+        post = Post(**data)
+        return post
 
 
 class PostCreateSchema(Schema):
