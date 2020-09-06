@@ -10,6 +10,8 @@ class CommentSchema(Schema):
     content = fields.Str(required=True)
     author = fields.Nested(UserSchema, dump_only=("id", "account"))
     created_at = fields.DateTime(required=True)
-    like_count = fields.Integer(required=True)
-    #like_count = fields.Method('calculate_like_count')
+    like_count = fields.Method('count_likes')
     is_replied = fields.Bool(required=True)
+
+    def count_likes(self, obj):
+        return len(obj.likes)

@@ -1,5 +1,6 @@
 import datetime
 
+from flask import g
 from mongoengine import (StringField, DateTimeField, ReferenceField,
                          ListField, BooleanField, IntField, Document)
 
@@ -30,11 +31,15 @@ class Post(Document):
     is_deleted = BooleanField(required=True, default=False)
 
     def like(self, user):
-        if not user in self.likes:
-            self.update(push__likes=user)
+        if user in self.likes:
+            pass
+        self.update(push__likes=user)
 
-    def soft_delete(self, post_id):
-        Post.objects(id=post_id).update(is_deleted=True)
+    def soft_delete(self, login_user_id, login_user_auth):
+        if login_user_id == self.author.id or login_user_auth == True:
+            self.update(is_deleted=True)
+            return True
+
 
 
 class Comment(Document):
