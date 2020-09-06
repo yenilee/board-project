@@ -4,7 +4,7 @@ from flask_apispec import use_kwargs, marshal_with
 
 from app.utils import login_required, check_board, check_post, post_validator, post_update_validator
 from app.models import Post
-from app.serializers.post import PostGetSchema, PostSchema
+from app.serializers.post import PostGetSchema, PostSchema, PostUpdateSchema
 
 
 class PostView(FlaskView):
@@ -53,10 +53,9 @@ class PostView(FlaskView):
         :param post_id: 게시글 objectID
         :return: message
         """
-        if g.user == g.post.author.id or g.auth == True:
-            g.post.update(**post)
-            return '', 200
-        return {'message':'권한이 없습니다.'}, 403
+        if not g.post.make_updates(g.user, g.auth, post):
+            return {'message': '권한이 없습니다.'}, 403
+        return '', 200
 
 
     @route('/<post_id>', methods=['DELETE'])
