@@ -1,8 +1,7 @@
 from flask import g
 
-from marshmallow import fields, Schema, post_load, validates_schema
+from marshmallow import fields, Schema, post_load
 from .user import UserSchema
-from .comment import CommentSchema
 from app.models import Post, Comment
 
 class PostGetSchema(Schema):
@@ -13,6 +12,7 @@ class PostGetSchema(Schema):
     total_likes = fields.Method('count_likes')
     total_comments = fields.Method('count_comments')
     tags = fields.List(fields.String)
+    created_at = fields.DateTime()
 
     def count_likes(self, obj):
         return len(obj.likes)
