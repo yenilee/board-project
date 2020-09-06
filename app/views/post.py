@@ -71,7 +71,7 @@ class PostView(FlaskView):
         :return: message
         """
         if not g.post.soft_delete(g.user, g.auth):
-            return jsonify(message='권한이 없습니다.'), 400
+            return {'message':'권한이 없습니다.'}, 403
         return '', 200
 
 

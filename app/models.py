@@ -1,6 +1,5 @@
 import datetime
 
-from flask import g
 from mongoengine import (StringField, DateTimeField, ReferenceField,
                          ListField, BooleanField, IntField, Document)
 
@@ -10,9 +9,6 @@ class User(Document):
     password = StringField(max_length=100, required=True)
     created_at = DateTimeField(required=True, default=datetime.datetime.now)
     master_role = BooleanField(required=True, default=False)
-
-    def to_json(self):
-        return {"account": self.account}
 
 
 class Board(Document):
@@ -31,9 +27,8 @@ class Post(Document):
     is_deleted = BooleanField(required=True, default=False)
 
     def like(self, user):
-        if user in self.likes:
-            pass
-        self.update(push__likes=user)
+        if not user in self.likes:
+            self.update(push__likes=user)
 
     def soft_delete(self, login_user_id, login_user_auth):
         if login_user_id == self.author.id or login_user_auth == True:
@@ -55,22 +50,3 @@ class Comment(Document):
     @property
     def like_count(self):
         return len(self.likes)
-
-    def to_json(self):
-        if self.is_deleted is False:
-            return {
-                "id": str(self.id),
-                "author": self.author.account,
-                "content": self.content,
-                "created_at": self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-                "likes": len(self.likes)
-            }
-
-        else:
-            return {
-                "id": str(self.id),
-                "author": self.author.account,
-                "content": "삭제된 댓글입니다",
-                "created_at": self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-                "likes": len(self.likes)
-            }
