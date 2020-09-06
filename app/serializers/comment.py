@@ -21,3 +21,9 @@ class CommentSchema(Schema):
 
     def calculate_like_count(self, obj):
         return len(obj.likes)
+
+class CommentGetSchema(CommentSchema):
+    is_replied = fields.Bool(required=True)
+
+    class Meta:
+        exclude = ("is_deleted",)

@@ -1,10 +1,11 @@
 from flask_classful import FlaskView, route
-from flask import jsonify, g
+from flask import g
 from flask_apispec import use_kwargs, marshal_with
 
-from app.utils import login_required, check_board, check_post, post_validator, post_update_validator
-from app.models import Post
-from app.serializers.post import PostGetSchema, PostSchema, PostUpdateSchema
+from app.utils import login_required, check_board, check_post, post_validator, post_update_validator, pagination
+from app.models import Comment
+from app.serializers.post import PostGetSchema, PostSchema
+from app.serializers.comment import CommentGetSchema
 
 
 class PostView(FlaskView):
@@ -38,6 +39,20 @@ class PostView(FlaskView):
         """
         schema = PostGetSchema()
         return schema.dump(g.post), 200
+
+    @route('/<post_id>/comments', methods=['GET'])
+    @check_board
+    @check_post
+    def get_comments(self, board_id, post_id, **page):
+        """
+        게시글 댓 조회 API
+        :param board_id: 게시판 objectID
+        :param post_id: 게시글 objectID
+        :return: 게시글(작성자, 제목, 내용, 좋아요, 태그)
+        """
+        comments = Comment.objects(post=g.post.id)
+        schema = CommentGetSchema(many=True)
+        return {"comments":schema.dump(comments)}, 200
 
 
     @route('/<post_id>', methods=['PUT'])
