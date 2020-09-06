@@ -3,11 +3,11 @@ import json
 from flask_classful import FlaskView, route
 from flask import jsonify, request, g
 from flask_apispec import use_kwargs
-from marshmallow import ValidationError
 
 from app.models import Comment
-from app.utils import login_required, check_board, check_post, check_comment, comment_validator
-from app.serializers.comment import CommentCreateSchema
+from app.utils import login_required, check_board, check_post, check_comment
+from app.serializers.comment import CommentCreateSchema, CommentUpdateSchema
+
 
 class CommentView(FlaskView):
     @route('', methods=['POST'])
@@ -31,13 +31,13 @@ class CommentView(FlaskView):
         comment.save()
         return '', 200
 
-
     @route('<comment_id>', methods=['PUT'])
     @login_required
     @check_board
     @check_post
-    @comment_validator
-    def update(self, board_id, post_id, comment_id):
+    @check_comment
+    @use_kwargs(CommentUpdateSchema)
+    def update(self, board_id, post_id, comment_id, **kwargs):
         """
         댓글 수정 API
         작성자: avery
@@ -46,21 +46,18 @@ class CommentView(FlaskView):
         :param comment_id: 댓글 objectId
         :return: message
         """
-        data = json.loads(request.data)
-
         comment = Comment.objects(id=comment_id).get()
-        if (comment.author.id == g.user or g.auth is True) and comment.is_deleted is False:
-            comment['content'] = data['content']
-            comment.save()
-            return jsonify(message='댓글이 수정되었습니다.'), 200
-
-        return jsonify(message='수정 권한이 없습니다.'), 403
+        result = comment.update_comment(g.user, g.auth, **kwargs)
+        if result is False:
+            return {'message': '권한이 없습니다.'}, 403
+        return '', 200
 
 
     @route('<comment_id>', methods=['DELETE'])
     @login_required
     @check_board
     @check_post
+    @check_comment
     def delete(self, board_id, post_id, comment_id):
         """
         댓글 삭제 API
@@ -71,12 +68,10 @@ class CommentView(FlaskView):
         :return: message
         """
         comment = Comment.objects(id=comment_id).get()
-        if (comment.author.id == g.user or g.auth is True) and comment.is_deleted is False:
-            comment.is_deleted = True
-            comment.save()
-            return jsonify(message='댓글이 삭제되었습니다.'), 200
-
-        return jsonify(message='수정 권한이 없습니다.'), 401
+        result = comment.soft_delete_comment(g.user, g.auth)
+        if result is False:
+            return {'message': '권한이 없습니다.'}, 403
+        return '', 200
 
 
     @route('/<comment_id>/like', methods=['POST'])
@@ -84,7 +79,7 @@ class CommentView(FlaskView):
     @check_board
     @check_post
     @check_comment
-    def like_post(self, board_id, post_id, comment_id):
+    def like_comment(self, board_id, post_id, comment_id):
         """
         댓글 좋아요 기능 API
         작성자: dana
@@ -93,16 +88,30 @@ class CommentView(FlaskView):
         :param comment_id: 댓글 objectId
         :return: message
         """
-        comment = Comment.objects(likes__exact=g.user, id=comment_id)
+        status = Comment.find_user_in_list(comment_id, g.user)
+        comment = Comment.objects(id=comment_id).get()
+        comment.like(status, g.user)
+        return {'message': '좋아요가 반영되었습니다.'}, 200
 
-        # 졸아요 등록
-        if not comment:
-            g.comment.update(push__likes=g.user)
-            return jsonify(message="'좋아요'가 반영되었습니다."), 200
 
-        # 좋아요 취소
-        g.comment.update(pull__likes=g.user)
-        return jsonify(message="'좋아요'가 취소되었습니다."), 200
+    @route('/<comment_id>/cancel-like', methods=['POST'])
+    @login_required
+    @check_board
+    @check_post
+    @check_comment
+    def cancel_like_comment(self, board_id, post_id, comment_id):
+        """
+        댓글 좋아요 취소 기능 API
+        작성자: dana
+        :param board_id: 게시판 objectId
+        :param post_id: 게시글 objectId
+        :param comment_id: 댓글 objectId
+        :return: message
+        """
+        status = Comment.find_user_in_list(comment_id, g.user)
+        comment = Comment.objects(id=comment_id).get()
+        comment.cancel_like(status, g.user)
+        return {'message': '좋아요가 취소되었습니다.'}, 200
 
 
     @route('/<comment_id>/replies', methods=['POST'])
@@ -110,8 +119,8 @@ class CommentView(FlaskView):
     @check_board
     @check_post
     @check_comment
-    @comment_validator
-    def post_reply(self, board_id, post_id, comment_id):
+    @use_kwargs(CommentCreateSchema)
+    def post_reply(self, board_id, post_id, comment_id, **kwargs):
         """
         대댓글 생성 기능 API
         작성자: dana
@@ -120,18 +129,16 @@ class CommentView(FlaskView):
         :param comment_id: 댓글 objectId
         :return: message
         """
-        data = json.loads(request.data)
-
         if g.comment.is_replied:
-            return jsonify(message='답글을 달 수 없는 댓글입니다.'), 400
+            return {'message': '답글을 달 수 없는 댓글입니다.'}, 400
 
         reply = Comment(
             post=g.post.id,
             author=g.user,
             reply=g.comment.id,
-            content=data['content'],
+            content=kwargs['content'],
             is_replied=True
         )
         reply.save()
 
-        return jsonify(message='댓글이 등록되었습니다.'), 200
+        return '', 200
