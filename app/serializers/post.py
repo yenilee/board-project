@@ -33,6 +33,7 @@ class PostSchema(Schema):
         post = Post(**data)
         return post
 
+
 class PostUpdateSchema(PostSchema):
     title = fields.Str()
     content = fields.Str()

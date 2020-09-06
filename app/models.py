@@ -27,7 +27,7 @@ class Post(Document):
     is_deleted = BooleanField(required=True, default=False)
 
     def like(self, user):
-        if not user in self.likes:
+        if user not in self.likes:
             self.update(push__likes=user)
 
     def soft_delete(self, login_user_id, login_user_auth):
@@ -50,3 +50,47 @@ class Comment(Document):
     @property
     def like_count(self):
         return len(self.likes)
+
+    def update_comment(self, user, auth, **kwargs):
+        if self.author.id == user or auth is True:
+            self.update(**kwargs)
+            return
+        return False
+
+    def soft_delete_comment(self, user, auth):
+        if self.author.id == user or auth is True:
+            self.update(is_deleted=True)
+            return
+        return False
+
+    @classmethod
+    def find_user_in_list(cls, comment_id, user):
+        return Comment.objects(id=comment_id, likes__exact=user).count()
+
+    def like(self, status, user):
+        if status == 0:
+            self.update(push__likes=user)
+
+    def cancel_like(self, status, user):
+        if status == 1:
+            self.update(pull__likes=user)
+
+
+    # def to_json(self):
+    #     if self.is_deleted is False:
+    #         return {
+    #             "id": str(self.id),
+    #             "author": self.author.account,
+    #             "content": self.content,
+    #             "created_at": self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
+    #             "likes": len(self.likes)
+    #         }
+    #
+    #     else:
+    #         return {
+    #             "id": str(self.id),
+    #             "author": self.author.account,
+    #             "content": "삭제된 댓글입니다",
+    #             "created_at": self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
+    #             "likes": len(self.likes)
+    #         }
