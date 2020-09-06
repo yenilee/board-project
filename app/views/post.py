@@ -1,12 +1,10 @@
-import json
-
 from flask_classful import FlaskView, route
-from flask import jsonify, request, g
-from flask_apispec import use_kwargs
+from flask import jsonify, g
+from flask_apispec import use_kwargs, marshal_with
 
 from app.utils import login_required, check_board, check_post, post_validator, post_update_validator
-from app.models import Post, Comment
-from app.serializers.post import PostGetSchema, PostSchema, PostUpdateSchema
+from app.models import Post
+from app.serializers.post import PostGetSchema, PostSchema
 
 
 class PostView(FlaskView):
@@ -56,10 +54,9 @@ class PostView(FlaskView):
         :return: message
         """
         if g.user == g.post.author.id or g.auth == True:
-            return {'message':'권한이 없습니다.'}, 403
-        g.post.update(**post)
-
-        return '', 200
+            g.post.update(**post)
+            return '', 200
+        return {'message':'권한이 없습니다.'}, 403
 
 
     @route('/<post_id>', methods=['DELETE'])
@@ -73,11 +70,9 @@ class PostView(FlaskView):
         :param post_id: 게시글 objectID
         :return: message
         """
-        if g.user == g.post.author.id or g.auth == True:
-            post.delete()
-            g.post.update(is_deleted=True)
-            return jsonify(message='삭제되었습니다.'), 200
-        return jsonify(message='권한이 없습니다.'), 403
+        if not g.post.soft_delete(g.user, g.auth):
+            return jsonify(message='권한이 없습니다.'), 400
+        return '', 200
 
 
     @route('/<post_id>/likes', methods=['POST'])
@@ -91,7 +86,5 @@ class PostView(FlaskView):
         :param post_id: 게시글 objectID
         :return: message
         """
-        post = Post.objects(id=g.post.id)
-        post.like(g.user)
-
+        g.post.like(g.user)
         return '', 200
