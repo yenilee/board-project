@@ -42,7 +42,6 @@ def check_board(f):
 
         if not Board.objects(id=board_id, is_deleted=False):
             return jsonify(message='없는 게시판입니다.'), 404
-        g.board = Board.objects(id=board_id, is_deleted=False).get()
 
         return f(*args, **kwargs)
     return decorated_view
@@ -51,11 +50,11 @@ def check_board(f):
 def check_post(f):
     @wraps(f)
     def decorated_view(*args, **kwargs):
+        board_id = kwargs['board_id']
         post_id = kwargs['post_id']
 
-        if not Post.objects(board=g.board.id, id=post_id, is_deleted=False):
+        if not Post.objects(board=board_id, id=post_id, is_deleted=False):
             return jsonify(message="없는 게시물입니다."), 404
-        g.post = Post.objects(board=g.board.id, id=post_id, is_deleted=False).get()
 
         return f(*args, **kwargs)
     return decorated_view
@@ -64,14 +63,14 @@ def check_post(f):
 def check_comment(f):
     @wraps(f)
     def decorated_view(*args, **kwargs):
+        post_id = kwargs['post_id']
         comment_id = kwargs['comment_id']
+
         if len(comment_id) is not 24 or type(comment_id) is not str:
             return jsonify(message='유효한 댓글ID가 아닙니다.'), 400
 
-        if not Comment.objects(post=g.post.id, id=comment_id, is_deleted=False):
+        if not Comment.objects(post=post_id, id=comment_id, is_deleted=False):
             return jsonify(message='없는 댓글입니다.'), 404
-
-        g.comment = Comment.objects(post=g.post.id, is_deleted=False, id=comment_id).get()
 
         return f(*args, **kwargs)
     return decorated_view

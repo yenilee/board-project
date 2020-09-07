@@ -463,9 +463,6 @@ tags
 # Persistent undo
 [._]*.un~
 
-# 설정 파일
-config.py
-
 # 다운로드 관련 파일
 board_project.egg-info
 
