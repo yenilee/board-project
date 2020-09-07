@@ -13,23 +13,18 @@ from app.utils import check_board, check_comment, check_post, login_required
 class CommentView(FlaskView):
     @check_board
     @check_post
-    def index(self, board_id, post_id):
+    def index(self, board_id, post_id, page=1):
         """
         게시글 댓 조회 API
         :param board_id: 게시판 objectID
         :param post_id: 게시글 objectID
+        :param page: 페이지 번호
         :return: 게시글(작성자, 제목, 내용, 좋아요, 태그)
         """
-        # comments = Comment.objects(post=g.post.id)
-        # schema = CommentGetSchema(many=True)
+        if request.args:
+            page = int(request.args.get('page'))
 
-        result = Comment.objects(post=g.post.id).paginate(page=1, per_page=10)
-
-        # result = {
-        #     'total':0,
-        #     'items':[]
-        # }
-
+        result = Comment.objects(post=post_id).order_by('-created_at').paginate(page=page, per_page=10)
         dumps = PaginatedCommentsSchema().dump(result)
 
         return dumps, 200
