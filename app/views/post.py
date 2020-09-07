@@ -5,7 +5,7 @@ from flask import g, request
 from flask_apispec import use_kwargs, marshal_with
 from bson import ObjectId
 
-from app.utils import login_required, check_board, check_post, post_validator, post_update_validator, pagination
+from app.utils import login_required, check_board, check_post, post_validator, post_update_validator
 from app.models import Post
 from app.serializers.post import PostCreateSchema, PostDetailSchema
 
@@ -39,8 +39,8 @@ class PostView(FlaskView):
     def get(self, board_id, post_id):
         """
         게시글 조회 API
-        :param board_id: 게시판 objectID (type: string)
-        :param post_id: 게시글 objectID (type: string)
+        :param board_id: 게시판 objectID
+        :param post_id: 게시글 objectID
         :return: 게시글
         """
         schema = PostDetailSchema()
@@ -55,8 +55,8 @@ class PostView(FlaskView):
     def update(self, board_id, post_id):
         """
         게시글 수정 API
-        :param board_id: 게시판 objectID (type: string)
-        :param post_id: 게시글 objectID (type: string)
+        :param board_id: 게시판 objectID
+        :param post_id: 게시글 objectID
         :return: message
         """
         data = json.loads(request.data)
@@ -74,8 +74,8 @@ class PostView(FlaskView):
     def delete(self, board_id, post_id):
         """
         게시글 삭제 API
-        :param board_id: 게시판 objectID (type: string)
-        :param post_id: 게시글 objectID (type: string)
+        :param board_id: 게시판 objectID
+        :param post_id: 게시글 objectID
         :return: message
         """
         post = Post.objects(board=board_id, id=post_id).get()
@@ -92,10 +92,25 @@ class PostView(FlaskView):
     def like_post(self, board_id, post_id):
         """
         게시글 좋아요 기능 API
-        :param board_id: 게시판 objectID (type: string)
-        :param post_id: 게시글 objectID (type: string)
+        :param board_id: 게시판 objectID
+        :param post_id: 게시글 objectID
         :return: message
         """
         post = Post.objects(board=board_id, id=post_id).get()
         post.like(g.user)
+        return '', 200
+
+    @route('/<post_id>/cancel-like', methods=['POST'])
+    @login_required
+    @check_board
+    @check_post
+    def like_post(self, board_id, post_id):
+        """
+        게시글 좋아요 기능 API
+        :param board_id: 게시판 objectID
+        :param post_id: 게시글 objectID
+        :return: message
+        """
+        post = Post.objects(board=board_id, id=post_id).get()
+        post.cancel_like(g.user)
         return '', 200
