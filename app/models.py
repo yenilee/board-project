@@ -23,13 +23,13 @@ class Post(Document):
     title = StringField(max_length=100)
     content = StringField()
     created_at = DateTimeField(required=True, default=datetime.datetime.now)
-    likes = ListField(ReferenceField(User))
+    likes = ListField(StringField())
     tags = ListField(StringField())
     is_deleted = BooleanField(required=True, default=False)
 
     def like(self, user):
         if user not in self.likes:
-            self.update(push__likes=user)
+            self.update(push__likes=str(user))
 
     def soft_delete(self, login_user_id, login_user_auth):
         if login_user_id == self.author.id or login_user_auth == True:
@@ -48,7 +48,7 @@ class Comment(Document):
     author = ReferenceField(User)
     reply = ReferenceField('self')
     content = StringField()
-    likes = ListField(ReferenceField(User))
+    likes = ListField(StringField())
     created_at = DateTimeField(required=True, default=datetime.datetime.now)
     is_deleted = BooleanField(required=True, default=False)
     is_replied = BooleanField(required=True, default=False)
@@ -75,11 +75,11 @@ class Comment(Document):
 
     def like(self, status, user):
         if status == 0:
-            self.update(push__likes=user)
+            self.update(push__likes=str(user))
 
     def cancel_like(self, status, user):
         if status == 1:
-            self.update(pull__likes=user)
+            self.update(pull__likes=str(user))
 
 
     # def to_json(self):
