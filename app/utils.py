@@ -10,7 +10,7 @@ from app.models import Board, Post, Comment
 from app.serializers.user import UserSchema
 from app.serializers.board import BoardSchema
 from app.serializers.comment import CommentSchema
-from app.serializers.post import PostSchema, PostUpdateSchema
+from app.serializers.post import PostUpdateSchema, PostCreateSchema
 
 
 # 로그인 인증 데코레이터
@@ -80,7 +80,7 @@ def post_validator(f):
     @wraps(f)
     def decorated_view(*args, **kwargs):
         try:
-            PostSchema().load(json.loads(request.data))
+            PostCreateSchema().load(json.loads(request.data))
 
         except ValidationError as err:
             return jsonify(err.messages), 422
