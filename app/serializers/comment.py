@@ -27,3 +27,8 @@ class CommentGetSchema(CommentSchema):
 
     class Meta:
         exclude = ("is_deleted",)
+
+
+class PaginatedCommentsSchema(Schema):
+    total = fields.Integer()
+    items = fields.Nested(CommentSchema, many=True)

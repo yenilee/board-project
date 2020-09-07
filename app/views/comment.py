@@ -1,15 +1,37 @@
-import json
-
-from flask_classful import FlaskView, route
-from flask import jsonify, request, g
+from flask import g
 from flask_apispec import use_kwargs
+from flask_classful import FlaskView, route
 
 from app.models import Comment
-from app.utils import login_required, check_board, check_post, check_comment
-from app.serializers.comment import CommentCreateSchema, CommentUpdateSchema
+from app.serializers.comment import CommentCreateSchema, CommentUpdateSchema, PaginatedCommentsSchema
+from app.utils import check_board, check_comment, check_post, login_required
 
 
 class CommentView(FlaskView):
+    @check_board
+    @check_post
+    def index(self, board_id, post_id):
+        """
+        게시글 댓 조회 API
+        :param board_id: 게시판 objectID
+        :param post_id: 게시글 objectID
+        :return: 게시글(작성자, 제목, 내용, 좋아요, 태그)
+        """
+        # comments = Comment.objects(post=g.post.id)
+        # schema = CommentGetSchema(many=True)
+
+        result = Comment.objects(post=g.post.id).paginate(page=1, per_page=10)
+
+        # result = {
+        #     'total':0,
+        #     'items':[]
+        # }
+
+        dumps = PaginatedCommentsSchema().dump(result)
+
+        return dumps, 200
+
+
     @route('', methods=['POST'])
     @login_required
     @check_board

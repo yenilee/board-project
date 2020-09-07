@@ -1,8 +1,6 @@
 import pytest
 
 from flask import current_app
-from app.config import TestConfig
-from unittest import mock
 
 
 @pytest.fixture(scope="session")
@@ -16,4 +14,5 @@ def app():
 def db(app):
     import mongoengine
     mongoengine.connect(host=current_app.config['MONGO_URI'])
+    yield
     mongoengine.disconnect()
