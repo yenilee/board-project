@@ -1,13 +1,12 @@
 from datetime import datetime
 
-import arrow as arrow
 import factory
+from faker import Faker
 from factory import fuzzy
 from factory.mongoengine import MongoEngineFactory
 
 from app.models import Post
 from tests.factories.board import BoardFactory
-
 from tests.factories.user import UserFactory
 
 

@@ -30,6 +30,10 @@ class Post(Document):
         if str(user) not in self.likes:
             self.update(push__likes=str(user))
 
+    def cancel_like(self, user):
+        if str(user) in self.likes:
+            self.update(pull__likes=str(user))
+
     def soft_delete(self, login_user_id, login_user_auth):
         if login_user_id == self.author.id or login_user_auth == True:
             self.update(is_deleted=True)
