@@ -56,13 +56,13 @@ class Comment(Document):
     def like_count(self):
         return len(self.likes)
 
-    def update_comment(self, user, auth, **kwargs):
+    def make_updates(self, user, auth, data):
         if self.author.id == user or auth is True:
-            self.update(**kwargs)
+            self.update(**data)
             return
         return False
 
-    def soft_delete_comment(self, user, auth):
+    def soft_delete(self, user, auth):
         if self.author.id == user or auth is True:
             self.update(is_deleted=True)
             return

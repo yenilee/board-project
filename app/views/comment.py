@@ -1,6 +1,9 @@
+import json
+
 from flask import g, request
 from flask_apispec import use_kwargs
 from flask_classful import FlaskView, route
+from bson import ObjectId
 
 from app.models import Comment
 from app.serializers.comment import CommentCreateSchema, CommentUpdateSchema, PaginatedCommentsSchema
@@ -47,7 +50,7 @@ class CommentView(FlaskView):
         schema = CommentCreateSchema()
         comment = schema.load(request.json)
         comment.author = g.user
-        comment.board = board_id
+        comment.post = ObjectId(post_id)
         comment.save()
         return '', 200
 
@@ -66,7 +69,8 @@ class CommentView(FlaskView):
         :return: message
         """
         comment = Comment.objects(id=comment_id).get()
-        result = comment.update_comment(g.user, g.auth, **kwargs)
+        data = json.loads(request.data)
+        result = comment.make_updates(g.user, g.auth, data)
         if result is False:
             return {'message': '권한이 없습니다.'}, 403
         return '', 200
@@ -87,7 +91,7 @@ class CommentView(FlaskView):
         :return: message
         """
         comment = Comment.objects(id=comment_id).get()
-        result = comment.soft_delete_comment(g.user, g.auth)
+        result = comment.soft_delete(g.user, g.auth)
         if result is False:
             return {'message': '권한이 없습니다.'}, 403
         return '', 200
@@ -136,7 +140,6 @@ class CommentView(FlaskView):
     @check_board
     @check_post
     @check_comment
-    @use_kwargs(CommentCreateSchema)
     def post_reply(self, board_id, post_id, comment_id, **kwargs):
         """
         대댓글 생성 기능 API
@@ -146,16 +149,15 @@ class CommentView(FlaskView):
         :param comment_id: 댓글 objectId
         :return: message
         """
-        if g.comment.is_replied:
+        if Comment.objects(id=comment_id).get().is_replied:
             return {'message': '답글을 달 수 없는 댓글입니다.'}, 400
 
-        reply = Comment(
-            post=g.post.id,
-            author=g.user,
-            reply=g.comment.id,
-            content=kwargs['content'],
-            is_replied=True
-        )
+        schema = CommentCreateSchema()
+        reply = schema.load(request.json)
+        reply.author = g.user
+        reply.post = ObjectId(post_id)
+        reply.reply = ObjectId(comment_id)
+        reply.is_replied = True
         reply.save()
 
         return '', 200
