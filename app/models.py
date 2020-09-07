@@ -42,7 +42,6 @@ class Post(Document):
             return True
 
 
-
 class Comment(Document):
     post = ReferenceField(Post)
     author = ReferenceField(User)
@@ -69,34 +68,10 @@ class Comment(Document):
             return
         return False
 
-    @classmethod
-    def find_user_in_list(cls, comment_id, user):
-        return Comment.objects(id=comment_id, likes__exact=user).count()
-
-    def like(self, status, user):
-        if status == 0:
+    def like(self, user):
+        if str(user) not in self.likes:
             self.update(push__likes=str(user))
 
-    def cancel_like(self, status, user):
-        if status == 1:
+    def cancel_like(self, user):
+        if str(user) in self.likes:
             self.update(pull__likes=str(user))
-
-
-    # def to_json(self):
-    #     if self.is_deleted is False:
-    #         return {
-    #             "id": str(self.id),
-    #             "author": self.author.account,
-    #             "content": self.content,
-    #             "created_at": self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-    #             "likes": len(self.likes)
-    #         }
-    #
-    #     else:
-    #         return {
-    #             "id": str(self.id),
-    #             "author": self.author.account,
-    #             "content": "삭제된 댓글입니다",
-    #             "created_at": self.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-    #             "likes": len(self.likes)
-    #         }

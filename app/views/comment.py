@@ -1,4 +1,4 @@
-from flask import g
+from flask import g, request
 from flask_apispec import use_kwargs
 from flask_classful import FlaskView, route
 
@@ -36,8 +36,7 @@ class CommentView(FlaskView):
     @login_required
     @check_board
     @check_post
-    @use_kwargs(CommentCreateSchema)
-    def post(self, board_id, post_id, **kwargs):
+    def post(self, board_id, post_id):
         """
         댓글 생성 API
         작성자: avery
@@ -45,11 +44,10 @@ class CommentView(FlaskView):
         :param post_id: 게시글 objectId
         :return: message
         """
-        comment = Comment(
-            post=g.post.id,
-            author=g.user,
-            content=kwargs['content'],
-        )
+        schema = CommentCreateSchema()
+        comment = schema.load(request.json)
+        comment.author = g.user
+        comment.board = board_id
         comment.save()
         return '', 200
 
@@ -58,8 +56,7 @@ class CommentView(FlaskView):
     @check_board
     @check_post
     @check_comment
-    @use_kwargs(CommentUpdateSchema)
-    def update(self, board_id, post_id, comment_id, **kwargs):
+    def update(self, board_id, post_id, comment_id):
         """
         댓글 수정 API
         작성자: avery
@@ -110,9 +107,8 @@ class CommentView(FlaskView):
         :param comment_id: 댓글 objectId
         :return: message
         """
-        status = Comment.find_user_in_list(comment_id, g.user)
         comment = Comment.objects(id=comment_id).get()
-        comment.like(status, g.user)
+        comment.like(g.user)
         return {'message': '좋아요가 반영되었습니다.'}, 200
 
 
@@ -130,9 +126,8 @@ class CommentView(FlaskView):
         :param comment_id: 댓글 objectId
         :return: message
         """
-        status = Comment.find_user_in_list(comment_id, g.user)
         comment = Comment.objects(id=comment_id).get()
-        comment.cancel_like(status, g.user)
+        comment.cancel_like(g.user)
         return {'message': '좋아요가 취소되었습니다.'}, 200
 
 

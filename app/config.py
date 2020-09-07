@@ -1,5 +1,3 @@
-
-
 class Config:
     SECRET = 'hiitssecret'
     ALGORITHM = 'HS256'
