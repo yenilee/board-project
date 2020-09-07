@@ -1,32 +1,34 @@
+import json
+
 from flask_classful import FlaskView, route
-from flask import g
+from flask import g, request
 from flask_apispec import use_kwargs, marshal_with
+from bson import ObjectId
 
 from app.utils import login_required, check_board, check_post, post_validator, post_update_validator, pagination
 from app.models import Comment, Post
-from app.serializers.post import PostCreateSchema, PostGetSchema, PostSchema
+from app.serializers.post import PostCreateSchema, PostDetailSchema
 from app.serializers.comment import CommentGetSchema
 
 
 class PostView(FlaskView):
 
     @route('', methods=['POST'])
-    # @use_kwargs(PostCreateSchema, locations=['json'])
     @login_required
-    @check_board
     @post_validator
-    def post(self, board_id, post):
-        #
-        # """
-        # 게시글 생성 API
-        # :param board_id: 게시판 objectID
-        # :return: message
-        # """
+    @check_board
+    def post(self, board_id):
 
-        schema = PostCreateSchema()
-        post = schema.load(post)
+        """
+        게시글 생성 API
+        :param board_id: 게시판 objectID (type: string)
+        :return: message
+        """
+        data = json.loads(request.data)
+        post = PostCreateSchema().load(data)
+
         post.author = g.user
-        post.board = g.board
+        post.board = ObjectId(board_id)
         post.save()
 
         return '', 200
@@ -38,30 +40,30 @@ class PostView(FlaskView):
     def get(self, board_id, post_id):
         """
         게시글 조회 API
-        :param board_id: 게시판 objectID
-        :param post_id: 게시글 objectID
-        :return: 게시글(작성자, 제목, 내용, 좋아요, 태그)
+        :param board_id: 게시판 objectID (type: string)
+        :param post_id: 게시글 objectID (type: string)
+        :return: 게시글
         """
-        # PostDetailSchema
-        schema = PostGetSchema()
-        return schema.dump(g.post), 200
+        schema = PostDetailSchema()
+        post = Post.objects(board=board_id, id=post_id).get()
+        return schema.dump(post), 200
 
     @route('/<post_id>', methods=['PUT'])
     @login_required
-    @use_kwargs(PostGetSchema, locations=['json'])
+    @post_update_validator
     @check_board
     @check_post
-    @post_update_validator
-    def update(self, board_id, post_id, **post):
+    def update(self, board_id, post_id):
         """
         게시글 수정 API
-        :param board_id: 게시판 objectID
-        :param post_id: 게시글 objectID
+        :param board_id: 게시판 objectID (type: string)
+        :param post_id: 게시글 objectID (type: string)
         :return: message
         """
+        data = json.loads(request.data)
+        post = Post.objects(board=board_id, id=post_id).get()
 
-
-        if not g.post.make_updates(g.user, g.auth, post):
+        if not post.make_updates(g.user, g.auth, data):
             return {'message': '권한이 없습니다.'}, 403
         return '', 200
 
@@ -73,25 +75,28 @@ class PostView(FlaskView):
     def delete(self, board_id, post_id):
         """
         게시글 삭제 API
-        :param board_id: 게시판 objectID
-        :param post_id: 게시글 objectID
+        :param board_id: 게시판 objectID (type: string)
+        :param post_id: 게시글 objectID (type: string)
         :return: message
         """
-        if not g.post.soft_delete(g.user, g.auth):
+        post = Post.objects(board=board_id, id=post_id).get()
+
+        if not post.soft_delete(g.user, g.auth):
             return {'message':'권한이 없습니다.'}, 403
         return '', 200
 
 
-    @route('/<post_id>/likes', methods=['POST'])
+    @route('/<post_id>/like', methods=['POST'])
     @login_required
     @check_board
     @check_post
     def like_post(self, board_id, post_id):
         """
         게시글 좋아요 기능 API
-        :param board_id: 게시판 objectID
-        :param post_id: 게시글 objectID
+        :param board_id: 게시판 objectID (type: string)
+        :param post_id: 게시글 objectID (type: string)
         :return: message
         """
-        g.post.like(g.user)
+        post = Post.objects(board=board_id, id=post_id).get()
+        post.like(g.user)
         return '', 200

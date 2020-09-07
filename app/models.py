@@ -28,7 +28,7 @@ class Post(Document):
     is_deleted = BooleanField(required=True, default=False)
 
     def like(self, user):
-        if user not in self.likes:
+        if str(user) not in self.likes:
             self.update(push__likes=str(user))
 
     def soft_delete(self, login_user_id, login_user_auth):
