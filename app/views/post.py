@@ -6,9 +6,8 @@ from flask_apispec import use_kwargs, marshal_with
 from bson import ObjectId
 
 from app.utils import login_required, check_board, check_post, post_validator, post_update_validator, pagination
-from app.models import Comment, Post
+from app.models import Post
 from app.serializers.post import PostCreateSchema, PostDetailSchema
-from app.serializers.comment import CommentGetSchema
 
 
 class PostView(FlaskView):
