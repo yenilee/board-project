@@ -1,7 +1,8 @@
 from flask import g
 
-from marshmallow import fields, Schema, post_load
+from marshmallow import fields, Schema, post_load, pre_load
 from .user import UserSchema
+from .board import BoardSchema
 from app.models import Post, Comment
 
 

@@ -39,10 +39,10 @@ class Post(Document):
             self.update(is_deleted=True)
             return True
 
-    def make_updates(self, login_user_id, login_user_auth, post):
+    def user_auth_check(self, login_user_id, login_user_auth):
         if login_user_id == self.author.id or login_user_auth == True:
-            self.update(**post)
             return True
+
 
 
 class Comment(Document):
