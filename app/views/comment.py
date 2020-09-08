@@ -63,7 +63,7 @@ class CommentView(FlaskView):
         :return: message
         """
         comment = Comment.objects(id=comment_id).get()
-        data = CommentUpdateSchema().load(request.json)
+        data = CommentUpdateSchema().load(json.loads(request.data))
         result = comment.make_updates(g.user, g.auth, data)
         if result is False:
             return {'message': '권한이 없습니다.'}, 403
