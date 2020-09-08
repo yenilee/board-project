@@ -15,7 +15,6 @@ class PostView(FlaskView):
 
     @route('', methods=['POST'])
     @login_required
-    @post_validator
     @check_board
     def post(self, board_id):
 
@@ -24,7 +23,7 @@ class PostView(FlaskView):
         :param board_id: 게시판 objectID (type: string)
         :return: message
         """
-        data = request.json
+        data = json.loads(request.data)
         post = PostCreateSchema().load(data)
 
         post.author = g.user
