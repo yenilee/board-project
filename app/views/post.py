@@ -104,7 +104,7 @@ class PostView(FlaskView):
     @login_required
     @check_board
     @check_post
-    def like_post(self, board_id, post_id):
+    def cancel_like_post(self, board_id, post_id):
         """
         게시글 좋아요 기능 API
         :param board_id: 게시판 objectID
