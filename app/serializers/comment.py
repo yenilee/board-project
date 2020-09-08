@@ -3,6 +3,7 @@ from marshmallow import fields, Schema, post_load
 from .user import UserSchema
 from app.models import Comment
 
+
 class CommentCreateSchema(Schema):
     content = fields.Str(required=True)
 
@@ -11,9 +12,10 @@ class CommentCreateSchema(Schema):
         comment = Comment(**data)
         return comment
 
-class CommentUpdateSchema(CommentCreateSchema):
-    class Meta:
-        fields = ['content']
+
+class CommentUpdateSchema(Schema):
+    content = fields.Str(required=True)
+
 
 class CommentSchema(Schema):
     id = fields.Str(required=True)
@@ -25,6 +27,7 @@ class CommentSchema(Schema):
 
     def count_likes(self, obj):
         return len(obj.likes)
+
 
 class PaginatedCommentsSchema(Schema):
     total = fields.Integer()

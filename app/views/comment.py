@@ -42,9 +42,8 @@ class CommentView(FlaskView):
         :param post_id: 게시글 objectId
         :return: message
         """
-        schema = CommentCreateSchema()
-        comment = schema.load(request.json)
-        comment.author = g.user
+        comment = CommentCreateSchema().load(json.loads(request.data))
+        comment.author = ObjectId(g.user)
         comment.post = ObjectId(post_id)
         comment.save()
         return '', 200
@@ -64,7 +63,7 @@ class CommentView(FlaskView):
         :return: message
         """
         comment = Comment.objects(id=comment_id).get()
-        data = json.loads(request.data)
+        data = CommentUpdateSchema().load(request.json)
         result = comment.make_updates(g.user, g.auth, data)
         if result is False:
             return {'message': '권한이 없습니다.'}, 403
