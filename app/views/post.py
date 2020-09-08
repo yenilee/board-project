@@ -1,13 +1,14 @@
 import json
 
 from flask_classful import FlaskView, route
-from flask import g, request
+from flask import g, request, jsonify
 from flask_apispec import use_kwargs, marshal_with
 from bson import ObjectId
+from marshmallow import ValidationError
 
 from app.utils import login_required, check_board, check_post, post_validator, post_update_validator
 from app.models import Post
-from app.serializers.post import PostCreateSchema, PostDetailSchema
+from app.serializers.post import PostCreateSchema, PostDetailSchema, PostUpdateSchema
 
 
 class PostView(FlaskView):
@@ -23,7 +24,7 @@ class PostView(FlaskView):
         :param board_id: 게시판 objectID (type: string)
         :return: message
         """
-        data = json.loads(request.data)
+        data = request.json
         post = PostCreateSchema().load(data)
 
         post.author = g.user
@@ -49,7 +50,6 @@ class PostView(FlaskView):
 
     @route('/<post_id>', methods=['PUT'])
     @login_required
-    @post_update_validator
     @check_board
     @check_post
     def update(self, board_id, post_id):
@@ -59,12 +59,17 @@ class PostView(FlaskView):
         :param post_id: 게시글 objectID
         :return: message
         """
-        data = json.loads(request.data)
-        post = Post.objects(board=board_id, id=post_id).get()
+        try:
+            data = json.loads(request.data)
+            post = Post.objects(id=post_id, board=board_id).get()
 
-        if not post.make_updates(g.user, g.auth, data):
-            return {'message': '권한이 없습니다.'}, 403
-        return '', 200
+            if post.user_auth_check(g.user, g.auth):
+                post.update(**PostUpdateSchema().load(data))
+                return '', 200
+            return jsonify(message='권한이 없는 사용자입니다'), 403
+
+        except ValidationError as err:
+            return err.messages, 422
 
 
     @route('/<post_id>', methods=['DELETE'])
