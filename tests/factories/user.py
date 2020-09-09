@@ -11,5 +11,6 @@ class UserFactory(MongoEngineFactory):
     password = factory.Faker('password')
     master_role = False
 
+
 class MasterUserFactory(UserFactory):
     master_role = True
