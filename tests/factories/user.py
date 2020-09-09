@@ -9,3 +9,7 @@ class UserFactory(MongoEngineFactory):
 
     account = factory.Faker('name')
     password = factory.Faker('password')
+    master_role = False
+
+class MasterUserFactory(UserFactory):
+    master_role = True
