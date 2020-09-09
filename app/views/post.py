@@ -2,11 +2,10 @@ import json
 
 from flask_classful import FlaskView, route
 from flask import g, request, jsonify
-from flask_apispec import use_kwargs, marshal_with
 from bson import ObjectId
 from marshmallow import ValidationError
 
-from app.utils import login_required, check_board, check_post, post_validator, post_update_validator
+from app.utils import login_required, check_board, check_post
 from app.models import Post
 from app.serializers.post import PostCreateSchema, PostDetailSchema, PostUpdateSchema
 
@@ -20,17 +19,20 @@ class PostView(FlaskView):
 
         """
         게시글 생성 API
-        :param board_id: 게시판 objectID (type: string)
+        :param board_id: 게시판 objectID
         :return: message
         """
-        data = json.loads(request.data)
-        post = PostCreateSchema().load(data)
+        try:
+            post = PostCreateSchema().load(json.loads(request.data))
 
-        post.author = g.user_id
-        post.board = ObjectId(board_id)
-        post.save()
+            post.author = g.user_id
+            post.board = ObjectId(board_id)
+            post.save()
 
-        return '', 200
+            return '', 200
+
+        except ValidationError as err:
+            return err.messages, 422
 
 
     @route('/<post_id>', methods=['GET'])
@@ -59,13 +61,14 @@ class PostView(FlaskView):
         :return: message
         """
         try:
-            data = json.loads(request.data)
             post = Post.objects(id=post_id, board=board_id).get()
 
-            if post.user_auth_check(g.user_id, g.master_role):
-                post.update(**PostUpdateSchema().load(data))
-                return '', 200
-            return jsonify(message='권한이 없는 사용자입니다'), 403
+            if not post.user_auth_check(g.user_id, g.master_role):
+                return jsonify(message='권한이 없는 사용자입니다'), 403
+
+            data = PostUpdateSchema().load(json.loads(request.data))
+            post.update(**data)
+            return '', 200
 
         except ValidationError as err:
             return err.messages, 422
@@ -83,9 +86,10 @@ class PostView(FlaskView):
         :return: message
         """
         post = Post.objects(board=board_id, id=post_id).get()
+        if not post.user_auth_check(g.user_id, g.master_role):
+            return jsonify(message='권한이 없는 사용자입니다'), 403
 
-        if not post.soft_delete(g.user_id, g.master_role):
-            return {'message':'권한이 없습니다.'}, 403
+        post.soft_delete()
         return '', 200
 
 
