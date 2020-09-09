@@ -13,13 +13,6 @@ from app.serializers.comment import CommentUpdateSchema, CommentCreateSchema
 from app.serializers.post import PostUpdateSchema, PostCreateSchema
 
 
-class BytesDump(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, bytes):
-            return obj.decode('utf-8')
-        return json.JSONEncoder.default(self, obj)
-
-
 # 로그인 인증 데코레이터
 def login_required(f):
     @wraps(f)

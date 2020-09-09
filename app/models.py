@@ -34,14 +34,14 @@ class Post(Document):
         if str(user) in self.likes:
             self.update(pull__likes=str(user))
 
-    def soft_delete(self, login_user_id, login_user_auth):
-        if login_user_id == self.author.id or login_user_auth == True:
-            self.update(is_deleted=True)
-            return True
+    def soft_delete(self):
+        self.update(is_deleted=True)
 
     def user_auth_check(self, login_user_id, login_user_auth):
         if login_user_id == self.author.id or login_user_auth == True:
             return True
+        else:
+            return False
 
 
 
