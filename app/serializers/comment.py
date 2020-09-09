@@ -1,11 +1,12 @@
 from marshmallow import fields, Schema, post_load
+from marshmallow.validate import Length
 
 from .user import UserSchema
 from app.models import Comment
 
 
 class CommentCreateSchema(Schema):
-    content = fields.Str(required=True)
+    content = fields.Str(required=True, validate=Length(min=1))
 
     @post_load
     def make_comment(self, data, **kwargs):
@@ -14,7 +15,7 @@ class CommentCreateSchema(Schema):
 
 
 class CommentUpdateSchema(Schema):
-    content = fields.Str(required=True)
+    content = fields.Str(required=True, validate=Length(min=1))
 
 
 class CommentSchema(Schema):

@@ -9,7 +9,7 @@ from marshmallow import ValidationError
 from app.models import Board, Post, Comment
 from app.serializers.user import UserSchema
 from app.serializers.board import BoardSchema
-from app.serializers.comment import CommentSchema
+from app.serializers.comment import CommentUpdateSchema, CommentCreateSchema
 from app.serializers.post import PostUpdateSchema, PostCreateSchema
 
 
@@ -135,12 +135,25 @@ def board_validator(f):
         return f(*args, **kwargs)
     return decorated_view
 
-# comment validation check
-def comment_validator(f):
+# comment update validation check
+def comment_update_validator(f):
     @wraps(f)
     def decorated_view(*args, **kwargs):
         try:
-            CommentSchema().load(json.loads(request.data))
+            CommentUpdateSchema().load(json.loads(request.data))
+
+        except ValidationError as err:
+            return jsonify(err.messages), 422
+
+        return f(*args, **kwargs)
+    return decorated_view
+
+# comment create validation check
+def comment_create_validator(f):
+    @wraps(f)
+    def decorated_view(*args, **kwargs):
+        try:
+            CommentCreateSchema().load(json.loads(request.data))
 
         except ValidationError as err:
             return jsonify(err.messages), 422

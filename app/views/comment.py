@@ -7,7 +7,7 @@ from bson import ObjectId
 
 from app.models import Comment
 from app.serializers.comment import CommentCreateSchema, CommentUpdateSchema, PaginatedCommentsSchema
-from app.utils import check_board, check_comment, check_post, login_required
+from app.utils import check_board, check_comment, check_post, login_required, comment_update_validator, comment_create_validator
 
 
 class CommentView(FlaskView):
@@ -34,6 +34,7 @@ class CommentView(FlaskView):
     @login_required
     @check_board
     @check_post
+    @comment_create_validator
     def post(self, board_id, post_id):
         """
         댓글 생성 API
@@ -53,6 +54,7 @@ class CommentView(FlaskView):
     @check_board
     @check_post
     @check_comment
+    @comment_update_validator
     def update(self, board_id, post_id, comment_id):
         """
         댓글 수정 API
@@ -140,6 +142,7 @@ class CommentView(FlaskView):
     @check_board
     @check_post
     @check_comment
+    @comment_create_validator
     def post_reply(self, board_id, post_id, comment_id, **kwargs):
         """
         대댓글 생성 기능 API
