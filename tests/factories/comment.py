@@ -21,6 +21,8 @@ class CommentFactory(MongoEngineFactory):
 
 
 class DeletedCommentFactory(CommentFactory):
-    pass
     is_deleted = True
 
+
+class ReplyFactory(CommentFactory):
+    is_replied = True

@@ -143,7 +143,7 @@ class CommentView(FlaskView):
     @check_post
     @check_comment
     @comment_create_validator
-    def post_reply(self, board_id, post_id, comment_id, **kwargs):
+    def post_reply(self, board_id, post_id, comment_id):
         """
         대댓글 생성 기능 API
         작성자: dana
@@ -155,8 +155,7 @@ class CommentView(FlaskView):
         if Comment.objects(id=comment_id).get().is_replied:
             return {'message': '답글을 달 수 없는 댓글입니다.'}, 400
 
-        schema = CommentCreateSchema()
-        reply = schema.load(request.json)
+        reply = CommentCreateSchema().load(json.loads(request.data))
         reply.author = ObjectId(g.user_id)
         reply.post = ObjectId(post_id)
         reply.reply = ObjectId(comment_id)
