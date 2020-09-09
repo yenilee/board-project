@@ -60,10 +60,7 @@ class Comment(Document):
         return len(self.likes)
 
     def soft_delete(self, logged_in_user_id, logged_in_user_auth):
-        if self.author.id == logged_in_user_id or logged_in_user_auth is True:
-            self.update(is_deleted=True)
-            return
-        return False
+        self.update(is_deleted=True)
 
     def like(self, logged_in_user_id):
         if str(logged_in_user_id) not in self.likes:

@@ -26,7 +26,7 @@ class PostView(FlaskView):
         data = json.loads(request.data)
         post = PostCreateSchema().load(data)
 
-        post.author = g.user
+        post.author = g.user_id
         post.board = ObjectId(board_id)
         post.save()
 
@@ -62,7 +62,7 @@ class PostView(FlaskView):
             data = json.loads(request.data)
             post = Post.objects(id=post_id, board=board_id).get()
 
-            if post.user_auth_check(g.user, g.auth):
+            if post.user_auth_check(g.user_id, g.master_role):
                 post.update(**PostUpdateSchema().load(data))
                 return '', 200
             return jsonify(message='권한이 없는 사용자입니다'), 403
@@ -84,7 +84,7 @@ class PostView(FlaskView):
         """
         post = Post.objects(board=board_id, id=post_id).get()
 
-        if not post.soft_delete(g.user, g.auth):
+        if not post.soft_delete(g.user_id, g.master_role):
             return {'message':'권한이 없습니다.'}, 403
         return '', 200
 
@@ -101,7 +101,7 @@ class PostView(FlaskView):
         :return: message
         """
         post = Post.objects(board=board_id, id=post_id).get()
-        post.like(g.user)
+        post.like(g.user_id)
         return '', 200
 
     @route('/<post_id>/cancel-like', methods=['POST'])
@@ -116,5 +116,5 @@ class PostView(FlaskView):
         :return: message
         """
         post = Post.objects(board=board_id, id=post_id).get()
-        post.cancel_like(g.user)
+        post.cancel_like(g.user_id)
         return '', 200

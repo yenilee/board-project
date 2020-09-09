@@ -35,8 +35,8 @@ def login_required(f):
         except jwt.InvalidTokenError:
             return jsonify(message='유효하지 않은 토큰입니다'), 401
 
-        g.user = loads(payload['user_id'])
-        g.auth = payload['is_master']
+        g.user_id = loads(payload['user_id'])
+        g.master_role = payload['is_master']
 
         return f(*args, **kwargs)
     return decorated_function

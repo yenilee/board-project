@@ -35,7 +35,7 @@ class BoardView(FlaskView):
         :return: message
         """
         # 유저의 권한 확인
-        if not g.auth:
+        if not g.master_role:
             return jsonify(message='권한이 없는 사용자입니다.'), 403
 
         data = json.loads(request.data)
@@ -66,8 +66,8 @@ class BoardView(FlaskView):
         limit = 10
         skip = (page - 1) * limit
 
-        post_list = Post.objects(board=g.board.id, is_deleted=False).order_by('-created_at').limit(limit).skip(skip)
-        total_number_of_post = Post.objects(board=g.board.id, is_deleted=False).count()
+        post_list = Post.objects(board=board_id, is_deleted=False).order_by('-created_at').limit(limit).skip(skip)
+        total_number_of_post = Post.objects(board=board_id, is_deleted=False).count()
         post_data=[
             {"total": total_number_of_post,
              "posts": [{"number": n,
@@ -93,7 +93,7 @@ class BoardView(FlaskView):
         :return: message
         """
         # 유저의 권한 확인
-        if not g.auth:
+        if not g.master_role:
             return jsonify(message='권한이 없는 사용자입니다.'), 403
 
         data = json.loads(request.data)
@@ -102,7 +102,7 @@ class BoardView(FlaskView):
         if Board.objects(name=data['board_name'], is_deleted=False):
             return jsonify(message='이미 등록된 게시판입니다.'), 409
 
-        g.board.update(name=data['board_name'])
+        Board.objects(id=board_id).update(name=data['board_name'])
         return jsonify(message='수정되었습니다.'), 200
 
 
@@ -115,7 +115,7 @@ class BoardView(FlaskView):
         :param board_id: 게시판 objectId
         :return: message
         """
-        if not g.auth:
+        if not g.master_role:
             return jsonify(message='권한이 없는 사용자입니다.'), 403
 
         if Board.objects(id=board_id, is_deleted=False):
@@ -137,12 +137,12 @@ class BoardView(FlaskView):
         :return: 검색된 게시글 10개
         """
         filters = request.args
-        posts = Post.objects(board=g.board.id)
+        posts = Post.objects(board=board_id)
 
         # 속성__in argument는 순서를 맨앞으로 하면 잘 돌아가고, 맨 뒤에 넣으면 앞의 필터들이 리셋됨.
         if 'tags' in filters:
             tags = filters['tags'].split()
-            posts = Post.objects(board=g.board.id, tags__in=tags)
+            posts = Post.objects(board=board_id, tags__in=tags)
 
         if 'title' in filters:
             posts = posts(title__contains=filters['title'])
