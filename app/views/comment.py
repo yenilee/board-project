@@ -64,9 +64,13 @@ class CommentView(FlaskView):
         """
         comment = Comment.objects(id=comment_id).get()
         data = CommentUpdateSchema().load(json.loads(request.data))
-        result = comment.make_updates(g.user, g.auth, data)
-        if result is False:
+
+        # permission check
+        if comment.author.id != ObjectId(g.user) and g.auth is False:
             return {'message': '권한이 없습니다.'}, 403
+
+        comment.update(**data)
+
         return '', 200
 
 
