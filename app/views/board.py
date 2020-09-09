@@ -3,8 +3,9 @@ import json
 from flask_classful import FlaskView, route
 from flask import jsonify, request, g
 
-from app.utils import login_required, check_board, board_validator, pagination
+from app.utils import login_required, check_board, board_create_validator, pagination
 from app.models import Board, Post, User
+from app.serializers.board import BoardCategorySchema, BoardCreateSchema
 
 
 class BoardView(FlaskView):
@@ -15,19 +16,13 @@ class BoardView(FlaskView):
         작성자: dana
         :return: 게시판 카테고리
         """
-        board_data = Board.objects(is_deleted=False)
-
-        board_category = [
-            {"name": board.name,
-             "id": str(board.id)}
-            for board in board_data]
-
-        return jsonify(data=board_category), 200
-
+        boards = Board.objects(is_deleted=False)
+        board_category = BoardCategorySchema(many=True).dump(boards)
+        return {'category': board_category}, 200
 
     @route('', methods=['POST'])
     @login_required
-    @board_validator
+    @board_create_validator
     def post(self):
         """
         게시판 생성 API
@@ -35,20 +30,23 @@ class BoardView(FlaskView):
         :return: message
         """
         # 유저의 권한 확인
-        if not g.master_role:
-            return jsonify(message='권한이 없는 사용자입니다.'), 403
+        if g.master_role is False:
+            return {'message': '권한이 없는 사용자입니다.'}, 403
 
-        data = json.loads(request.data)
-        board_name = data['board_name']
-
-        # 현재 존재하는 board와 이름 중복 확인
-        if Board.objects(name=board_name, is_deleted=False):
-            return jsonify(message='이미 등록된 게시판입니다.'), 409
-
-        board = Board(name=board_name)
+        board = BoardCreateSchema().load(json.loads(request.data))
         board.save()
-
-        return jsonify(message='등록되었습니다.'), 200
+        return '', 200
+        # data = json.loads(request.data)
+        # board_name = data['board_name']
+        #
+        # # 현재 존재하는 board와 이름 중복 확인
+        # if Board.objects(name=board_name, is_deleted=False):
+        #     return jsonify(message='이미 등록된 게시판입니다.'), 409
+        #
+        # board = Board(name=board_name)
+        # board.save()
+        #
+        # return jsonify(message='등록되었습니다.'), 200
 
 
     @route('/<board_id>', methods=['GET'])
@@ -84,7 +82,7 @@ class BoardView(FlaskView):
     @route('/<board_id>', methods=['PUT'])
     @login_required
     @check_board
-    @board_validator
+    # @board_validator
     def update(self, board_id):
         """
         게시판 이름 수정 API

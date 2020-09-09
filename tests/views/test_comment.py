@@ -84,7 +84,7 @@ class Describe_CommentView:
                 return headers
 
             def test_401이_반환된다(self, subject):
-                assert  subject.status_code == 401
+                assert subject.status_code == 401
 
 
     class Describe_update:
@@ -153,7 +153,7 @@ class Describe_CommentView:
                 return headers
 
             def test_401이_반환된다(self, subject):
-                assert  subject.status_code == 401
+                assert subject.status_code == 401
 
 
     class Describe_delete:
@@ -210,7 +210,7 @@ class Describe_CommentView:
                 return headers
 
             def test_401이_반환된다(self, subject):
-                assert  subject.status_code == 401
+                assert subject.status_code == 401
 
 
     class Describe_like_comment:
@@ -267,7 +267,7 @@ class Describe_CommentView:
                 return headers
 
             def test_401이_반환된다(self, subject):
-                assert  subject.status_code == 401
+                assert subject.status_code == 401
 
 
     class Describe_cancel_like_comment:
@@ -316,7 +316,7 @@ class Describe_CommentView:
                 return headers
 
             def test_401이_반환된다(self, subject):
-                assert  subject.status_code == 401
+                assert subject.status_code == 401
 
 
     class Describe_post_reply:
@@ -377,4 +377,4 @@ class Describe_CommentView:
                 return headers
 
             def test_401이_반환된다(self, subject):
-                assert  subject.status_code == 401
+                assert subject.status_code == 401
