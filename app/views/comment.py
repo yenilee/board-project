@@ -43,7 +43,7 @@ class CommentView(FlaskView):
         :return: message
         """
         comment = CommentCreateSchema().load(json.loads(request.data))
-        comment.author = ObjectId(g.user)
+        comment.author = ObjectId(g.user_id)
         comment.post = ObjectId(post_id)
         comment.save()
         return '', 200
@@ -66,11 +66,10 @@ class CommentView(FlaskView):
         data = CommentUpdateSchema().load(json.loads(request.data))
 
         # permission check
-        if comment.author.id != ObjectId(g.user) and g.auth is False:
+        if comment.author.id != ObjectId(g.user_id) and g.master_role is False:
             return {'message': '권한이 없습니다.'}, 403
 
         comment.update(**data)
-
         return '', 200
 
 
@@ -89,9 +88,12 @@ class CommentView(FlaskView):
         :return: message
         """
         comment = Comment.objects(id=comment_id).get()
-        result = comment.soft_delete(g.user, g.auth)
-        if result is False:
+
+        # permission check
+        if comment.author.id != ObjectId(g.user_id) and g.master_role is False:
             return {'message': '권한이 없습니다.'}, 403
+
+        comment.soft_delete(g.user_id, g.master_role)
         return '', 200
 
 
@@ -110,7 +112,7 @@ class CommentView(FlaskView):
         :return: message
         """
         comment = Comment.objects(id=comment_id).get()
-        comment.like(g.user)
+        comment.like(g.user_id)
         return {'message': '좋아요가 반영되었습니다.'}, 200
 
 
@@ -129,7 +131,7 @@ class CommentView(FlaskView):
         :return: message
         """
         comment = Comment.objects(id=comment_id).get()
-        comment.cancel_like(g.user)
+        comment.cancel_like(g.user_id)
         return {'message': '좋아요가 취소되었습니다.'}, 200
 
 
@@ -152,7 +154,7 @@ class CommentView(FlaskView):
 
         schema = CommentCreateSchema()
         reply = schema.load(request.json)
-        reply.author = g.user
+        reply.author = ObjectId(g.user_id)
         reply.post = ObjectId(post_id)
         reply.reply = ObjectId(comment_id)
         reply.is_replied = True

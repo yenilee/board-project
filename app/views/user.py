@@ -70,7 +70,7 @@ class UserView(FlaskView):
         작성자: avery
         :return: 최신 게시물 10개
         """
-        posts = Post.objects(author=g.user, is_deleted=False)
+        posts = Post.objects(author=g.user_id, is_deleted=False)
         number_of_posts = len(posts)
 
         my_post = [my_post.to_json_list() for my_post in
@@ -87,7 +87,7 @@ class UserView(FlaskView):
         작성자: avery
         :return: 최신 댓글 10개
         """
-        comments = Comment.objects(author=g.user, is_deleted=False)
+        comments = Comment.objects(author=g.user_id, is_deleted=False)
         number_of_comments = len(comments)
 
         my_comment = [comment.to_json() for comment in
@@ -104,7 +104,7 @@ class UserView(FlaskView):
         작성자: dana
         :return: 좋아요 한 글 10
         """
-        posts = Post.objects(likes__exact=g.user, is_deleted=False)
+        posts = Post.objects(likes__exact=g.user_id, is_deleted=False)
         number_of_posts = len(posts)
 
         my_post = [post.to_json_list() for post in
