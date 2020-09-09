@@ -12,25 +12,28 @@ from app.models import Comment
 
 
 class Describe_CommentView:
+    @pytest.fixture
+    def post(self):
+        return PostFactory.create()
+
+    @pytest.fixture
+    def logged_in_user(self):
+        return UserFactory.create()
+
+    @pytest.fixture
+    def headers(self, logged_in_user):
+        token = jwt.encode({"user_id": dumps(str(logged_in_user.id)),
+                            "is_master": logged_in_user.master_role}, current_app.config['SECRET'],
+                           current_app.config['ALGORITHM'])
+        headers = {
+            'Authorization': token
+        }
+        return headers
+
     class Describe_index:
         @pytest.fixture
-        def post(self):
-            return PostFactory.create()
-
-        @pytest.fixture
-        def logged_in_user(self):
-            return UserFactory.create()
-
-        @pytest.fixture
-        def subject(self, client, logged_in_user, post):
+        def subject(self, client, headers, post):
             url = url_for('CommentView:index', board_id=post.board.id, post_id=post.id)
-
-            token = jwt.encode({"user_id": dumps(str(logged_in_user.id)),
-                                "is_master": logged_in_user.master_role}, current_app.config['SECRET'], current_app.config['ALGORITHM'])
-            headers = {
-                'Authorization': token
-            }
-
             return client.get(url, headers=headers)
 
         def test_200이_반환된다(self, subject):
@@ -45,27 +48,12 @@ class Describe_CommentView:
 
     class Describe_post:
         @pytest.fixture
-        def post(self):
-            return PostFactory.create()
-
-        @pytest.fixture
-        def logged_in_user(self):
-            return UserFactory.create()
-
-        @pytest.fixture
         def form(self):
             return {'content': factory.Faker('sentence').generate()}
 
         @pytest.fixture
-        def subject(self, client, post, form, logged_in_user):
+        def subject(self, client, headers, post, form):
             url = url_for('CommentView:post', board_id=post.board.id, post_id=post.id)
-
-            token = jwt.encode({"user_id": dumps(str(logged_in_user.id)),
-                                "is_master": logged_in_user.master_role}, current_app.config['SECRET'], current_app.config['ALGORITHM'])
-            headers = {
-                'Authorization': token
-            }
-
             return client.post(url, headers=headers, data=dumps(form))
 
         def test_200이_반환된다(self, subject):
@@ -87,16 +75,19 @@ class Describe_CommentView:
             def test_422가_반환된다(self, subject):
                 assert subject.status_code == 422
 
+        class Context_user가_로그인_하지_않은경우:
+            @pytest.fixture
+            def headers(self):
+                headers = {
+                    'Authorization': None
+                }
+                return headers
+
+            def test_401이_반환된다(self, subject):
+                assert  subject.status_code == 401
+
 
     class Describe_update:
-        @pytest.fixture
-        def post(self):
-            return PostFactory.create()
-
-        @pytest.fixture
-        def logged_in_user(self):
-            return UserFactory.create()
-
         @pytest.fixture
         def form(self):
             return {'content': factory.Faker('sentence').generate()}
@@ -106,15 +97,8 @@ class Describe_CommentView:
             return CommentFactory.create(post=post, author=logged_in_user)
 
         @pytest.fixture
-        def subject(self, client, post, comment, form, logged_in_user):
+        def subject(self, client, headers, post, comment, form):
             url = url_for('CommentView:update', board_id=post.board.id, post_id=post.id, comment_id=comment.id)
-
-            token = jwt.encode({"user_id": dumps(str(logged_in_user.id)),
-                                "is_master": logged_in_user.master_role}, current_app.config['SECRET'], current_app.config['ALGORITHM'])
-            headers = {
-                'Authorization': token
-            }
-
             return client.put(url, headers=headers, data=dumps(form))
 
         def test_200이반환된다(self, subject):
@@ -160,30 +144,26 @@ class Describe_CommentView:
             def test_404가_반환된다(self, subject):
                 assert subject.status_code == 404
 
+        class Context_user가_로그인_하지_않은경우:
+            @pytest.fixture
+            def headers(self):
+                headers = {
+                    'Authorization': None
+                }
+                return headers
+
+            def test_401이_반환된다(self, subject):
+                assert  subject.status_code == 401
+
 
     class Describe_delete:
-        @pytest.fixture
-        def post(self):
-            return PostFactory.create()
-
-        @pytest.fixture
-        def logged_in_user(self):
-            return UserFactory.create()
-
         @pytest.fixture
         def comment(self, post, logged_in_user):
             return CommentFactory.create(post=post, author=logged_in_user)
 
         @pytest.fixture
-        def subject(self, client, post, comment, logged_in_user):
+        def subject(self, client, headers, post, comment):
             url = url_for('CommentView:delete', board_id=post.board.id, post_id=post.id, comment_id=comment.id)
-
-            token = jwt.encode({"user_id": dumps(str(logged_in_user.id)),
-                                "is_master": logged_in_user.master_role}, current_app.config['SECRET'], current_app.config['ALGORITHM'])
-            headers = {
-                'Authorization': token
-            }
-
             return client.delete(url, headers=headers)
 
         def test_200이_반환된다(self, subject):
@@ -221,30 +201,26 @@ class Describe_CommentView:
             def test_404가_반환된다(self, subject):
                 assert subject.status_code == 404
 
+        class Context_user가_로그인_하지_않은경우:
+            @pytest.fixture
+            def headers(self):
+                headers = {
+                    'Authorization': None
+                }
+                return headers
+
+            def test_401이_반환된다(self, subject):
+                assert  subject.status_code == 401
+
 
     class Describe_like_comment:
-        @pytest.fixture
-        def post(self):
-            return PostFactory.create()
-
         @pytest.fixture
         def comment(self, post):
             return CommentFactory.create(post=post)
 
         @pytest.fixture
-        def logged_in_user(self):
-            return UserFactory.create()
-
-        @pytest.fixture
-        def subject(self, client, post, comment, logged_in_user):
+        def subject(self, client, headers, post, comment):
             url = url_for('CommentView:like_comment', board_id=post.board.id, post_id=post.id, comment_id=comment.id)
-
-            token = jwt.encode({"user_id": dumps(str(logged_in_user.id)),
-                                "is_master": logged_in_user.master_role}, current_app.config['SECRET'], current_app.config['ALGORITHM'])
-            headers = {
-                'Authorization': token
-            }
-
             return client.post(url, headers=headers)
 
         def test_200이_반환된다(self, subject):
@@ -282,30 +258,26 @@ class Describe_CommentView:
             def test_404가_반환된다(self, subject):
                 assert subject.status_code == 404
 
+        class Context_user가_로그인_하지_않은경우:
+            @pytest.fixture
+            def headers(self):
+                headers = {
+                    'Authorization': None
+                }
+                return headers
+
+            def test_401이_반환된다(self, subject):
+                assert  subject.status_code == 401
+
 
     class Describe_cancel_like_comment:
-        @pytest.fixture
-        def post(self):
-            return PostFactory.create()
-
-        @pytest.fixture
-        def logged_in_user(self):
-            return UserFactory.create()
-
         @pytest.fixture
         def comment(self, post, logged_in_user):
             return CommentFactory.create(post=post, likes=[str(logged_in_user.id)])
 
         @pytest.fixture
-        def subject(self, client, post, comment, logged_in_user):
+        def subject(self, client, headers, post, comment):
             url = url_for('CommentView:cancel_like_comment', board_id=post.board.id, post_id=post.id, comment_id=comment.id)
-
-            token = jwt.encode({"user_id": dumps(str(logged_in_user.id)),
-                                "is_master": logged_in_user.master_role}, current_app.config['SECRET'], current_app.config['ALGORITHM'])
-            headers = {
-                'Authorization': token
-            }
-
             return client.post(url, headers=headers)
 
         def test_200이_반환된다(self, subject):
@@ -335,16 +307,19 @@ class Describe_CommentView:
             def test_404가_반환된다(self, subject):
                 assert subject.status_code == 404
 
+        class Context_user가_로그인_하지_않은경우:
+            @pytest.fixture
+            def headers(self):
+                headers = {
+                    'Authorization': None
+                }
+                return headers
+
+            def test_401이_반환된다(self, subject):
+                assert  subject.status_code == 401
+
 
     class Describe_post_reply:
-        @pytest.fixture
-        def post(self):
-            return PostFactory.create()
-
-        @pytest.fixture
-        def logged_in_user(self):
-            return UserFactory.create()
-
         @pytest.fixture
         def comment(self, post):
             return CommentFactory.create(post=post)
@@ -354,15 +329,8 @@ class Describe_CommentView:
             return {'content': factory.Faker('sentence').generate()}
 
         @pytest.fixture
-        def subject(self, client, post, comment, form, logged_in_user):
+        def subject(self, client, headers, post, comment, form):
             url = url_for('CommentView:post_reply', board_id=post.board.id, post_id=post.id, comment_id=comment.id)
-
-            token = jwt.encode({"user_id": dumps(str(logged_in_user.id)),
-                                "is_master": logged_in_user.master_role}, current_app.config['SECRET'], current_app.config['ALGORITHM'])
-            headers = {
-                'Authorization': token
-            }
-
             return client.post(url, headers=headers, data=dumps(form))
 
         def test_200이_반환된다(self, subject):
@@ -399,3 +367,14 @@ class Describe_CommentView:
 
             def test_404가_반환된다(self, subject):
                 assert subject.status_code == 404
+
+        class Context_user가_로그인_하지_않은경우:
+            @pytest.fixture
+            def headers(self):
+                headers = {
+                    'Authorization': None
+                }
+                return headers
+
+            def test_401이_반환된다(self, subject):
+                assert  subject.status_code == 401
