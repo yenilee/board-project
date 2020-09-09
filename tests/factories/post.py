@@ -19,8 +19,8 @@ class PostFactory(MongoEngineFactory):
     title = fuzzy.FuzzyText(length=10, prefix='post_')
     content = fuzzy.FuzzyText(length=20, prefix='post_')
     created_at = factory.LazyAttribute(lambda _: datetime.utcnow()) # factory로 생성할 때 마다 새로운 date값을 부여하기 위해
+    is_deleted = False
 
 
 class DeletedPostFactory(PostFactory):
-    pass
-    #is_deleted =     
+    is_deleted = True

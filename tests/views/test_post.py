@@ -7,9 +7,9 @@ from bson.json_util import dumps as bson_dumps
 from json import dumps as json_dumps
 
 from app.models import Post
-from tests.factories.post import PostFactory
+from tests.factories.post import PostFactory, DeletedPostFactory
 from tests.factories.user import UserFactory, MasterUserFactory
-from tests.factories.board import BoardFactory
+from tests.factories.board import BoardFactory, DeletedBoardFactory
 
 
 class Describe_PostView:
@@ -67,10 +67,28 @@ class Describe_PostView:
                     assert post.author.id == logged_in_user.id
 
             class Context_요청이_유효하지_않은경우:
+
+                @pytest.fixture
+                def form(self):
+                    return {
+                        "content": factory.Faker('sentence').generate(),
+                        "tags": ["tags"]
+                    }
+
+                def test_422가_반환된다(self, subject):
+                    assert subject.status_code == 422
+
+                def test_게시글이_저장되지_않는다(self, subject):
+                    post = Post.objects.first()
+                    assert post is None
+
+                class Context_요청_type이_유효하지_않은경우:
                     @pytest.fixture
                     def form(self):
                         return {
-                            "tags": ["tags"]
+                            "title": factory.Faker('sentence').generate(),
+                            "content": factory.Faker('sentence').generate(),
+                            "tags": "tags"
                         }
 
                     def test_422가_반환된다(self, subject):
@@ -80,19 +98,17 @@ class Describe_PostView:
                         post = Post.objects.first()
                         assert post is None
 
-                    class Context_요청_type이_유효하지_않은경우:
-                        @pytest.fixture
-                        def form(self):
-                            return {
-                                "tags": "tags"
-                            }
+            class Context_없는_게시판에_게시글을_생성하는_경우:
+                @pytest.fixture
+                def board(self):
+                    return DeletedBoardFactory.create()
 
-                        def test_422가_반환된다(self, subject):
-                            assert subject.status_code == 422
+                def test_404가_반환된다(self, subject):
+                    assert subject.status_code == 404
 
-                        def test_게시글이_저장되지_않는다(self, subject):
-                            post = Post.objects.first()
-                            assert post is None
+                def test_게시글이_저장되지_않는다(self, subject):
+                    post = Post.objects.first()
+                    assert post is None
 
             class Context_비로그인_사용자가_게시글을_생성하는경우:
 
@@ -119,10 +135,18 @@ class Describe_PostView:
                 def test_200이_반환된다(self, subject):
                     assert subject.status_code == 200
 
-                def test_조회한_게시글이_요청url과_동일하다(self, subject, post):
+                def test_조회한_게시글이_요청과_동일하다(self, subject, post):
                     assert subject.json['title'] == post.title
                     assert subject.json['content'] == post.content
                     assert subject.json['tags'] == post.tags
+
+            class Context_없는_게시판_게시글을_요청하는_경우:
+                @pytest.fixture
+                def board(self):
+                    return DeletedBoardFactory.create()
+
+                def test_404가_반환된다(self, subject):
+                    assert subject.status_code == 404
 
         class Describe_update:
 
@@ -144,6 +168,32 @@ class Describe_PostView:
                 def test_게시글이_수정된다(self, form, subject):
                     post = Post.objects.first()
                     assert post.tags == form['tags']
+
+            class Context_없는_게시글을_수정하는_경우:
+                @pytest.fixture
+                def post(self, board):
+                    return DeletedPostFactory.create(board=board.id)
+
+                def test_404가_반환된다(self, subject):
+                    assert subject.status_code == 404
+
+                def test_게시글이_수정되지_않는다(self, form, subject):
+                    post = Post.objects.first()
+                    assert post.tags != form['tags']
+
+            class Context_비로그인_사용자가_게시글을_수정하는경우:
+
+                @pytest.fixture(autouse=True)
+                def subject(self, client, form, post):
+                    url = url_for('PostView:update', board_id=post.board.id, post_id=post.id)
+                    return client.put(url, data=json_dumps(form))
+
+                def test_401이_반환된다(self, subject):
+                    assert subject.status_code == 401
+
+                def test_게시글이_수정되지_않는다(self, form, subject):
+                    post = Post.objects.first()
+                    assert post.tags != form['tags']
 
             class Context_로그인_사용자가_게시글_작성자가_아닌경우:
 
@@ -171,7 +221,7 @@ class Describe_PostView:
                         post = Post.objects.first()
                         assert post.tags == form['tags']
 
-            class Context_요청이_유효하지_않은경우:
+            class Context_Client의_요청이_유효하지_않은경우:
                     @pytest.fixture
                     def form(self):
                         return {
@@ -201,6 +251,21 @@ class Describe_PostView:
                     assert post is not None
                     assert post.is_deleted == True
 
+            class Context_비로그인_사용자가_게시글을_삭제하는경우:
+
+                @pytest.fixture(autouse=True)
+                def subject(self, client, post):
+                    url = url_for('PostView:delete', board_id=post.board.id, post_id=post.id)
+                    return client.delete(url)
+
+                def test_401이_반환된다(self, subject):
+                    assert subject.status_code == 401
+
+                def test_게시글이_삭제되지_않는다(self, subject):
+                    post = Post.objects.first()
+                    assert post is not None
+                    assert post.is_deleted == False
+
             class Context_로그인_사용자가_게시글_작성자가_아닌경우:
 
                 @pytest.fixture
@@ -229,7 +294,7 @@ class Describe_PostView:
                         assert post is not None
                         assert post.is_deleted == True
 
-        class Describe_like:
+        class Describe_like_post:
 
             @pytest.fixture(autouse=True)
             def subject(self, client, headers, post):
@@ -238,10 +303,26 @@ class Describe_PostView:
 
             class Context_정상요청:
 
+                def test_200이_반환된다(self, subject):
+                    assert subject.status_code == 200
+
                 def test_post에_like한_user가_추가된다(self, subject, post, logged_in_user):
                     post.reload()
                     assert str(logged_in_user.id) in post.likes
                     assert len(post.likes) == 1
+
+            class Context_비로그인_사용자가_게시글을_좋아하는경우:
+
+                @pytest.fixture(autouse=True)
+                def subject(self, client, post):
+                    url = url_for('PostView:like_post', board_id=post.board.id, post_id=post.id)
+                    return client.post(url)
+
+                def test_401이_반환된다(self, subject):
+                    assert subject.status_code == 401
+
+                def test_게시글에_좋아요가_추가되지_않는다(self, subject, post):
+                    assert len(post.likes) == 0
 
             class Context_이미_like한경우:
                 @pytest.fixture
@@ -252,12 +333,17 @@ class Describe_PostView:
                 def test_200이_반환된다(self, subject):
                     assert subject.status_code == 200
 
-                @pytest.fixture
-                def test_좋아요가_중복으로_추가되지_않는다(self, subject, post, logged_in_user):
-                    like_users = post.likes.filter(lambda user: user == logged_in_user)
-                    assert len(like_users) == 1
+                def test_좋아요_개수가_변하지_않는다(self, subject, post, logged_in_user):
+                    post.reload()
+                    assert str(logged_in_user.id) in post.likes
+                    assert len(post.likes) == 1
 
         class Describe_cancel_like:
+
+            @pytest.fixture
+            def post(self, post, logged_in_user):
+                post.like(str(logged_in_user.id))
+                return post
 
             @pytest.fixture(autouse=True)
             def subject(self, client, headers, post):
@@ -266,10 +352,27 @@ class Describe_PostView:
 
             class Context_정상요청:
 
+                def test_200이_반환된다(self, subject):
+                    assert subject.status_code == 200
+
                 def test_post에_like한_user가_삭제된다(self, subject, post, logged_in_user):
                     post.reload()
                     assert str(logged_in_user.id) not in post.likes
                     assert len(post.likes) == 0
+
+            class Context_비로그인_사용자가_게시글을_좋아요_취소하는경우:
+
+                @pytest.fixture(autouse=True)
+                def subject(self, client, post):
+                    url = url_for('PostView:cancel_like_post', board_id=post.board.id, post_id=post.id)
+                    return client.post(url)
+
+                def test_401이_반환된다(self, subject):
+                    assert subject.status_code == 401
+
+                def test_게시글에_좋아요가_삭제되지_않는다(self, subject, post):
+                    post.reload()
+                    assert len(post.likes) == 1
 
             class Context_기존에_like가_없던경우:
                 @pytest.fixture
@@ -280,7 +383,7 @@ class Describe_PostView:
                 def test_200이_반환된다(self, subject):
                     assert subject.status_code == 200
 
-                @pytest.fixture
-                def test_아무일도_발생하지_않는다(self, subject, post, logged_in_user):
-                    like_users = post.likes.filter(lambda user: user == logged_in_user)
-                    assert len(like_users) == 0
+                def test_좋아요_개수가_변하지_않는다(self, subject, post, logged_in_user):
+                    post.reload()
+                    assert str(logged_in_user.id) not in post.likes
+                    assert len(post.likes) == 0

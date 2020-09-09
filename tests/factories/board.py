@@ -9,3 +9,7 @@ class BoardFactory(MongoEngineFactory):
         model = Board
 
     name = fuzzy.FuzzyText(length=10, prefix='board_')
+    is_deleted = False
+
+class DeletedBoardFactory(BoardFactory):
+    is_deleted = True
