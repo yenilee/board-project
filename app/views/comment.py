@@ -1,7 +1,6 @@
 import json
 
 from flask import g, request
-from flask_apispec import use_kwargs
 from flask_classful import FlaskView, route
 from bson import ObjectId
 
