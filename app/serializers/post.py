@@ -24,7 +24,7 @@ class PostUpdateSchema(Schema):
 
 class PostDetailSchema(Schema):
     id = fields.Str(dump_only=True)
-    author = fields.Nested(UserSchema, dump_only=("id", "account"))
+    author = fields.Nested(UserSchema, dump_only=("id", "email"))
     title = fields.Str()
     content = fields.Str()
     total_likes_count = fields.Method('count_likes')

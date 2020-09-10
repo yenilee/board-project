@@ -1,7 +1,14 @@
 import datetime
+import enum
+
 from flask_mongoengine import Document
 from mongoengine import (StringField, DateTimeField, ReferenceField,
                          ListField, BooleanField)
+
+
+class UserRole(enum.Enum):
+    master = 'master'
+    normal = 'normal'
 
 
 class User(Document):
@@ -9,6 +16,10 @@ class User(Document):
     password = StringField(max_length=100, required=True)
     created_at = DateTimeField(required=True, default=datetime.datetime.now)
     master_role = BooleanField(required=True, default=False)
+
+    @property
+    def email(self):
+        return self.account
 
 
 class Board(Document):
@@ -34,15 +45,11 @@ class Post(Document):
         if str(user) in self.likes:
             self.update(pull__likes=str(user))
 
-    def soft_delete(self):
+    def soft_delete(self, user):
         self.update(is_deleted=True)
 
-    def user_auth_check(self, login_user_id, login_user_auth):
-        if login_user_id == self.author.id or login_user_auth == True:
-            return True
-        else:
-            return False
-
+    def is_author(self, user_id):
+        return self.author.id == user_id
 
 
 class Comment(Document):

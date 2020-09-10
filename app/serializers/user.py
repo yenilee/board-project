@@ -6,4 +6,3 @@ class UserSchema(Schema):
     account = fields.Str(required=True, unique=True)
     password = fields.Str(required=True, load_only=True)
     created_at = fields.DateTime(load_only=True)
-

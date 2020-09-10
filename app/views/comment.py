@@ -1,3 +1,4 @@
+import enum
 import json
 
 from flask import g, request
@@ -7,6 +8,12 @@ from bson import ObjectId
 from app.models import Comment
 from app.serializers.comment import CommentCreateSchema, CommentUpdateSchema, PaginatedCommentsSchema
 from app.utils import check_board, check_comment, check_post, login_required, comment_update_validator, comment_create_validator
+
+
+# 최신순, 과거순, 순공감순
+class CommentSearchOrder(enum.Enum):
+    recent = 'recent'
+    pure_like = 'pure_like'
 
 
 class CommentView(FlaskView):

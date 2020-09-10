@@ -30,6 +30,10 @@ class CommentSchema(Schema):
         return len(obj.likes)
 
 
+class CommentSearchParamSchema(Schema):
+    page = fields.Integer()
+
+
 class PaginatedCommentsSchema(Schema):
     total = fields.Integer()
     items = fields.Nested(CommentSchema, many=True)

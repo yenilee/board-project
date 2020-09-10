@@ -24,5 +24,5 @@ class DeletedCommentFactory(CommentFactory):
     is_deleted = True
 
 
-class ReplyFactory(CommentFactory):
+class RepliedCommentFactory(CommentFactory):
     is_replied = True

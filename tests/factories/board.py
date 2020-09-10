@@ -1,3 +1,4 @@
+import factory
 from factory import fuzzy
 from factory.mongoengine import MongoEngineFactory
 
@@ -9,7 +10,7 @@ class BoardFactory(MongoEngineFactory):
         model = Board
 
     name = fuzzy.FuzzyText(length=10, prefix='board_')
-    is_deleted = False
+    is_deleted = factory.LazyAttribute(lambda _: False)
 
 class DeletedBoardFactory(BoardFactory):
-    is_deleted = True
+    is_deleted = factory.LazyAttribute(lambda _: True) # 임의의 값을 넣을때

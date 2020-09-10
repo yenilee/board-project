@@ -7,7 +7,7 @@ from flask import current_app, url_for
 
 from tests.factories.post import PostFactory
 from tests.factories.user import UserFactory, MasterUserFactory
-from tests.factories.comment import CommentFactory, DeletedCommentFactory, ReplyFactory
+from tests.factories.comment import CommentFactory, DeletedCommentFactory, RepliedCommentFactory
 from app.models import Comment
 
 
@@ -347,7 +347,7 @@ class Describe_CommentView:
         class Context_대댓글에_댓글을_다는경우:
             @pytest.fixture
             def comment(self, post):
-                return ReplyFactory.create(post=post)
+                return RepliedCommentFactory.create(post=post)
 
             def test_400이_반환된다(self, subject):
                 assert subject.status_code == 400
