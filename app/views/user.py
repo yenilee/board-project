@@ -7,36 +7,27 @@ from flask import jsonify, request, g, current_app
 from bson.json_util import dumps
 
 from app.models import User, Post, Comment
-from app.utils import login_required, user_validator, pagination
+from app.utils import login_required, user_validator, pagination, user_create_validator
+from app.serializers.user import UserCreateSchema
+from app.serializers.post import PostListSchema, PaginatedPostsSchema
 
 
 class UserView(FlaskView):
     @route('/signup', methods=['POST'])
-    @user_validator
+    @user_create_validator
     def signup(self):
         """"
         회원가입 API
         작성자: dana
         :return: message
         """
-        data = json.loads(request.data)
+        user = UserCreateSchema().load(json.loads(request.data))
 
-        account = data['account']
-        password = data['password']
+        if user is False:
+            return {'message': '이미 등록된 ID입니다.'}, 409
 
-        # account 중복 확인
-        if User.objects(account=account):
-            return jsonify(message='이미 등록된 ID입니다.'), 409
-
-        # password_hash
-        password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
-        # user 정보 저장
-        user = User(account=account,
-                password=password
-                )
         user.save()
-        return jsonify(message='등록되었습니다.'), 200
+        return '', 200
 
 
     @route('/signin', methods=['POST'])
@@ -98,17 +89,16 @@ class UserView(FlaskView):
 
     @route('/liked-posts', methods=['GET'])
     @login_required
-    def my_liked_post(self):
+    def my_liked_post(self, page=1):
         """
         마이페이지: 사용자가 좋아요 한 글 조회 API
         작성자: dana
         :return: 좋아요 한 글 10
         """
-        posts = Post.objects(likes__exact=g.user_id, is_deleted=False)
-        number_of_posts = len(posts)
+        if request.args:
+            page = int(request.args.get('page'))
 
-        my_post = [post.to_json_list() for post in
-                pagination(posts.all().order_by('created_at'))]
+        posts = Post.objects(likes__exact=str(g.user_id), is_deleted=False).order_by('created_at').paginate(page=page, per_page=10)
+        liked_posts = PaginatedPostsSchema().dump(posts)
 
-        return jsonify({"my_post": my_post,
-                        "number_of_posts": number_of_posts}), 200
+        return liked_posts, 200

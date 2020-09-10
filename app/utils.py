@@ -7,7 +7,7 @@ from bson.json_util import loads
 from marshmallow import ValidationError
 
 from app.models import Board, Post, Comment
-from app.serializers.user import UserSchema
+from app.serializers.user import UserSchema, UserCreateSchema
 from app.serializers.board import BoardCreateSchema
 from app.serializers.comment import CommentUpdateSchema, CommentCreateSchema
 from app.serializers.post import PostUpdateSchema, PostCreateSchema
@@ -108,6 +108,19 @@ def user_validator(f):
     def decorated_view(*args, **kwargs):
         try:
             UserSchema().load(json.loads(request.data))
+
+        except ValidationError as err:
+            return jsonify(err.messages), 422
+
+        return f(*args, **kwargs)
+    return decorated_view
+
+# 회원가입 validation check
+def user_create_validator(f):
+    @wraps(f)
+    def decorated_view(*args, **kwargs):
+        try:
+            UserCreateSchema().load(json.loads(request.data))
 
         except ValidationError as err:
             return jsonify(err.messages), 422
