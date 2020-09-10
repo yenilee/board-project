@@ -17,12 +17,12 @@ class CommentFactory(MongoEngineFactory):
     author = factory.SubFactory(UserFactory)
     content = fuzzy.FuzzyText(length=10, prefix='comment_')
     created_at = factory.LazyAttribute(lambda _: datetime.utcnow())
-    is_deleted = False
+    is_deleted = factory.LazyAttribute(lambda _: False)
 
 
 class DeletedCommentFactory(CommentFactory):
-    is_deleted = True
+    is_deleted = factory.LazyAttribute(lambda _: True)
 
 
 class RepliedCommentFactory(CommentFactory):
-    is_replied = True
+    is_replied = factory.LazyAttribute(lambda _: True)

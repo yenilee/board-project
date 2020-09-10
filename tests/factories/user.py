@@ -11,11 +11,11 @@ class UserFactory(MongoEngineFactory):
 
     account = factory.Faker('name')
     password = factory.Faker('password')
-    master_role = False
+    master_role = factory.LazyAttribute(lambda _: False)
 
 
 class MasterUserFactory(UserFactory):
-    master_role = True
+    master_role = factory.LazyAttribute(lambda _: True)
 
 class FakeTokenFactory(MongoEngineFactory):
     token = fuzzy.FuzzyText(length=100)

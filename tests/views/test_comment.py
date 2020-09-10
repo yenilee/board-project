@@ -1,7 +1,6 @@
 from json import dumps
-
+import uuid
 import factory
-import jwt
 import pytest
 from flask import current_app, url_for
 
@@ -20,15 +19,15 @@ class Describe_CommentView:
     def logged_in_user(self):
         return UserFactory.create()
 
-    @pytest.fixture
-    def headers(self, logged_in_user):
-        token = jwt.encode({"user_id": dumps(str(logged_in_user.id)),
-                            "is_master": logged_in_user.master_role}, current_app.config['SECRET'],
-                           current_app.config['ALGORITHM'])
-        headers = {
-            'Authorization': token
-        }
-        return headers
+    # @pytest.fixture
+    # def headers(self, logged_in_user):
+    #     token = jwt.encode({"user_id": dumps(str(logged_in_user.id)),
+    #                         "is_master": logged_in_user.master_role}, current_app.config['SECRET'],
+    #                        current_app.config['ALGORITHM'])
+    #     headers = {
+    #         'Authorization': token
+    #     }
+    #     return headers
 
     class Describe_index:
         @pytest.fixture
@@ -77,11 +76,8 @@ class Describe_CommentView:
 
         class Context_user가_로그인_하지_않은경우:
             @pytest.fixture
-            def headers(self):
-                headers = {
-                    'Authorization': None
-                }
-                return headers
+            def logged_in_user(self):
+                return None
 
             def test_401이_반환된다(self, subject):
                 assert subject.status_code == 401
@@ -146,11 +142,8 @@ class Describe_CommentView:
 
         class Context_user가_로그인_하지_않은경우:
             @pytest.fixture
-            def headers(self):
-                headers = {
-                    'Authorization': None
-                }
-                return headers
+            def logged_in_user(self):
+                return None
 
             def test_401이_반환된다(self, subject):
                 assert subject.status_code == 401
@@ -203,11 +196,8 @@ class Describe_CommentView:
 
         class Context_user가_로그인_하지_않은경우:
             @pytest.fixture
-            def headers(self):
-                headers = {
-                    'Authorization': None
-                }
-                return headers
+            def logged_in_user(self):
+                return None
 
             def test_401이_반환된다(self, subject):
                 assert subject.status_code == 401
@@ -260,11 +250,8 @@ class Describe_CommentView:
 
         class Context_user가_로그인_하지_않은경우:
             @pytest.fixture
-            def headers(self):
-                headers = {
-                    'Authorization': None
-                }
-                return headers
+            def logged_in_user(self):
+                return None
 
             def test_401이_반환된다(self, subject):
                 assert subject.status_code == 401
@@ -309,11 +296,8 @@ class Describe_CommentView:
 
         class Context_user가_로그인_하지_않은경우:
             @pytest.fixture
-            def headers(self):
-                headers = {
-                    'Authorization': None
-                }
-                return headers
+            def token(self):
+                return uuid.uuid4()
 
             def test_401이_반환된다(self, subject):
                 assert subject.status_code == 401
@@ -370,11 +354,8 @@ class Describe_CommentView:
 
         class Context_user가_로그인_하지_않은경우:
             @pytest.fixture
-            def headers(self):
-                headers = {
-                    'Authorization': None
-                }
-                return headers
+            def logged_in_user(self):
+                return None
 
             def test_401이_반환된다(self, subject):
                 assert subject.status_code == 401
