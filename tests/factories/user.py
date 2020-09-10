@@ -2,6 +2,8 @@ import factory
 from factory.mongoengine import MongoEngineFactory
 
 from app.models import User
+from factory import fuzzy
+
 
 class UserFactory(MongoEngineFactory):
     class Meta:
@@ -14,3 +16,6 @@ class UserFactory(MongoEngineFactory):
 
 class MasterUserFactory(UserFactory):
     master_role = True
+
+class FakeTokenFactory(MongoEngineFactory):
+    token = fuzzy.FuzzyText(length=100)

@@ -63,7 +63,7 @@ class PostView(FlaskView):
         try:
             post = Post.objects(id=post_id, board=board_id).get()
 
-            if not post.check_user_auth(g.user_id, g.master_role):
+            if not g.master_role and not post.is_author(g.user_id):
                 return jsonify(message='권한이 없는 사용자입니다'), 403
 
             data = PostUpdateSchema().load(json.loads(request.data))
@@ -91,7 +91,6 @@ class PostView(FlaskView):
             return jsonify(message='권한이 없는 사용자입니다'), 403
 
         post.soft_delete()
-
         return '', 200
 
     @route('/<post_ids>', methods=['DELETE'])

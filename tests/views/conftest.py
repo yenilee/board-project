@@ -1,6 +1,7 @@
 import jwt
+import pytest
+
 from flask import current_app
-from jedi.plugins import pytest
 from bson.json_util import dumps as bson_dumps
 
 
@@ -14,11 +15,13 @@ def token(logged_in_user):
     else:
         return None
 
-
 @pytest.fixture
 def headers(token):
-    headers = {
-        'Authorization': token
-    }
+    if token:
+        headers = {
+            'Authorization': token
+        }
+    else:
+        headers = None
     return headers
 

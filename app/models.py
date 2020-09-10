@@ -45,7 +45,7 @@ class Post(Document):
         if str(user) in self.likes:
             self.update(pull__likes=str(user))
 
-    def soft_delete(self, user):
+    def soft_delete(self):
         self.update(is_deleted=True)
 
     def is_author(self, user_id):
