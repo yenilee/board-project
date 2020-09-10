@@ -14,7 +14,7 @@ class BoardCreateSchema(Schema):
 
     @post_load
     def make_boards(self, data, **kwargs):
-        # if Board.objects(name=data['name'], is_deleted=False):
-        #     return {'message': '이미 등록된 게시판입니다.'}, 409
-        board = Board(**data)
-        return board
+        if Board.objects(name=data['name'], is_deleted=False).count() == 0:
+            board = Board(**data)
+            return board
+        return False

@@ -6,10 +6,10 @@ from flask import jsonify, request, g
 from app.utils import login_required, check_board, board_create_validator, pagination
 from app.models import Board, Post, User
 from app.serializers.board import BoardCategorySchema, BoardCreateSchema
-
+from app.serializers.post import PostListSchema
 
 class BoardView(FlaskView):
-    @route('', methods=['GET'])
+    @route('/categories', methods=['GET'])
     def get_category(self):
         """
         게시판 카테고리 조회 API
@@ -29,24 +29,15 @@ class BoardView(FlaskView):
         작성자: dana
         :return: message
         """
-        # 유저의 권한 확인
+        # Permission Check
         if g.master_role is False:
             return {'message': '권한이 없는 사용자입니다.'}, 403
 
         board = BoardCreateSchema().load(json.loads(request.data))
+        if board is False:
+            return {'message': '이미 등록된 게시판입니다.'}, 400
         board.save()
         return '', 200
-        # data = json.loads(request.data)
-        # board_name = data['board_name']
-        #
-        # # 현재 존재하는 board와 이름 중복 확인
-        # if Board.objects(name=board_name, is_deleted=False):
-        #     return jsonify(message='이미 등록된 게시판입니다.'), 409
-        #
-        # board = Board(name=board_name)
-        # board.save()
-        #
-        # return jsonify(message='등록되었습니다.'), 200
 
 
     @route('/<board_id>', methods=['GET'])
@@ -90,7 +81,7 @@ class BoardView(FlaskView):
         :param board_id: 게시판 objectId
         :return: message
         """
-        # 유저의 권한 확인
+        # Permission Check
         if not g.master_role:
             return jsonify(message='권한이 없는 사용자입니다.'), 403
 
@@ -193,8 +184,8 @@ class BoardView(FlaskView):
         :return: 최신 게시글 10개
         """
         posts = Post.objects(is_deleted=False).order_by('-created_at').limit(10)
-        post = [post.to_json_list() for post in posts.all()]
-        return jsonify(data=post),200
+        latest_post_list = PostListSchema(many=True).dump(posts)
+        return {'latest_post_list': latest_post_list}, 200
 
 
     @route('/ranking/comments', methods=['GET'])
