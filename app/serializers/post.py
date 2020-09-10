@@ -54,3 +54,18 @@ class PostListSchema(Schema):
 
     def count_comments(self, obt):
         return len(Comment.objects(post=obt.id))
+
+
+class PostListInBoardSchema(PostListSchema):
+    class Meta:
+        fields = ['id', 'author', 'title', 'total_likes_count', 'total_comments_count', 'created_at']
+
+
+class PaginatedPostsSchema(Schema):
+    total = fields.Integer()
+    items = fields.Nested(PostListSchema, many=True)
+
+
+class PaginatedPostsInBoardSchema(Schema):
+    total = fields.Integer()
+    items = fields.Nested(PostListInBoardSchema, many=True)

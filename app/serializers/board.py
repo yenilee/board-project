@@ -14,7 +14,7 @@ class BoardCreateSchema(Schema):
 
     @post_load
     def make_boards(self, data, **kwargs):
-        if Board.objects(name=data['name'], is_deleted=False).count() == 0:
+        if not Board.objects(name=data['name'], is_deleted=False):
             board = Board(**data)
             return board
         return False

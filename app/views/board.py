@@ -6,7 +6,8 @@ from flask import jsonify, request, g
 from app.utils import login_required, check_board, board_create_validator, pagination
 from app.models import Board, Post, User
 from app.serializers.board import BoardCategorySchema, BoardCreateSchema
-from app.serializers.post import PostListSchema
+from app.serializers.post import PostListSchema, PaginatedPostsInBoardSchema
+
 
 class BoardView(FlaskView):
     @route('/categories', methods=['GET'])
@@ -34,40 +35,29 @@ class BoardView(FlaskView):
             return {'message': '권한이 없는 사용자입니다.'}, 403
 
         board = BoardCreateSchema().load(json.loads(request.data))
+
         if board is False:
             return {'message': '이미 등록된 게시판입니다.'}, 400
+
         board.save()
         return '', 200
 
 
     @route('/<board_id>', methods=['GET'])
     @check_board
-    def get(self, board_id):
+    def get(self, board_id, page=1):
         """
         게시판 글 조회 API
         작성자: dana
         :param board_id: 게시판 objectId
         :return: 게시판 글 목록 (제목, 내용, 작성자 등)
         """
-        page = request.args.get('page', 1, int)
+        if request.args:
+            page = int(request.args.get('page'))
 
-        # pagination
-        limit = 10
-        skip = (page - 1) * limit
-
-        post_list = Post.objects(board=board_id, is_deleted=False).order_by('-created_at').limit(limit).skip(skip)
-        total_number_of_post = Post.objects(board=board_id, is_deleted=False).count()
-        post_data=[
-            {"total": total_number_of_post,
-             "posts": [{"number": n,
-                        "id": post.post_id,
-                        "author": post.author.account,
-                        "title": post.title,
-                        "created_at": post.created_at.strftime('%Y-%m-%d-%H:%M:%S'),
-                        "likes": len(post.likes)}
-                    for n, post in zip(range(total_number_of_post - skip, 0, -1), post_list)]}]
-
-        return jsonify(post_data[0]), 200
+        posts = Post.objects(board=board_id, is_deleted=False).order_by('-created_at').paginate(page=page, per_page=10)
+        post_list = PaginatedPostsInBoardSchema().dump(posts)
+        return post_list, 200
 
 
     @route('/<board_id>', methods=['PUT'])
