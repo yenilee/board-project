@@ -6,7 +6,7 @@ from flask import jsonify, request, g
 from app.utils import login_required, check_board, board_create_validator, pagination
 from app.models import Board, Post, User
 from app.serializers.board import BoardCategorySchema, BoardCreateSchema
-from app.serializers.post import PostListSchema, PaginatedPostsInBoardSchema
+from app.serializers.post import PostListSchema, PaginatedPostsInBoardSchema, HighRankingPostListSchema
 
 
 class BoardView(FlaskView):
@@ -194,11 +194,17 @@ class BoardView(FlaskView):
                                    "is_deleted": False}}],
                          "as": "comments"}},
             {"$project": {
-                "number_of_comment": {"$size": "$comments"}}},
-            {"$sort": {"number_of_comment": -1}},
+                "board": "$board",
+                "title": "$title",
+                "author": "$author",
+                "total_comments_count": {"$size": "$comments"},
+                "total_likes_count": {"$size": "$likes"}}},
+            {"$sort": {"total_comments_count": -1}},
             {"$limit": 10}
         ]
 
         posts = Post.objects(is_deleted=False).aggregate(pipeline)
-        post = [Post.objects(id=post['_id']).get().to_json_list() for post in posts]
-        return jsonify(data=post), 200
+        post_list = HighRankingPostListSchema(many=True).dump(posts)
+        # post = [Post.objects(id=post['_id']).get().to_json_list() for post in posts]
+        # return jsonify(data=post), 200
+        return {'post_list': post_list}, 200

@@ -3,7 +3,7 @@ from flask import g
 from marshmallow import fields, Schema, post_load, pre_load
 from .user import UserSchema
 from .board import BoardCategorySchema
-from app.models import Post, Comment
+from app.models import Post, Comment, Board, User
 
 
 class PostCreateSchema(Schema):
@@ -69,3 +69,24 @@ class PaginatedPostsSchema(Schema):
 class PaginatedPostsInBoardSchema(Schema):
     total = fields.Integer()
     items = fields.Nested(PostListInBoardSchema, many=True)
+
+
+class HighRankingPostListSchema(Schema):
+    id = fields.String(attribute="_id")
+    board = fields.Method('get_board_id_and_name')
+    author = fields.Method('get_author_id_and_name')
+    title = fields.Str()
+    total_likes_count = fields.Integer()
+    total_comments_count = fields.Integer()
+    created_at = fields.DateTime(dump_only=True)
+
+    def get_board_id_and_name(self, obj):
+        board_id = obj['board']
+        return {"id": str(board_id),
+                "name": Board.objects(id=board_id).get().name}
+
+    def get_author_id_and_name(self, obj):
+        author_id = obj['author']
+        return {"id": str(author_id),
+                "account": User.objects(id=author_id).get().account}
+
