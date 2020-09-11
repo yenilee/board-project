@@ -6,7 +6,7 @@ from flask_classful import FlaskView, route
 from bson import ObjectId
 
 from app.models import Comment
-from app.serializers.comment import CommentCreateSchema, CommentUpdateSchema, PaginatedCommentsSchema
+from app.serializers.comment import CommentCreateSchema, CommentUpdateSchema, PaginatedCommentsSchema, CommentListWithReplySchema
 from app.utils import check_board, check_comment, check_post, login_required, comment_update_validator, comment_create_validator
 
 
@@ -30,10 +30,10 @@ class CommentView(FlaskView):
         if request.args:
             page = int(request.args.get('page'))
 
-        result = Comment.objects(post=post_id).order_by('-created_at').paginate(page=page, per_page=10)
-        comments = PaginatedCommentsSchema().dump(result)
+        result = Comment.objects(post=post_id).order_by('-created_at')
+        comments = CommentListWithReplySchema(many=True).dump(result)
 
-        return comments, 200
+        return {"comments" : comments}, 200
 
 
     @route('', methods=['POST'])
