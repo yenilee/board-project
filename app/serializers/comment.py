@@ -43,5 +43,4 @@ class ReplySchema(CommentSchema):
     fields = ["id", "author", "content", "created_at"]
 
 class CommentListWithReplySchema(CommentSchema):
-    comments = fields.Nested(CommentSchema)
     fields = ["id", "author", "content", "total_likes_count", "created_at"]

@@ -30,10 +30,10 @@ class CommentView(FlaskView):
         if request.args:
             page = int(request.args.get('page'))
 
-        result = Comment.objects(post=post_id).order_by('-created_at')
-        comments = CommentListWithReplySchema(many=True).dump(result)
+        result = Comment.objects(post=post_id, is_reply=False).order_by('-created_at').paginate(page=page, per_page=10)
+        comments = PaginatedCommentsSchema().dump(result)
 
-        return {"comments" : comments}, 200
+        return comments, 200
 
 
     @route('', methods=['POST'])

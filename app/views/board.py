@@ -152,18 +152,17 @@ class BoardView(FlaskView):
         """
         pipeline = [
             {"$project": {
-                "number_of_likes": {"$size": "$likes"}}},
-            {"$sort":
-                 {"number_of_likes": -1}},
+                "board": "$board",
+                "title": "$title",
+                "author": "$author",
+                "total_likes_count": {"$size": "$likes"}}},
+            {"$sort": {"total_likes_count": -1}},
             {"$limit": 10}
         ]
         posts = Post.objects(is_deleted=False).aggregate(pipeline)
-        top_likes = [Post.objects(id=post['_id']).get().to_json_list() for post in posts]
+        post_list = HighRankingPostListSchema(many=True).dump(posts)
 
-        # posts = [post.to_json_list() for post in Post.objects]
-        # top_likes = sorted(posts, key=lambda post : post['likes'], reverse=True)[:9]
-
-        return jsonify({"orderby_likes": top_likes}), 200
+        return jsonify({"most_liked_posts": post_list}), 200
 
 
     @route('/ranking/latest', methods=['GET'])
