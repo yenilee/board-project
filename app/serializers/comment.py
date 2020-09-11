@@ -25,7 +25,7 @@ class CommentSchema(Schema):
     content = fields.Str(required=True)
     total_likes_count = fields.Method('count_likes')
     created_at = fields.DateTime(required=True)
-    is_replied = fields.Bool(required=True)
+    is_reply = fields.Bool(required=True)
 
     def count_likes(self, obj):
         return len(obj.likes)
@@ -39,8 +39,9 @@ class PaginatedCommentsSchema(Schema):
     total = fields.Integer()
     items = fields.Nested(CommentSchema, many=True)
 
-class CommentListSchema(CommentSchema):
-    post = fields.Nested(PostSummarySchema)
+class ReplySchema(CommentSchema):
+    fields = ["id", "author", "content", "created_at"]
 
-class ReplyCommentSchema(CommentSchema):
-    pass
+class CommentListWithReplySchema(CommentSchema):
+    comments = fields.Nested(CommentSchema)
+    fields = ["id", "author", "content", "total_likes_count", "created_at"]
