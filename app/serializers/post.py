@@ -1,6 +1,4 @@
-from flask import g
-
-from marshmallow import fields, Schema, post_load, pre_load
+from marshmallow import fields, Schema, post_load
 from .user import UserSchema
 from .board import BoardCategorySchema
 from app.models import Post, Comment, Board, User
@@ -90,3 +88,7 @@ class HighRankingPostListSchema(Schema):
         return {"id": str(author_id),
                 "account": User.objects(id=author_id).get().account}
 
+
+class PostSummarySchema(Schema):
+    id = fields.Str(dump_only=True)
+    title = fields.Str()
