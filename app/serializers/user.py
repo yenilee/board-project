@@ -1,8 +1,7 @@
-from marshmallow import fields, Schema, post_load
 import bcrypt
 
+from marshmallow import fields, Schema, post_load
 from app.models import User
-
 
 
 class UserSchema(Schema):
@@ -10,6 +9,13 @@ class UserSchema(Schema):
     account = fields.Str(required=True, unique=True)
     password = fields.Str(required=True, load_only=True)
     created_at = fields.DateTime(load_only=True)
+
+    @post_load
+    def check_users(self, data, **kwargs):
+        if not User.objects(account=data['account']):
+            return False
+        else:
+            return User.objects(account=data['account']).get()
 
 
 class UserCreateSchema(Schema):

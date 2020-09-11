@@ -1,5 +1,6 @@
 import datetime
 import enum
+import bcrypt
 
 from flask_mongoengine import Document
 from mongoengine import (StringField, DateTimeField, ReferenceField,
@@ -20,6 +21,12 @@ class User(Document):
     @property
     def email(self):
         return self.account
+
+    def check_password(self, request_password):
+        if not bcrypt.checkpw(request_password.encode('utf-8'), self.password.encode('utf-8')):
+            return False
+        else:
+            return True
 
 
 class Board(Document):
