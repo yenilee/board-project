@@ -4,6 +4,7 @@ import bcrypt
 from app.models import User
 
 
+
 class UserSchema(Schema):
     id = fields.Str()
     account = fields.Str(required=True, unique=True)
@@ -23,3 +24,4 @@ class UserCreateSchema(Schema):
             user = User(**data)
             return user
         return False
+

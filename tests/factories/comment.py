@@ -25,4 +25,4 @@ class DeletedCommentFactory(CommentFactory):
 
 
 class RepliedCommentFactory(CommentFactory):
-    is_replied = factory.LazyAttribute(lambda _: True)
+    is_reply = factory.LazyAttribute(lambda _: True)

@@ -60,7 +60,7 @@ class Comment(Document):
     likes = ListField(StringField())
     created_at = DateTimeField(required=True, default=datetime.datetime.now)
     is_deleted = BooleanField(required=True, default=False)
-    is_replied = BooleanField(required=True, default=False)
+    is_reply = BooleanField(required=True, default=False)
 
     @property
     def like_count(self):

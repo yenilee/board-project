@@ -158,14 +158,14 @@ class CommentView(FlaskView):
         :param comment_id: 댓글 objectId
         :return: message
         """
-        if Comment.objects(id=comment_id).get().is_replied:
+        if Comment.objects(id=comment_id).get().is_reply:
             return {'message': '답글을 달 수 없는 댓글입니다.'}, 400
 
         reply = CommentCreateSchema().load(json.loads(request.data))
         reply.author = ObjectId(g.user_id)
         reply.post = ObjectId(post_id)
         reply.reply = ObjectId(comment_id)
-        reply.is_replied = True
+        reply.is_reply = True
         reply.save()
 
         return '', 200
