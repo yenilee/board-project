@@ -18,3 +18,6 @@ class BoardCreateSchema(Schema):
             board = Board(**data)
             return board
         return False
+
+class BoardUpdateSchema(Schema):
+    name = fields.Str(required=True, validate=Length(min=1))
