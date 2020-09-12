@@ -28,10 +28,21 @@ class User(Document):
         else:
             return True
 
+    def get_user_account(self, user_id):
+        if user_id in self.id:
+            return self.account
+
+
 
 class Board(Document):
     name = StringField(max_length=50, required=True)
     is_deleted = BooleanField(required=True, default=False)
+
+    def is_duplicate(self, board_name):
+        if board_name in self.name:
+            return True
+        else:
+            return False
 
 
 class Post(Document):

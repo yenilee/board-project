@@ -1,4 +1,4 @@
-from marshmallow import fields, Schema, post_load
+from marshmallow import fields, Schema, post_load, INCLUDE
 from .user import UserSchema
 from .board import BoardCategorySchema
 from app.models import Post, Comment, Board, User
@@ -88,7 +88,25 @@ class HighRankingPostListSchema(Schema):
         return {"id": str(author_id),
                 "account": User.objects(id=author_id).get().account}
 
-
-class PostSummarySchema(Schema):
-    id = fields.Str(dump_only=True)
+class PostFilterSchema(Schema):
+    tags = fields.Str()
+    author = fields.Str()
     title = fields.Str()
+    page = fields.Str()
+
+    @post_load
+    def filter_post(self, data, page=1,**kwargs):
+        post = Post.objects()
+        if 'tags' in data:
+            post = post(tags__in=data['tags'].split())
+
+        if 'title' in data:
+            post = post(title__contains=data['title'])
+
+        if 'author' in data:
+            post = post(author__exact=User.objects(account=data['author']).get().id)
+
+        if 'page' in data:
+            page = int(data.get('page'))
+
+        return post, page

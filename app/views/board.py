@@ -2,11 +2,12 @@ import json
 
 from flask_classful import FlaskView, route
 from flask import jsonify, request, g
+from marshmallow import ValidationError
 
-from app.utils import login_required, check_board, board_create_validator, pagination
+from app.utils import login_required, check_board, board_create_validator
 from app.models import Board, Post, User
-from app.serializers.board import BoardCategorySchema, BoardCreateSchema
-from app.serializers.post import PostListSchema, PaginatedPostsInBoardSchema, HighRankingPostListSchema
+from app.serializers.board import BoardCategorySchema, BoardCreateSchema, BoardUpdateSchema
+from app.serializers.post import PostListSchema, PaginatedPostsInBoardSchema, HighRankingPostListSchema, PaginatedPostsSchema, PostFilterSchema
 
 
 class BoardView(FlaskView):
@@ -63,7 +64,6 @@ class BoardView(FlaskView):
     @route('/<board_id>', methods=['PUT'])
     @login_required
     @check_board
-    # @board_validator
     def update(self, board_id):
         """
         게시판 이름 수정 API
@@ -71,22 +71,26 @@ class BoardView(FlaskView):
         :param board_id: 게시판 objectId
         :return: message
         """
-        # Permission Check
-        if not g.master_role:
-            return jsonify(message='권한이 없는 사용자입니다.'), 403
+        try:
+            if not g.master_role:
+                return jsonify(message='권한이 없는 사용자입니다.'), 403
 
-        data = json.loads(request.data)
+            data = BoardUpdateSchema().load(json.loads(request.data))
+            board = Board.objects(id=board_id, is_deleted=False).get()
 
-        # 변경할 게시판 이름 중복 여부 체크
-        if Board.objects(name=data['board_name'], is_deleted=False):
-            return jsonify(message='이미 등록된 게시판입니다.'), 409
+            if board.is_duplicate(data['name']):
+                return jsonify(message='이미 등록된 게시판입니다.'), 409
 
-        Board.objects(id=board_id).update(name=data['board_name'])
-        return jsonify(message='수정되었습니다.'), 200
+            board.update(**data)
+            return '', 200
+
+        except ValidationError as err:
+            return err.messages, 422
 
 
     @route('/<board_id>', methods=['DELETE'])
     @login_required
+    @check_board
     def delete(self, board_id):
         """
         게시판 삭제 API
@@ -97,50 +101,28 @@ class BoardView(FlaskView):
         if not g.master_role:
             return jsonify(message='권한이 없는 사용자입니다.'), 403
 
-        if Board.objects(id=board_id, is_deleted=False):
-            Board.objects(id=board_id).update(is_deleted=True)
-            return jsonify(message='삭제되었습니다.'), 200
+        board = Board.objects(id=board_id, is_deleted=False).get()
+        board.update(is_deleted=True)
 
-        return jsonify(message='없는 게시판입니다.'), 404
+        return jsonify(message='삭제되었습니다.'), 200
 
 
-    @route('/<board_id>/search', methods=['GET'])
-    @check_board
-    def search(self, board_id, filters=None, posts=None):
+    @route('/search', methods=['GET'])
+    def search(self):
         """
         게시글 검색 API
         작성자: avery
-        :param board_id: 게시판 objectId
-        :param filters: 필터(태그, 글제목, 작성자)
-        :param posts: 게시글 객체
-        :return: 검색된 게시글 10개
+        :return: 전체 게시판에서 검색된 게시글 10개
         """
-        filters = request.args
-        posts = Post.objects(board=board_id)
+        try:
+            filtered_posts, page = PostFilterSchema().load(request.args)
+            result = PaginatedPostsSchema().dump(filtered_posts.paginate(page=page, per_page=10))
+            return result, 200
 
-        # 속성__in argument는 순서를 맨앞으로 하면 잘 돌아가고, 맨 뒤에 넣으면 앞의 필터들이 리셋됨.
-        if 'tags' in filters:
-            tags = filters['tags'].split()
-            posts = Post.objects(board=board_id, tags__in=tags)
-
-        if 'title' in filters:
-            posts = posts(title__contains=filters['title'])
-
-        if 'author' in filters:
-            user_id = User.objects(account=filters['author']).get().id
-            posts = posts(author__exact=user_id)
-
-        if filters is None or posts is None:
-            return jsonify(message='내용을 검색해주세요'), 400
-
-        number_of_posts = len(posts)
-
-        # 필터링한 객체들을 받아 json형태로 만들고, 페이지네이션
-
-        post = [post.to_json_list() for post in
-                pagination(posts.all().order_by('-post_id'))]
-
-        return jsonify({"total": number_of_posts, "post": post}), 200
+        except ValidationError as err:
+            return err.messages, 422
+        except:
+            return jsonify(message='일치하는 결과가 없습니다.'), 400
 
 
     @route('/ranking/likes', methods=['GET'])
@@ -155,7 +137,7 @@ class BoardView(FlaskView):
                 "board": "$board",
                 "title": "$title",
                 "author": "$author",
-                "total_likes_count": {"$size": "$likes"}}},
+                "total_likes_count" : {"$size" :"$likes"}}},
             {"$sort": {"total_likes_count": -1}},
             {"$limit": 10}
         ]

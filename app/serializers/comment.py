@@ -2,7 +2,6 @@ from marshmallow import fields, Schema, post_load
 from marshmallow.validate import Length
 
 from .user import UserSchema
-from .post import PostSummarySchema
 from app.models import Comment
 
 

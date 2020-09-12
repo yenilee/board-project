@@ -83,7 +83,7 @@ class UserView(FlaskView):
 
         comments = Comment.objects(author=g.user_id, is_deleted=False, is_reply=False).order_by('-created_at').paginate(page=page, per_page=10)
         my_comments = PaginatedCommentsSchema().dump(comments)
-        return jsonify(my_comments  ), 200
+        return jsonify(my_comments), 200
 
 
     @route('/liked-posts', methods=['GET'])
