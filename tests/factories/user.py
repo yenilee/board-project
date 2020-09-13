@@ -17,5 +17,6 @@ class UserFactory(MongoEngineFactory):
 class MasterUserFactory(UserFactory):
     master_role = factory.LazyAttribute(lambda _: True)
 
+
 class FakeTokenFactory(MongoEngineFactory):
     token = fuzzy.FuzzyText(length=100)
