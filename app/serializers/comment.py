@@ -37,7 +37,7 @@ class CommentListWithReplySchema(CommentGetSchema):
     replies = fields.Method('get_replies')
 
     def get_replies(self, obj):
-        return CommentGetSchema(many=True).dump(Comment.objects(reply=obj.id, is_deleted=False))
+        return CommentGetSchema(many=True).dump(Comment.objects(replied_comment=obj.id, is_deleted=False))
 
 class PaginatedCommentsSchema(Schema):
     total = fields.Integer()

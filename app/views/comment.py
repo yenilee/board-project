@@ -164,7 +164,7 @@ class CommentView(FlaskView):
         reply = CommentCreateSchema().load(json.loads(request.data))
         reply.author = ObjectId(g.user_id)
         reply.post = ObjectId(post_id)
-        reply.reply = ObjectId(comment_id)
+        reply.replied_comment = ObjectId(comment_id)
         reply.is_reply = True
         reply.save()
 
