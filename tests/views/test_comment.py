@@ -2,7 +2,7 @@ from json import dumps
 import uuid
 import factory
 import pytest
-from flask import current_app, url_for
+from flask import url_for
 
 from tests.factories.post import PostFactory
 from tests.factories.user import UserFactory, MasterUserFactory
@@ -18,16 +18,6 @@ class Describe_CommentView:
     @pytest.fixture
     def logged_in_user(self):
         return UserFactory.create()
-
-    # @pytest.fixture
-    # def headers(self, logged_in_user):
-    #     token = jwt.encode({"user_id": dumps(str(logged_in_user.id)),
-    #                         "is_master": logged_in_user.master_role}, current_app.config['SECRET'],
-    #                        current_app.config['ALGORITHM'])
-    #     headers = {
-    #         'Authorization': token
-    #     }
-    #     return headers
 
     class Describe_index:
         @pytest.fixture

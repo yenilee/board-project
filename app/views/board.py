@@ -204,6 +204,4 @@ class BoardView(FlaskView):
 
         posts = Post.objects(is_deleted=False).aggregate(pipeline)
         post_list = HighRankingPostListSchema(many=True).dump(posts)
-        # post = [Post.objects(id=post['_id']).get().to_json_list() for post in posts]
-        # return jsonify(data=post), 200
         return {'post_list': post_list}, 200

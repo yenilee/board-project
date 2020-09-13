@@ -30,7 +30,7 @@ class User(Document):
 
 
 class Board(Document):
-    name = StringField(max_length=50, required=True)
+    name = StringField(required=True)
     is_deleted = BooleanField(required=True, default=False)
 
 
