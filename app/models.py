@@ -28,11 +28,6 @@ class User(Document):
         else:
             return True
 
-    def get_user_account(self, user_id):
-        if user_id in self.id:
-            return self.account
-
-
 
 class Board(Document):
     name = StringField(required=True)
@@ -73,7 +68,7 @@ class Post(Document):
 class Comment(Document):
     post = ReferenceField(Post)
     author = ReferenceField(User)
-    reply = ReferenceField('self')
+    replied_comment = ReferenceField('self')
     content = StringField()
     likes = ListField(StringField())
     created_at = DateTimeField(required=True, default=datetime.datetime.now)
