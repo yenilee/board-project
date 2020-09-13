@@ -2,11 +2,13 @@ from json import dumps
 import factory
 import pytest
 import arrow
+import datetime
 from flask import url_for
 
 from tests.factories.board import BoardFactory, DeletedBoardFactory
 from tests.factories.user import UserFactory, MasterUserFactory
 from tests.factories.post import PostFactory, DeletedPostFactory
+from tests.factories.comment import CommentFactory
 from app.models import Board, Post
 
 
@@ -137,6 +139,7 @@ class Describe_BoardView:
 
             assert body['total'] == 1
             assert body['items'][0]['title'] == post.title
+            assert body['items'][0]['id'] == str(post.id)
 
         class Context_board에_post가_없는_경우:
             @pytest.fixture
@@ -165,3 +168,59 @@ class Describe_BoardView:
 
                 assert body['total'] == 0
                 assert body['items'] == []
+
+    class Describe_order_by_latest:
+        @pytest.fixture
+        def form(self):
+            for post_form in range(0, 10):
+                PostFactory.create(created_at=factory.Faker('date_between').generate())
+
+        @pytest.fixture
+        def post(self):
+            return PostFactory.create(created_at=arrow.utcnow().format('YYYY-MM-DD HH:mm:ss'))
+
+        @pytest.fixture
+        def subject(self, client, headers, post, form):
+            url = url_for('BoardView:order_by_latest')
+            return client.get(url, headers=headers)
+
+        def test_200이_반환된다(self, subject):
+            assert subject.status_code == 200
+
+        def test_10개의_post_list가_반환된다(self, subject):
+            body = subject.json
+
+            assert len(body['latest_post_list']) == 10
+
+        def test_post_list에서_첫번째_post가_제일_최근에_생성된_post이다(self, subject, post):
+            body = subject.json
+            latest_post = body['latest_post_list'][0]
+
+            assert latest_post['title'] == post.title
+            assert latest_post['id'] == str(post.id)
+
+        def test_post_list에_위쪽에_위치한_post의_create_time이_더_최근이다(self, subject):
+            body = subject.json
+            posts = body['latest_post_list']
+            post_number = 0
+            while post_number < 9:
+                if posts[post_number]['created_at'] >= posts[post_number+1]['created_at']:
+                    post_number += 1
+                elif posts[post_number]['created_at'] < posts[post_number+1]['created_at']:
+                    break
+            assert post_number == 9
+
+
+    # class Describe_order_by_comments:
+    #     @pytest.fixture
+    #     def form(self):
+    #         for comment_form in range(0, 10):
+    #             CommentFactory.create()
+    #
+    #     @pytest.fixture
+    #     def subject(self, client, headers, form):
+    #         url = url_for('BoardView:order_by_comments')
+    #         return client.get(url, headers=headers)
+    #
+    #     def test_200이_반환된다(self, subject):
+    #         assert subject.status_code == 200
