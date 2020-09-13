@@ -23,22 +23,20 @@ class CommentGetSchema(Schema):
     author = fields.Nested(UserSchema, dump_only=("id", "account"))
     content = fields.Str(required=True)
     total_likes_count = fields.Method('count_likes')
+    replies = fields.Method('get_replies')
     created_at = fields.DateTime(required=True)
 
     def count_likes(self, obj):
         return len(obj.likes)
+
+    def get_replies(self, obj):
+        return CommentGetSchema(many=True).dump(Comment.objects(replied_comment=obj.id, is_deleted=False))
 
 
 class CommentSearchParamSchema(Schema):
     page = fields.Integer()
 
 
-class CommentListWithReplySchema(CommentGetSchema):
-    replies = fields.Method('get_replies')
-
-    def get_replies(self, obj):
-        return CommentGetSchema(many=True).dump(Comment.objects(replied_comment=obj.id, is_deleted=False))
-
 class PaginatedCommentsSchema(Schema):
     total = fields.Integer()
-    items = fields.Nested(CommentListWithReplySchema, many=True)
+    items = fields.Nested(CommentGetSchema, many=True)

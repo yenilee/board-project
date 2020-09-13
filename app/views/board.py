@@ -126,7 +126,7 @@ class BoardView(FlaskView):
 
 
     @route('/ranking/likes', methods=['GET'])
-    def get_main_likes(self):
+    def order_by_likes(self):
         """
         메인페이지: 좋아요 많은 글 조회 API
         작성자: avery
