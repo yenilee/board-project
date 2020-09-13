@@ -137,7 +137,7 @@ class BoardView(FlaskView):
                 "board": "$board",
                 "title": "$title",
                 "author": "$author",
-                "total_likes_count" : {"$size" :"$likes"}}},
+                "total_likes_count": {"$size": "$likes"}}},
             {"$sort": {"total_likes_count": -1}},
             {"$limit": 10}
         ]

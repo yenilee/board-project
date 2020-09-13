@@ -48,7 +48,7 @@ class UserView(FlaskView):
         if not user.check_password(login_request['password']):
             return {'message': '잘못된 비밀번호 입니다.'}, 401
 
-        token = jwt.encode({"user_id" : dumps(user.id), "is_master" : user.master_role},
+        token = jwt.encode({"user_id": dumps(user.id), "is_master": user.master_role},
                            current_app.config['SECRET'], current_app.config['ALGORITHM'])
 
         return jsonify(token.decode('utf-8')), 200
