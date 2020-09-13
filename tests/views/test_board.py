@@ -1,11 +1,13 @@
 from json import dumps
 import factory
 import pytest
+import arrow
 from flask import url_for
 
 from tests.factories.board import BoardFactory, DeletedBoardFactory
 from tests.factories.user import UserFactory, MasterUserFactory
-from app.models import Board
+from tests.factories.post import PostFactory, DeletedPostFactory
+from app.models import Board, Post
 
 
 class Describe_BoardView:
@@ -115,3 +117,51 @@ class Describe_BoardView:
                 def test_board_갯수가_증가한다(self, subject):
                     total_board_count = Board.objects().count()
                     assert total_board_count == 2
+
+
+    class Describe_get:
+        @pytest.fixture
+        def post(self, board):
+            return PostFactory.create(board=board)
+
+        @pytest.fixture
+        def subject(self, client, headers, board, post):
+            url = url_for('BoardView:get', board_id=board.id)
+            return client.get(url, headers=headers)
+
+        def test_200이_반환된다(self, subject):
+            assert subject.status_code == 200
+
+        def test_게시글_list가_반환된다(self, subject, post):
+            body = subject.json
+
+            assert body['total'] == 1
+            assert body['items'][0]['title'] == post.title
+
+        class Context_board에_post가_없는_경우:
+            @pytest.fixture
+            def post(self):
+                return None
+
+            def test_200이_반환된다(self, subject):
+                assert subject.status_code == 200
+
+            def test_빈_list가_반환된다(self, subject):
+                body = subject.json
+
+                assert body['total'] == 0
+                assert body['items'] == []
+
+        class Context_board_가_soft_delete상태인_경우:
+            @pytest.fixture
+            def post(self, board):
+                return DeletedPostFactory.create(board=board)
+
+            def test_200이_반환된다(self, subject):
+                assert subject.status_code == 200
+
+            def test_빈_list가_반환된다(self, subject):
+                body = subject.json
+
+                assert body['total'] == 0
+                assert body['items'] == []
