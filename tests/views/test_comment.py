@@ -34,6 +34,31 @@ class Describe_CommentView:
             assert body['total'] == 0
             assert body['items'] == []
 
+        class Context_대댓글이_추가된경우:
+
+            @pytest.fixture
+            def comment(self, post):
+                return CommentFactory.create(post=post, is_reply=False)
+
+            @pytest.fixture
+            def reply(self, comment, post):
+                return RepliedCommentFactory.create(post=post, replied_comment=comment, is_reply=True)
+
+            @pytest.fixture
+            def subject(self, client, post, comment, reply):
+                url = url_for('CommentView:index', board_id=post.board.id, post_id=post.id, comment_id=comment.id)
+                return client.get(url)
+
+            def test_200이_반환된다(self, subject):
+                assert subject.status_code == 200
+
+            def test_reply가_포함된_결과가_반환된다(self, subject, post, comment, reply):
+                body = subject.json
+
+                assert body['total'] == 1
+                assert body['items'][0]['id'] == str(comment.id)
+                assert body['items'][0]['replies'][0]['id'] == str(reply.id)
+
 
     class Describe_post:
         @pytest.fixture
@@ -349,3 +374,4 @@ class Describe_CommentView:
 
             def test_401이_반환된다(self, subject):
                 assert subject.status_code == 401
+

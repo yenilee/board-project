@@ -28,7 +28,7 @@ class CommentView(FlaskView):
         :return: 게시글(작성자, 제목, 내용, 좋아요, 태그)
         """
         if request.args:
-            page = int(request.args.get('page'))
+            page = int(request.args.get('page', 1))
 
         result = Comment.objects(post=post_id, is_reply=False, is_deleted=False).order_by('created_at').paginate(page=page, per_page=10)
         comments = PaginatedCommentsSchema().dump(result)
