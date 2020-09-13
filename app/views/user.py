@@ -1,12 +1,11 @@
 import json
-import bcrypt
 import jwt
 
 from flask_classful import FlaskView, route
 from flask import jsonify, request, g, current_app
 from bson.json_util import dumps
 
-from app.models import User, Post, Comment
+from app.models import Post, Comment
 from app.utils import login_required, user_validator, user_create_validator
 from app.serializers.user import UserCreateSchema, UserSchema
 from app.serializers.post import PaginatedPostsSchema, PaginatedPostsInBoardSchema
@@ -56,7 +55,7 @@ class UserView(FlaskView):
 
     @route('/posts', methods=['GET'])
     @login_required
-    def my_post(self, page=1):
+    def my_posts(self, page=1):
         """
         마이페이지: 사용자 작성 게시물 조회 API
         작성자: avery
@@ -72,7 +71,7 @@ class UserView(FlaskView):
 
     @route('/comments', methods=['GET'])
     @login_required
-    def my_comment(self, page=1):
+    def my_comments(self, page=1):
         """
         마이페이지: 사용자 작성 댓글 조회 API
         작성자: avery
