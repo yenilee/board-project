@@ -16,6 +16,7 @@ bcrypt = "^3.2.0"
 flask_apispec = "^0.10.0"
 flask_mongoengine = "^0.9.5"
 arrow = "^0.16.0"
+pytest-factoryboy = "^2.0.3"
 
 [tool.poetry.dev-dependencies]
 mongomock = "^3.20.0"

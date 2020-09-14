@@ -43,7 +43,7 @@ version = "0.16.0"
 python-dateutil = ">=2.7.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Atomic file writes."
 marker = "sys_platform == \"win32\""
 name = "atomicwrites"
@@ -52,7 +52,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "1.4.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Classes Without Boilerplate"
 name = "attrs"
 optional = false
@@ -109,7 +109,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 version = "7.1.2"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Cross-platform colored terminal text."
 marker = "sys_platform == \"win32\""
 name = "colorama"
@@ -151,7 +151,7 @@ apipkg = ">=1.4"
 testing = ["pre-commit"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "A versatile test fixtures replacement based on thoughtbot's factory_bot for Ruby."
 name = "factory-boy"
 optional = false
@@ -166,7 +166,7 @@ dev = ["coverage", "django", "flake8", "isort", "pillow", "sqlalchemy", "mongoen
 doc = ["sphinx", "sphinx-rtd-theme"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Faker is a Python package that generates fake data for you."
 name = "faker"
 optional = false
@@ -274,7 +274,7 @@ WTForms = "*"
 itsdangerous = "*"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "A port of Ruby on Rails inflector to Python"
 name = "inflection"
 optional = false
@@ -404,7 +404,7 @@ sentinels = "*"
 six = "*"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "More routines for operating on iterables, beyond itertools"
 name = "more-itertools"
 optional = false
@@ -412,7 +412,7 @@ python-versions = ">=3.5"
 version = "8.5.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Core utilities for Python packages"
 name = "packaging"
 optional = false
@@ -455,7 +455,7 @@ python-versions = "*"
 version = "0.7.5"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "plugin and hook calling mechanisms for python"
 name = "pluggy"
 optional = false
@@ -486,7 +486,7 @@ python-versions = "*"
 version = "0.6.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
 name = "py"
 optional = false
@@ -541,7 +541,7 @@ tls = ["ipaddress"]
 zstd = ["zstandard"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Python parsing module"
 name = "pyparsing"
 optional = false
@@ -549,7 +549,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 version = "2.4.7"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "pytest: simple powerful testing with Python"
 name = "pytest"
 optional = false
@@ -597,7 +597,7 @@ version = "0.6.2"
 pytest = ">=2.6.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Factory Boy support for pytest."
 name = "pytest-factoryboy"
 optional = false
@@ -694,7 +694,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 version = "1.15.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "The most basic Text::Unidecode port"
 name = "text-unidecode"
 optional = false
@@ -716,7 +716,7 @@ ipython-genutils = "*"
 test = ["pytest"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Measures the displayed width of unicode strings in a terminal"
 name = "wcwidth"
 optional = false
@@ -770,7 +770,7 @@ ipaddress = ["ipaddress"]
 locale = ["Babel (>=1.3)"]
 
 [metadata]
-content-hash = "1bf0219b66cc9c13ae8f9d73f68d828664da68d14e6617bf387dc5460f765251"
+content-hash = "fb84886c21fb37993d3eaae6d334ad4c17114460ced58e9a4245a6d7408f68f2"
 lock-version = "1.0"
 python-versions = "^3.8"
 

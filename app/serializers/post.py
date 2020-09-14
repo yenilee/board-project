@@ -1,4 +1,4 @@
-from marshmallow import fields, Schema, post_load, INCLUDE
+from marshmallow import fields, Schema, post_load
 from .user import UserSchema
 from .board import BoardCategorySchema
 from app.models import Post, Comment, Board, User
