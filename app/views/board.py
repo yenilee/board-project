@@ -53,8 +53,8 @@ class BoardView(FlaskView):
         if request.args:
             page = int(request.args.get('page'))
 
-        posts = Post.objects(board=board_id, is_deleted=False).order_by('-created_at').paginate(page=page, per_page=10)
-        post_list = PaginatedPostsInBoardSchema().dump(posts)
+        recent_10_posts = Post.objects(board=board_id, is_deleted=False).order_by('-created_at').paginate(page=page, per_page=10)
+        post_list = PaginatedPostsInBoardSchema().dump(recent_10_posts)
         return post_list, 200
 
 
