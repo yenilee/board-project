@@ -36,7 +36,7 @@ class BoardView(FlaskView):
             return {'message': '권한이 없는 사용자입니다.'}, 403
 
         if board is False:
-            return {'message': '이미 등록된 게시판입니다.'}, 400
+            return {'message': '이미 등록된 게시판입니다.'}, 409
 
         board.save()
         return '', 200
