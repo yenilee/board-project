@@ -1,8 +1,10 @@
-from json import dumps
+import bcrypt
 import pytest
 import uuid
 import factory
+
 from flask import url_for
+from json import dumps
 
 from tests.factories.board import BoardFactory
 from tests.factories.post import PostFactory
@@ -232,3 +234,49 @@ class Describe_UserView:
 
             def test_409가_반환된다(self, subject):
                 assert subject.status_code == 409
+
+    class Describe_signin:
+
+        @pytest.fixture
+        def signup_user(self):
+            user = UserFactory.create(account='avery', password='abc123')
+            user.password = bcrypt.hashpw(user.password.encode('utf8'), bcrypt.gensalt()).decode('utf-8')
+            return user
+
+        @pytest.fixture
+        def form(self):
+            return {
+                "account": 'avery',
+                "password": 'abc123'
+            }
+
+        @pytest.fixture(autouse=True)
+        def subject(self, client, form, signup_user):
+            url = url_for('UserView:signin')
+            return client.post(url, data=dumps(form))
+
+        class Context_다른_계정으로_접근할경우:
+
+            @pytest.fixture
+            def form(self, form):
+                form['account'] = 'dana'
+                return form
+
+            def test_401이_반환된다(self, subject):
+                assert subject.status_code == 401
+                assert subject.json['message'] == '존재하지 않는 사용자입니다.'
+
+        # class Context_정상요청:
+        #     def test_200이_반환된다(self, subject):
+        #         assert subject.status_code == 200
+        #
+        # class Context_비밀번호가_틀린경우:
+        #
+        #     @pytest.fixture
+        #     def form(self, form):
+        #         form['password'] = 'defg456'
+        #         return form
+        #
+        #     def test_401이_반환된다(self, subject):
+        #         assert subject.status_code == 401
+        #         assert subject.json['message'] == '잘못된 비밀번호 입니다.'
