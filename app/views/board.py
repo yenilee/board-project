@@ -29,11 +29,11 @@ class BoardView(FlaskView):
         게시판 생성 API
         :return: message
         """
+        board = BoardCreateSchema().load(json.loads(request.data))
+
         # Permission Check
         if g.master_role is False:
             return {'message': '권한이 없는 사용자입니다.'}, 403
-
-        board = BoardCreateSchema().load(json.loads(request.data))
 
         if board is False:
             return {'message': '이미 등록된 게시판입니다.'}, 400
