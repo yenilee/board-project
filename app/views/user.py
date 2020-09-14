@@ -91,7 +91,7 @@ class UserView(FlaskView):
         if request.args:
             page = int(request.args.get('page'))
 
-        posts = Post.objects(likes__exact=str(g.user_id), is_deleted=False).order_by('created_at').paginate(page=page, per_page=10)
-        liked_posts = PaginatedPostsSchema().dump(posts)
+        recent_10_liked_posts = Post.objects(likes__exact=str(g.user_id), is_deleted=False).order_by('-created_at').paginate(page=page, per_page=10)
+        my_liked_posts = PaginatedPostsSchema().dump(recent_10_liked_posts)
 
-        return liked_posts, 200
+        return my_liked_posts, 200

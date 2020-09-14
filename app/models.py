@@ -79,13 +79,13 @@ class Comment(Document):
     def like_count(self):
         return len(self.likes)
 
-    def soft_delete(self, logged_in_user_id, logged_in_user_auth):
+    def soft_delete(self):
         self.update(is_deleted=True)
 
-    def like(self, logged_in_user_id):
-        if str(logged_in_user_id) not in self.likes:
-            self.update(push__likes=str(logged_in_user_id))
+    def like(self, user_id):
+        if str(user_id) not in self.likes:
+            self.update(push__likes=str(user_id))
 
-    def cancel_like(self, logged_in_user_id):
-        if str(logged_in_user_id) in self.likes:
-            self.update(pull__likes=str(logged_in_user_id))
+    def cancel_like(self, user_id):
+        if str(user_id) in self.likes:
+            self.update(pull__likes=str(user_id))

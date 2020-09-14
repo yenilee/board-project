@@ -33,9 +33,9 @@ class MainView(FlaskView):
         메인페이지: 최신 글 조회 API
         :return: 최신 게시글 10개
         """
-        posts = Post.objects(is_deleted=False).order_by('-created_at').limit(10)
-        latest_post_list = PostListSchema(many=True).dump(posts)
-        return {'posts': latest_post_list}, 200
+        latest_10_posts = Post.objects(is_deleted=False).order_by('-created_at').limit(10)
+        post_list = PostListSchema(many=True).dump(latest_10_posts)
+        return {'posts': post_list}, 200
 
 
     @route('/top10/many-comments-posts', methods=['GET'])
@@ -62,6 +62,6 @@ class MainView(FlaskView):
             {"$limit": 10}
         ]
 
-        posts = Post.objects(is_deleted=False).aggregate(pipeline)
-        post_list = HighRankingPostListSchema(many=True).dump(posts)
+        top_10_many_comments_posts = Post.objects(is_deleted=False).aggregate(pipeline)
+        post_list = HighRankingPostListSchema(many=True).dump(top_10_many_comments_posts)
         return {'posts': post_list}, 200

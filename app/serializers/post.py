@@ -96,7 +96,7 @@ class PostFilterSchema(Schema):
     page = fields.Str()
 
     @post_load
-    def filter_post(self, data, page=1,**kwargs):
+    def filter_post(self, data, page=1, **kwargs):
         post = Post.objects()
         if 'tags' in data:
             post = post(tags__in=data['tags'].split())

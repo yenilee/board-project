@@ -54,6 +54,7 @@ class CommentView(FlaskView):
         comment.save()
         return '', 200
 
+
     @route('<comment_id>', methods=['PUT'])
     @login_required
     @check_board
@@ -98,7 +99,7 @@ class CommentView(FlaskView):
         if comment.author.id != ObjectId(g.user_id) and g.master_role is False:
             return {'message': '권한이 없습니다.'}, 403
 
-        comment.soft_delete(g.user_id, g.master_role)
+        comment.soft_delete()
         return '', 200
 
 
@@ -152,10 +153,11 @@ class CommentView(FlaskView):
         :param comment_id: 댓글 objectId
         :return: message
         """
+        reply = CommentCreateSchema().load(json.loads(request.data))
+
         if Comment.objects(id=comment_id).get().is_reply:
             return {'message': '답글을 달 수 없는 댓글입니다.'}, 400
 
-        reply = CommentCreateSchema().load(json.loads(request.data))
         reply.author = ObjectId(g.user_id)
         reply.post = ObjectId(post_id)
         reply.replied_comment = ObjectId(comment_id)
