@@ -5,7 +5,7 @@ from app.views.user import UserView
 from app.views.board import BoardView
 from app.views.post import PostView
 from app.views.comment import CommentView
-
+from app.views.mainpage import MainView
 
 def handle_bad_request(e):
     return jsonify(message='잘못된 요청입니다.'), 404
@@ -38,5 +38,6 @@ def register_api(app):
     BoardView.register(app, route_base='/boards', trailing_slash=False)
     PostView.register(app, route_base='/boards/<board_id>/posts', trailing_slash=False)
     CommentView.register(app, route_base='/boards/<board_id>/posts/<post_id>/comments', trailing_slash=False)
+    MainView.register(app, route_base='/main', trailing_slash=False)
 
     register_error_handlers(app)
