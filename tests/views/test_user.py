@@ -2,8 +2,9 @@ import bcrypt
 import pytest
 import uuid
 import factory
+import jwt
 
-from flask import url_for
+from flask import url_for, current_app
 from json import dumps
 
 from tests.factories.board import BoardFactory
@@ -239,9 +240,7 @@ class Describe_UserView:
 
         @pytest.fixture
         def signup_user(self):
-            user = UserFactory.create(account='avery', password='abc123')
-            user.password = bcrypt.hashpw(user.password.encode('utf8'), bcrypt.gensalt()).decode('utf-8')
-            return user
+            return UserFactory.create(account='avery', password=bcrypt.hashpw('abc123'.encode('utf8'), bcrypt.gensalt()).decode('utf-8'))
 
         @pytest.fixture
         def form(self):
@@ -255,6 +254,16 @@ class Describe_UserView:
             url = url_for('UserView:signin')
             return client.post(url, data=dumps(form))
 
+
+        class Context_정상요청:
+            def test_200이_반환된다(self, subject):
+                assert subject.status_code == 200
+
+            # def test_토큰을_반환한다(self, subject, signup_user):
+            #     body = subject.json
+            #     assert body == dumps(jwt.encode({"user_id": dumps(signup_user.id), "is_master": signup_user.master_role},
+            #                current_app.config['SECRET'], current_app.config['ALGORITHM']).decode('utf-8'))
+
         class Context_다른_계정으로_접근할경우:
 
             @pytest.fixture
@@ -266,17 +275,13 @@ class Describe_UserView:
                 assert subject.status_code == 401
                 assert subject.json['message'] == '존재하지 않는 사용자입니다.'
 
-        # class Context_정상요청:
-        #     def test_200이_반환된다(self, subject):
-        #         assert subject.status_code == 200
-        #
-        # class Context_비밀번호가_틀린경우:
-        #
-        #     @pytest.fixture
-        #     def form(self, form):
-        #         form['password'] = 'defg456'
-        #         return form
-        #
-        #     def test_401이_반환된다(self, subject):
-        #         assert subject.status_code == 401
-        #         assert subject.json['message'] == '잘못된 비밀번호 입니다.'
+        class Context_비밀번호가_틀린경우:
+
+            @pytest.fixture
+            def form(self, form):
+                form['password'] = 'defg456'
+                return form
+
+            def test_401이_반환된다(self, subject):
+                assert subject.status_code == 401
+                assert subject.json['message'] == '잘못된 비밀번호 입니다.'
