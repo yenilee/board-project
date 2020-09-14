@@ -53,7 +53,7 @@ class Describe_CommentView:
             def test_200이_반환된다(self, subject):
                 assert subject.status_code == 200
 
-            def test_reply가_포함된_결과가_반환된다(self, subject, post, comment, reply):
+            def test_reply가_포함된_결과가_반환된다(self, subject, comment, reply):
                 body = subject.json
 
                 assert body['total'] == 1
