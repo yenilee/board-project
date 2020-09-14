@@ -15,7 +15,6 @@ class BoardView(FlaskView):
     def get_category(self):
         """
         게시판 카테고리 조회 API
-        작성자: dana
         :return: 게시판 카테고리
         """
         boards = Board.objects(is_deleted=False)
@@ -28,7 +27,6 @@ class BoardView(FlaskView):
     def post(self):
         """
         게시판 생성 API
-        작성자: dana
         :return: message
         """
         # Permission Check
@@ -49,7 +47,6 @@ class BoardView(FlaskView):
     def get(self, board_id, page=1):
         """
         게시판 글 조회 API
-        작성자: dana
         :param board_id: 게시판 objectId
         :return: 게시판 글 목록 (제목, 내용, 작성자 등)
         """
@@ -67,7 +64,6 @@ class BoardView(FlaskView):
     def update(self, board_id):
         """
         게시판 이름 수정 API
-        작성자: avery
         :param board_id: 게시판 objectId
         :return: message
         """
@@ -94,7 +90,6 @@ class BoardView(FlaskView):
     def delete(self, board_id):
         """
         게시판 삭제 API
-        작성자: avery
         :param board_id: 게시판 objectId
         :return: message
         """
@@ -111,7 +106,6 @@ class BoardView(FlaskView):
     def search(self):
         """
         게시글 검색 API
-        작성자: avery
         :return: 전체 게시판에서 검색된 게시글 10개
         """
         try:

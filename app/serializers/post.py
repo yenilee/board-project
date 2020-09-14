@@ -88,6 +88,7 @@ class HighRankingPostListSchema(Schema):
         return {"id": str(author_id),
                 "account": User.objects(id=author_id).get().account}
 
+
 class PostFilterSchema(Schema):
     tags = fields.Str()
     author = fields.Str()
