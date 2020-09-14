@@ -45,9 +45,8 @@ class PostView(FlaskView):
         :param post_id: 게시글 objectID
         :return: 게시글
         """
-        schema = PostDetailSchema()
         post = Post.objects(board=board_id, id=post_id).get()
-        return schema.dump(post), 200
+        return PostDetailSchema().dump(post), 200
 
     @route('/<post_id>', methods=['PUT'])
     @login_required
@@ -61,12 +60,12 @@ class PostView(FlaskView):
         :return: message
         """
         try:
+            data = PostUpdateSchema().load(json.loads(request.data))
             post = Post.objects(id=post_id, board=board_id).get()
 
             if not g.master_role and not post.is_author(g.user_id):
                 return jsonify(message='권한이 없는 사용자입니다'), 403
 
-            data = PostUpdateSchema().load(json.loads(request.data))
             post.update(**data)
             return '', 200
 

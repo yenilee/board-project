@@ -61,8 +61,8 @@ class UserView(FlaskView):
         if request.args:
             page = int(request.args.get('page'))
 
-        posts = Post.objects(author=g.user_id, is_deleted=False).order_by('-created_at').paginate(page=page, per_page=10)
-        my_posts = PaginatedPostsInBoardSchema().dump(posts)
+        recent_10_posts_by_user = Post.objects(author=g.user_id, is_deleted=False).order_by('-created_at').paginate(page=page, per_page=10)
+        my_posts = PaginatedPostsInBoardSchema().dump(recent_10_posts_by_user)
         return jsonify(my_posts), 200
 
 
@@ -76,8 +76,8 @@ class UserView(FlaskView):
         if request.args:
             page = int(request.args.get('page'))
 
-        comments = Comment.objects(author=g.user_id, is_deleted=False, is_reply=False).order_by('-created_at').paginate(page=page, per_page=10)
-        my_comments = PaginatedCommentsSchema().dump(comments)
+        recent_10_comments_by_user = Comment.objects(author=g.user_id, is_deleted=False, is_reply=False).order_by('-created_at').paginate(page=page, per_page=10)
+        my_comments = PaginatedCommentsSchema().dump(recent_10_comments_by_user)
         return jsonify(my_comments), 200
 
 
