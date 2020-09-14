@@ -20,11 +20,14 @@ class Describe_MainView:
     class Describe_order_by_latest:
         @pytest.fixture
         def posts(self):
-            PostFactory.create_batch(11)
-            PostFactory.create(created_at=factory.Faker('date_between').generate())
+            PostFactory.create_batch(11, created_at=factory.Faker('date_between').generate())
 
         @pytest.fixture
-        def subject(self, client, headers, posts):
+        def recent_post(self):
+            return PostFactory.create(created_at=arrow.utcnow().format('YYYY-MM-DD HH:mm:ss'))
+
+        @pytest.fixture
+        def subject(self, client, headers, posts, recent_post):
             url = url_for('MainView:order_by_latest')
             return client.get(url, headers=headers)
 
@@ -35,6 +38,13 @@ class Describe_MainView:
             body = subject.json
 
             assert len(body['posts']) == 10
+
+        def test_post_list에서_첫번째_post가_제일_최근에_생성된_post이다(self, subject, recent_post):
+            body = subject.json
+            latest_post = body['posts'][0]
+
+            assert latest_post['title'] == recent_post.title
+            assert latest_post['id'] == str(recent_post.id)
 
         def test_post_list에_위쪽에_위치한_post의_create_time이_더_최근이다(self, subject):
             body = subject.json

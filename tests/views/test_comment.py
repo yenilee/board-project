@@ -2,7 +2,6 @@ from json import dumps
 import uuid
 import factory
 import pytest
-import arrow
 from flask import url_for
 
 from tests.factories.post import PostFactory

@@ -10,7 +10,6 @@ class MainView(FlaskView):
     def order_by_likes(self):
         """
         메인페이지: 좋아요 많은 글 조회 API
-        작성자: avery
         :return: 좋아요 기준 게시글 10개
         """
         pipeline = [
@@ -32,7 +31,6 @@ class MainView(FlaskView):
     def order_by_latest(self):
         """
         메인페이지: 최신 글 조회 API
-        작성자: dana
         :return: 최신 게시글 10개
         """
         posts = Post.objects(is_deleted=False).order_by('-created_at').limit(10)
@@ -44,7 +42,6 @@ class MainView(FlaskView):
     def order_by_comments(self):
         """
         메인페이지: 댓글 많은 글 조회 API
-        작성자: dana
         :return: 댓글 기준 게시글 10개
         """
         pipeline = [

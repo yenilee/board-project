@@ -1,8 +1,6 @@
 from datetime import datetime
 
-import arrow
 import factory
-from faker import Faker
 from factory import fuzzy
 from factory.mongoengine import MongoEngineFactory
 

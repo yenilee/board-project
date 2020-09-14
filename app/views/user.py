@@ -18,7 +18,6 @@ class UserView(FlaskView):
     def signup(self):
         """"
         회원가입 API
-        작성자: dana
         :return: message
         """
         user = UserCreateSchema().load(json.loads(request.data))
@@ -35,7 +34,6 @@ class UserView(FlaskView):
     def signin(self):
         """
         로그인 API
-        작성자: avery
         :return: 로그인 인증 토큰
         """
         login_request = json.loads(request.data)
@@ -58,7 +56,6 @@ class UserView(FlaskView):
     def my_posts(self, page=1):
         """
         마이페이지: 사용자 작성 게시물 조회 API
-        작성자: avery
         :return: 최신 게시물 10개
         """
         if request.args:
@@ -74,7 +71,6 @@ class UserView(FlaskView):
     def my_comments(self, page=1):
         """
         마이페이지: 사용자 작성 댓글 조회 API
-        작성자: avery
         :return: 최신 댓글 10개
         """
         if request.args:
@@ -90,7 +86,6 @@ class UserView(FlaskView):
     def my_liked_post(self, page=1):
         """
         마이페이지: 사용자가 좋아요 한 글 조회 API
-        작성자: dana
         :return: 좋아요 한 글 10
         """
         if request.args:

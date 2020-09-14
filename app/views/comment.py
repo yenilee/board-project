@@ -44,7 +44,6 @@ class CommentView(FlaskView):
     def post(self, board_id, post_id):
         """
         댓글 생성 API
-        작성자: avery
         :param board_id: 게시판 objectId
         :param post_id: 게시글 objectId
         :return: message
@@ -64,7 +63,6 @@ class CommentView(FlaskView):
     def update(self, board_id, post_id, comment_id):
         """
         댓글 수정 API
-        작성자: avery
         :param board_id: 게시판 objectId
         :param post_id: 게시글 objectId
         :param comment_id: 댓글 objectId
@@ -89,7 +87,6 @@ class CommentView(FlaskView):
     def delete(self, board_id, post_id, comment_id):
         """
         댓글 삭제 API
-        작성자: avery
         :param board_id: 게시판 objectId
         :param post_id: 게시글 objectId
         :param comment_id: 댓글 objectId
@@ -113,7 +110,6 @@ class CommentView(FlaskView):
     def like_comment(self, board_id, post_id, comment_id):
         """
         댓글 좋아요 기능 API
-        작성자: dana
         :param board_id: 게시판 objectId
         :param post_id: 게시글 objectId
         :param comment_id: 댓글 objectId
@@ -132,7 +128,6 @@ class CommentView(FlaskView):
     def cancel_like_comment(self, board_id, post_id, comment_id):
         """
         댓글 좋아요 취소 기능 API
-        작성자: dana
         :param board_id: 게시판 objectId
         :param post_id: 게시글 objectId
         :param comment_id: 댓글 objectId
@@ -152,7 +147,6 @@ class CommentView(FlaskView):
     def post_reply(self, board_id, post_id, comment_id):
         """
         대댓글 생성 기능 API
-        작성자: dana
         :param board_id: 게시판 objectId
         :param post_id: 게시글 objectId
         :param comment_id: 댓글 objectId
