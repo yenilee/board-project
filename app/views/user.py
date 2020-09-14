@@ -40,7 +40,7 @@ class UserView(FlaskView):
         user = UserSchema().load(login_request)
 
         if not user:
-            return {'message' : '존재하지 않는 사용자입니다.'}, 401
+            return {'message': '존재하지 않는 사용자입니다.'}, 401
 
         if not user.check_password(login_request['password']):
             return {'message': '잘못된 비밀번호 입니다.'}, 401
