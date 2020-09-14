@@ -6,7 +6,7 @@ from app.serializers.post import PostListSchema,  HighRankingPostListSchema
 
 
 class MainView(FlaskView):
-    @route('/ranking/likes', methods=['GET'])
+    @route('/top10/liked-posts', methods=['GET'])
     def order_by_likes(self):
         """
         메인페이지: 좋아요 많은 글 조회 API
@@ -28,7 +28,7 @@ class MainView(FlaskView):
         return jsonify({"most_liked_posts": post_list}), 200
 
 
-    @route('/ranking/latest', methods=['GET'])
+    @route('/top10/latest-posts', methods=['GET'])
     def order_by_latest(self):
         """
         메인페이지: 최신 글 조회 API
@@ -40,7 +40,7 @@ class MainView(FlaskView):
         return {'posts': latest_post_list}, 200
 
 
-    @route('/ranking/comments', methods=['GET'])
+    @route('/top10/many-comments-posts', methods=['GET'])
     def order_by_comments(self):
         """
         메인페이지: 댓글 많은 글 조회 API
