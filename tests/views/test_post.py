@@ -1,8 +1,9 @@
-from json import dumps as json_dumps
-
 import factory
 import pytest
+import uuid
+
 from flask import url_for
+from json import dumps as json_dumps
 
 from app.models import Post
 from tests.factories.board import BoardFactory, DeletedBoardFactory
@@ -64,7 +65,7 @@ class Describe_PostView:
 
                 @pytest.fixture
                 def form(self, form):
-                    form['tags'] = 'tags'
+                    form['tags'] = 123
                     return form
 
                 def test_422가_반환된다(self, subject):
@@ -86,7 +87,7 @@ class Describe_PostView:
             class Context_유효하지_않은_토큰경우:
                 @pytest.fixture
                 def token(self):
-                    return 'a-invalid-token' # 임의의 난수 생성으로 고치기
+                    return uuid.uuid4()
 
                 def test_401이_반환된다(self, subject):
                     assert subject.status_code == 401
@@ -198,7 +199,7 @@ class Describe_PostView:
 
                 @pytest.fixture
                 def token(self):
-                    return 'a-invalid-token'
+                    return uuid.uuid4()
 
                 def test_401이_반환된다(self, subject):
                         assert subject.status_code == 401
@@ -277,7 +278,7 @@ class Describe_PostView:
 
                 @pytest.fixture
                 def token(self):
-                    return 'a-invalid-token'
+                    return uuid.uuid4()
 
                 def test_401이_반환된다(self, subject):
                         assert subject.status_code == 401
@@ -346,7 +347,7 @@ class Describe_PostView:
 
                 @pytest.fixture
                 def token(self):
-                    return 'a-invalid-token'
+                    return uuid.uuid4()
 
                 def test_401이_반환된다(self, subject):
                     assert subject.status_code == 401
@@ -409,7 +410,7 @@ class Describe_PostView:
 
                 @pytest.fixture
                 def token(self):
-                    return 'a-invalid-token'
+                    return uuid.uuid4()
 
                 def test_401이_반환된다(self, subject):
                         assert subject.status_code == 401
