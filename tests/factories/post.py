@@ -25,4 +25,3 @@ class PostFactory(MongoEngineFactory):
 
 class DeletedPostFactory(PostFactory):
     is_deleted = factory.LazyAttribute(lambda _: True)
-

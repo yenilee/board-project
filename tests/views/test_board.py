@@ -7,7 +7,7 @@ from json import dumps
 
 from tests.factories.board import BoardFactory, DeletedBoardFactory
 from tests.factories.user import UserFactory, MasterUserFactory
-from tests.factories.post import PostFactory, DeletedPostFactory, LikedPostFactory
+from tests.factories.post import PostFactory, DeletedPostFactory
 from app.models import Board
 
 
@@ -227,21 +227,21 @@ class Describe_BoardView:
     class Describe_order_by_likes:
 
         @pytest.fixture
-        def post(self, logged_in_user):
+        def post(self):
             for n in range(1,10):
-                LikedPostFactory.create()
-            LikedPostFactory.create(likes = [str(logged_in_user.id)])
+                PostFactory.create()
+            PostFactory.create(likes = ['user1'])
 
-        @pytest.fixture
+        @pytest.fixture(autouse=True)
         def subject(self, client, post):
             url = url_for('BoardView:order_by_likes')
-            return client.get(url, post)
+            return client.get(url)
 
         class Context_정상요청:
             def test_200이_반환된다(self, subject):
                 assert subject.status_code == 200
 
-            def test_10개의_post_list가_반환된다(self, subject, post):
+            def test_10개의_post_list가_반환된다(self, subject):
                 body = subject.json
                 assert len(body["most_liked_posts"]) == 10
 
@@ -250,14 +250,40 @@ class Describe_BoardView:
                 assert body["most_liked_posts"][0]['total_likes_count'] == 1
                 assert body["most_liked_posts"][1]['total_likes_count'] == 0
 
-            def test_첫번째_게시물의_좋아요가_가장_많다(self, subject):
+            def test_첫번째로_반환된_게시물의_좋아요가_가장_많다(self, subject, result=True):
                 body = subject.json
                 posts = body["most_liked_posts"]
-                result = True
                 for index in range(1, 10):
                     if posts[index-1]['total_likes_count'] < posts[index]['total_likes_count']:
                         result = False
                 assert result == True
+
+            class Context_좋아요가_더_많은_게시물이_생긴경우:
+
+                @pytest.fixture
+                def more_liked_post(self):
+                    PostFactory.create(likes=['user1', 'user2', 'user3'])
+
+                @pytest.fixture(autouse=True)
+                def subject(self, client, post, more_liked_post):
+                    url = url_for('BoardView:order_by_likes')
+                    return client.get(url)
+
+                def test_200이_반환된다(self, subject):
+                    assert subject.status_code == 200
+
+                def test_좋아요가_있는_게시물이_첫번째_인덱스로_반환된다(self, subject):
+                    body = subject.json
+                    assert body["most_liked_posts"][0]['total_likes_count'] == 3
+                    assert body["most_liked_posts"][1]['total_likes_count'] == 1
+
+                def test_첫번째로_반환된_게시물의_좋아요가_가장_많다(self, subject, result=True):
+                    body = subject.json
+                    posts = body["most_liked_posts"]
+                    for index in range(1, 10):
+                        if posts[index - 1]['total_likes_count'] < posts[index]['total_likes_count']:
+                            result = False
+                    assert result == True
 
 
 
