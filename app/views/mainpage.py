@@ -21,10 +21,10 @@ class MainView(FlaskView):
             {"$sort": {"total_likes_count": -1}},
             {"$limit": 10}
         ]
-        posts = Post.objects(is_deleted=False).aggregate(pipeline)
-        post_list = HighRankingPostListSchema(many=True).dump(posts)
+        top10_liked_posts = Post.objects(is_deleted=False).aggregate(pipeline)
+        posts_list = HighRankingPostListSchema(many=True).dump(top10_liked_posts)
 
-        return jsonify({"most_liked_posts": post_list}), 200
+        return jsonify({"posts": posts_list}), 200
 
 
     @route('/top10/latest-posts', methods=['GET'])
