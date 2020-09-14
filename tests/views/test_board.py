@@ -104,7 +104,7 @@ class Describe_BoardView:
                 return {'name': board.name}
 
             def test_400이_반환된다(self, subject):
-                assert subject.status_code == 400
+                assert subject.status_code == 409
 
             class Context_중복된_이름의_게시판이_soft_delete된_경우:
                 @pytest.fixture
