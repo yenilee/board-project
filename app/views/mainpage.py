@@ -37,7 +37,7 @@ class MainView(FlaskView):
         """
         posts = Post.objects(is_deleted=False).order_by('-created_at').limit(10)
         latest_post_list = PostListSchema(many=True).dump(posts)
-        return {'latest_post_list': latest_post_list}, 200
+        return {'posts': latest_post_list}, 200
 
 
     @route('/ranking/comments', methods=['GET'])
@@ -67,4 +67,4 @@ class MainView(FlaskView):
 
         posts = Post.objects(is_deleted=False).aggregate(pipeline)
         post_list = HighRankingPostListSchema(many=True).dump(posts)
-        return {'post_list': post_list}, 200
+        return {'posts': post_list}, 200
