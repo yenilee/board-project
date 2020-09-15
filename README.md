@@ -1,16 +1,20 @@
 # Board-project
 flask &amp; mongodb 활용 게시판 프로젝트
 
-## Stack we used  
+1. [stack we used](#stack)
+2. [package manager](#package)
+3. [spec](#spec)
+
+## <a name="stack"></a>Stack we used  
 - Flask
 - Flask-classful
 - mashmallow
 - MongoEngine
 
-## Package manager
+## <a name="package"></a>Package manager
 - Poetry
 
-## 구현 기능
+## <a name="spec"></a>spec
 - 회원
     - 회원가입
     - 로그인
