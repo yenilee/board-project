@@ -23,7 +23,7 @@ class Post(Document):
     title  = StringField(required=True, max_length=100)
     content    = StringField(required=True)
     created_at = DateTimeField(required=True, default=datetime.datetime.now)
-    likes      = ListField(ReferenceField(User))
+    likes    = ListField(ReferenceField(User))
     tag        = ListField()
     is_deleted = BooleanField(required=True, default=False)
     post_id    = IntField(min_value=1)
