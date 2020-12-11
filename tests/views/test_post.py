@@ -195,7 +195,7 @@ class Describe_PostView:
                 assert subject.status_code == 401
                 assert subject.json['message'] == '로그인하지 않은 사용자입니다.'
 
-            class Context_유효하지_않은_토큰으로_수정할경우:
+            class Context_유효하지_않은_토큰으로_수정할_경우:
 
                 @pytest.fixture
                 def token(self):
