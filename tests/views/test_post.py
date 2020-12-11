@@ -181,7 +181,7 @@ class Describe_PostView:
                 assert subject.status_code == 404
                 assert subject.json['message'] == '없는 게시물입니다.'
 
-        class Context_비로그인_사용자가_게시글을_수정하는경우:
+        class Context_비로그인_사용자가_게시글을_수정하는_경우:
 
             @pytest.fixture
             def post(self, board):
